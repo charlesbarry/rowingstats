@@ -27,7 +27,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
 	'localhost',
-	'stormy-lowlands-72472.herokuapp.com',
+	'stormy-lowlands-67472.herokuapp.com',
 	'rowingstats.com',
 ]
 
