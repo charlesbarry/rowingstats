@@ -1,13 +1,10 @@
 from django.db import models
 
-# To implement
-# Scores - a fk relationship with Rower. So can record history of scores over time.
-
 # commentary on the below
 # Race is M2- FA, Final of PA etc
 # Event is M2-, W2x, Temple, PA etc, IM14+
-# Competiton is HOCR, HRR, HORR, Marlow etc
-# View for Competiton - select each competition, 
+# Competition is HOCR, HRR, HORR, Marlow etc
+# View for Competition - select each competition, 
 # Then filter Events by year, generating page where you can select year
 # Then see Events for that year
 
@@ -30,6 +27,18 @@ class Event(models.Model):
 	
 	def __str__(self):
 		return str(self.comp.name) +": "+ self.name
+		
+	def next(self):
+		try:
+			return Event.objects.get(pk=self.pk+1)
+		except:
+			return None
+			
+	def previous(self):
+		try:
+			return Event.objects.get(pk=self.pk-1)
+		except:
+			return None
 	
 class Rower(models.Model):
 	name = models.CharField(max_length=100)
@@ -63,21 +72,34 @@ class Race(models.Model):
 	date = models.DateField("Race date")
 	raceclass = models.CharField("Class", max_length=100, null=True, blank=True)
 	event = models.ForeignKey(Event, on_delete=models.PROTECT)
+	# for separating TTs, Heats, SFs and Fs conducted on the same day
+	order_choices = (
+		('TT/Heat/Single race', 0),
+		('Semi-Final', 1),
+		('Final', 2),
+	)
+	order = models.PositiveSmallIntegerField(default=0, choices=order_choices)
 	
 	# to be implemented
 	# location = 
-	
-	'''type_choices = (
-		('Sweep', 'Sweep'),
-		('Sculling', 'Sculling'),
-	)
-	type = models.CharField(max_length=10, choices=type_choices)'''
-	
+
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
 
 	def __str__(self):
 		return self.name
+		
+	def next(self):
+		try:
+			return Race.objects.get(pk=self.pk+1)
+		except:
+			return None
+			
+	def previous(self):
+		try:
+			return Race.objects.get(pk=self.pk-1)
+		except:
+			return None
 		
 class Club(models.Model):
 	name = models.CharField(max_length=200)
@@ -120,8 +142,9 @@ class Score(models.Model):
 	sigma = models.FloatField(default=(25/3))
 	#date = models.DateField("Score date")
 	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
-	# used to access race name and date
-	race = models.ForeignKey(Race, on_delete=models.PROTECT)
+	# used to access race name and date - now done via result then race
+	#race = models.ForeignKey(Race, on_delete=models.PROTECT)
+	result = models.ForeignKey(Result, on_delete=models.PROTECT)
 	
 	def __str__(self):
-		return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.race.event.type)+" - "+str(self.race.date)
+		return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.result.race.event.type)+" - "+str(self.result.race.date)

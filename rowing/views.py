@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from dal import autocomplete
+#from dal import autocomplete
 from django.http import HttpResponse
 from django.shortcuts import render
 import datetime
 from django.core.management import call_command
 from django.urls import reverse_lazy
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.views.generic import ListView, DetailView, UpdateView
 from .models import Rower, Race, Result, Competition, Event, Score
@@ -27,11 +28,24 @@ class IndexView(ListView):
 	
 class RowerList(ListView):
 	model = Rower
-	paginate_by = 30
+	paginate_by = 50
 	ordering = ['name']
 	
-class RowerDetail(DetailView):
-	model = Rower
+def RowerDetail(request, pk):
+	context = {}
+	ptype = request.GET.get('type','Sweep')
+	
+	r1 = Rower.objects.get(pk=pk)
+	context['object'] = r1
+	try:
+		context['scores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('-result__race__date', '-result__race__order')
+		for item in context['scores']:
+			item.total_pos = len(Result.objects.filter(race__id=item.result.race.pk))
+	except ObjectDoesNotExist:
+		context['scores'] = None
+	#context['clubs'] = r1.result_set.all()
+	
+	return render(request, 'rowing/rower_detail.html', context)
 	
 class RaceList(ListView):
 	model = Race
@@ -81,7 +95,44 @@ def test_form(request):
 		# NB the template needs to have <form></form> wrapper around {{form}} and the submit mechanism made clear
 		return render(request, 'template.html', {'form':form})
 '''		
+'''
 class RankingList(ListView):
 	queryset = Rower.objects.all()
 	template_name = 'test'
 	ordering = ['sweep_mu']
+'''	
+def RankingView(request):
+
+	# to add on get parameter for scull/sweep
+	#ptype = "Sweep"
+	ptype = request.GET.get('type','Sweep')
+	
+	
+	# filter to ensure there is a minimum no of scores
+	min_length = 4
+	
+	# filter to ensure recency of result
+	cutoff_date = datetime.date(2016, 7, 5)
+	
+	rankings = []
+	
+	# gets the latest score for each rower
+	for rower in Rower.objects.all():
+		# perhaps put a try to skip rowers with no results
+		s2 = rower.score_set.filter(result__race__event__type=ptype)
+		
+		# filter by latest provided they have sufficient results
+		if len(s2) > min_length:
+			s1 = s2.latest('result__race__date')
+			# ensure the result is in the recent period
+			if s1.result.race.date > cutoff_date:
+				rankings.append({'name': rower.name, 'mu': s1.mu, 'id': rower.pk, 'sigma': s1.sigma, 'date': s1.result.race.date})
+	
+	# sort by mu, ie the second item in the sublist
+	#rankings = rankings.sorted(rankings, key = lambda x: x[1], reverse=True)
+	rankings = sorted(rankings, key = lambda x: (x['mu']-x['sigma']), reverse=True)
+	
+	# cutoff to top 50
+	rankings = rankings[:50]
+	
+	return render(request, 'rowing/ranking.html', {'rankings': rankings, 'type':ptype})

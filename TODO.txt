@@ -4,19 +4,29 @@ Things to do:
 3) DONE - Import stored data from csv via script
 4) DONE -  Write calculation management command and view to call this remotely
 5) DONE - Write view to add data neatly/efficiently
-6) Write view to see rowers ranked
-6B) Write view to see races/results per rower on rower detail view 
-6C) Update rower detail view to adapt to scores now being time series
+6) DONE - Write view to see rowers ranked
+6B) DONE - Write view to see races/results per rower on rower detail view 
+6C) DONE - Update rower detail view to adapt to scores now being time series
 7) Add more races!
 8) DONE - Investigate ways to make recalculator faster
 9) Add search/filtering capability on rowers in admin and frontend
 10) Figure out how to get this on Heroku
 11) DONE - Convert scores to scores over time
-11A) Write view to see these
+11A) DONE - Write view to see these
 12) Write homepage for rowing app
 13) DONE - add Clubs
-
 14) Create new events for GB trials to separate scull and sweep events (2014 TT in 1x is listed as Sweep)
+15) Experiment with Tau and other parameters to get the TS algo working best. Also Sam Arnot suggestion of limiting time period.
+15A) Dynamic Tau
+15B) DONE - Research draw probability for empirical data
+15C) DONE - Conduct error score analysis on the results
+15D) DONE - Fix ordering of races - confirm that sequence is being done correctly
+16) Create clubs view and see club membership by rower
+17) Add location to races
+18) Fix errors in existing data
+18A) Investigate Dominic Bennett further
+19) Write a check to make sure that no rower is in the same race twice
+20) Turn rankings into db table, rankings calcs into a management command
 
 Races to add:
 2016 Fours' Head - rest of 4+ results

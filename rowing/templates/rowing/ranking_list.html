@@ -2,6 +2,8 @@
 {% block title %}Sweep Rankings{% endblock %}
 {% block content %}
 <div class="row col-sm-12"><h2>Rankings - Sweep</h2></div>
+
+<div class="row col-sm-12"></div>
 <div class="row">
 	<ul>
 		{% for ranking in object_list %}
@@ -9,17 +11,4 @@
 		{% endfor %}
 	</ul>
 </div>
-{% if is_paginated %}
-	<div class="pagination">
-		{% if page_obj.has_previous %}
-			<a href="./?page={{ page_obj.previous_page_number }}">Previous</a> |
-		{% endif %}
-		<span class="page-current">
-			Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-		</span>
-		{% if page_obj.has_next %}
-			| <a href="./?page={{ page_obj.next_page_number }}">Next</a>
-		{% endif %}
-	</div>
-{% endif %}
 {% endblock %}

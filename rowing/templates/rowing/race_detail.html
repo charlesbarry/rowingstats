@@ -1,11 +1,52 @@
 {% extends "rowing/base.html" %}
-{% block title %}View athletes{% endblock %}
+{% block title %}{{object.name}} - Detail{% endblock %}
 {% block content %}
 <div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
-<div class="col-sm-12 row"><p>Rowing type: {{object.type}}</p></div>
-<div class="col-sm-12 row"><p>Date: {{object.date}}</p></div>
-<div class="col-sm-12 row"><p>Event class: {{object.raceclass}}</p></div>
-
-<div class="col-sm-12 row"><p>[List of results for this race go here]</p></div>
-<div class="col-sm-12 row"><p>Last updated: {{object.last_updated}}</p></div>
+<div class="col-sm-12 row"><p>Part of {{object.event.name}} in {{object.event.comp.name}}</p></div>
+<!--
+<div class="col-sm-12 row"><h3>Attributes</h3></div>
+<div class="row">
+	<div class="col-sm-4">Rowing type: {{object.type}}</p></div>
+	<div class="col-sm-4">Date: {{object.date}}</p></div>
+	<div class="col-sm-4">Event class: {{object.raceclass}}</p></div>
+	<div class="col-sm-4">Last updated: {{object.last_updated}}</p></div>
+</div>
+-->
+<div class="col-sm-12 row"><h3>Results</h3></div>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Position</th>
+			<th>Crew</th>
+			<th>Club</th>
+			<th>Flag</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if object.result_set %}
+		{% for rank in object.result_set.all %}
+		<tr>
+			<td>{{rank.position}}</td>
+			<td>
+				{% for member in rank.crew.all %}
+					<a href="/rowers/{{member.pk}}">{{member.name}}</a>&nbsp;
+				{% endfor %}
+			</td>
+			<td>
+				{% if rank.clubs.all %}
+					{% for member in rank.clubs.all %}
+						<a href="/clubs/{{member.pk}}">{{member.name}}</a>&nbsp;
+					{% endfor %}
+				{% else %}
+					<p>Club unknown</p>
+				{% endif %}
+			</td>
+			<td>{{rank.flag}}</td>
+		</tr>
+		{% endfor %}
+		{% else %}
+			<tr><td colspan="4"><p>No recorded scores</p></td></tr>
+		{% endif %}
+	</tbody>
+</table>
 {% endblock %}
