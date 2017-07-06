@@ -1,0 +1,21 @@
+from django.conf.urls import url, include
+from ajax_select import urls as ajax_select_urls
+
+from . import views
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingList
+urlpatterns = [
+	url(r'^$', views.current_datetime, name='index'),
+	url(r'^recalculate/$', views.CalculateView),
+	url(r'^index/$', views.IndexView.as_view(), name='index'),
+	url(r'^rowers/$', RowerList.as_view(), name="rower-list"),
+	url(r'^rowers/(?P<pk>[0-9]+)/$', RowerDetail.as_view(), name="rower-detail"),
+	url(r'^races/$', RaceList.as_view(), name="race-list"),
+	url(r'^races/(?P<pk>[0-9]+)/$', RaceDetail.as_view(), name="race-detail"),
+	url(r'^ranking/$', RankingList.as_view(), name="ranking"),
+	#url(r'^clubs/$', ClubList.as_view(), name="club-list"),
+	#url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
+	#url(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),
+	
+	#used in autoselect?
+	url(r'^ajax_select/', include(ajax_select_urls)),
+]

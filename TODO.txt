@@ -1,0 +1,31 @@
+Things to do:
+1) DONE - Rename app to rowing
+2) DONE - Clear database, reset pks
+3) DONE - Import stored data from csv via script
+4) DONE -  Write calculation management command and view to call this remotely
+5) DONE - Write view to add data neatly/efficiently
+6) Write view to see rowers ranked
+6B) Write view to see races/results per rower on rower detail view 
+6C) Update rower detail view to adapt to scores now being time series
+7) Add more races!
+8) DONE - Investigate ways to make recalculator faster
+9) Add search/filtering capability on rowers in admin and frontend
+10) Figure out how to get this on Heroku
+11) DONE - Convert scores to scores over time
+11A) Write view to see these
+12) Write homepage for rowing app
+13) DONE - add Clubs
+
+14) Create new events for GB trials to separate scull and sweep events (2014 TT in 1x is listed as Sweep)
+
+Races to add:
+2016 Fours' Head - rest of 4+ results
+HOCR 2016 and previous
+Marlow Regatta
+BUCS Regatta 2016 and 2017
+HRR previous results
+Holland Beker
+International Results - Olympics, World Champs, World Cup
+Pair's Head
+Ghent
+Previous Boat Races

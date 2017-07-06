@@ -1,0 +1,10 @@
+{% extends "rowing/base.html" %}
+{% block title %}View athletes{% endblock %}
+{% block content %}
+<div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
+<div class="col-sm-12 row"><p>[Picture will go here]</p></div>
+<div class="col-sm-12 row"><p>Sculling score: {{object.mu_scull|floatformat:2}} (Uncertainty: {{object.sigma_scull|floatformat:2}})</p></div>
+<div class="col-sm-12 row"><p>Sweep score: {{object.mu_sweep|floatformat:2}} (Uncertainty: {{object.sigma_sweep|floatformat:2}})</p></div>
+<div class="col-sm-12 row"><p>Gender: [object.gender]</p></div>
+<div class="col-sm-12 row"><p>Lightweight? [object.lightweight]</p></div>
+{% endblock %}

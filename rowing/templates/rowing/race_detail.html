@@ -1,0 +1,11 @@
+{% extends "rowing/base.html" %}
+{% block title %}View athletes{% endblock %}
+{% block content %}
+<div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
+<div class="col-sm-12 row"><p>Rowing type: {{object.type}}</p></div>
+<div class="col-sm-12 row"><p>Date: {{object.date}}</p></div>
+<div class="col-sm-12 row"><p>Event class: {{object.raceclass}}</p></div>
+
+<div class="col-sm-12 row"><p>[List of results for this race go here]</p></div>
+<div class="col-sm-12 row"><p>Last updated: {{object.last_updated}}</p></div>
+{% endblock %}
