@@ -23,8 +23,8 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% if object.result_set %}
-		{% for rank in object.result_set.all %}
+		{% if results %}
+		{% for rank in results %}
 		<tr>
 			<td>{{rank.position}}</td>
 			<td>

@@ -7,9 +7,10 @@ from django.core.management import call_command
 from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score
 
+# only used in development
 def CalculateView(request):
 	try:
 		call_command('recalculator')
@@ -23,7 +24,7 @@ def current_datetime(request):
     html = "<html><body>It is now %s.</body></html>" % now
     return HttpResponse(html)
 	
-class IndexView(ListView):
+class IndexView(TemplateView):
 	template_name = 'rowing/index.html'
 	
 class RowerList(ListView):
@@ -52,8 +53,16 @@ class RaceList(ListView):
 	paginate_by = 30
 	ordering = ['name']
 	
-class RaceDetail(DetailView):
-	model = Race
+'''class RaceDetail(DetailView):
+	model = Race'''
+	
+def RaceDetail(request, pk):
+	race = Race.objects.get(pk=pk)
+	results = Result.objects.filter(race__id=pk).order_by('position')
+	
+	context = {'object':race, 'results':results}
+	
+	return render(request, 'rowing/race_detail.html', context)
 	
 # in progress
 # Want /races to go to list of competitions
