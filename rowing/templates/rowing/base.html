@@ -4,19 +4,22 @@
 <html lang="en">
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
     <link rel="stylesheet" type="text/css" href="{% static 'rowing/css/bootstrap.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/bootstrap-theme.css' %}">
-	<script src="{% static 'rowing/js/bootstrap.min.js' %}"></script>
+
     <title>{% block title %}{% endblock %}</title>
 	{% block header_extra %}{% endblock %}
 </head>
 
 <body>
-	<nav class="navbar">
+	<div class="navbar-wrapper">
+	<div class="container">
+	<nav class="navbar navbar-default">
 		<div class="container">
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu1" aria-expanded="false">
-				<span class="sr-only">Toggle navigation</span>
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span> 
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
@@ -24,9 +27,9 @@
 			<a class="navbar-brand" href="/">Rowingstats.com</a>
 		</div>
 		
-		<div class="collapse navbar-collapse" id="menu1">
+		<div id="navbar" class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="/">Home</a></li>
+				<li><a href="/about">About</a></li>
 				<li><a href="/rowers/">Rowers</a></li>
 				<li><a href="/races/">Races</a></li>
 				<li><a href="/rankings/">Rankings</a></li>
@@ -34,17 +37,20 @@
 		</div>
 		</div>
 	</nav>
+	</div>
+	</div>
 	
     <div id="content" class="container">
         {% block content %}{% endblock %}
 		
-		<div class="well well-sm">Rowingstats.com  &copy; 2017</div>
+		
 		
     </div>
-	
+	<div class="container">
+	<div class="well well-sm">Rowingstats.com  &copy; 2017</div>
 	</div>
-	
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
    {% block footer %} {% endblock %}
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="{% static 'rowing/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

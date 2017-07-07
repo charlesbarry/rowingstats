@@ -148,3 +148,9 @@ class Score(models.Model):
 	
 	def __str__(self):
 		return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.result.race.event.type)+" - "+str(self.result.race.date)
+		
+'''class ScoreRanking(models.Model):
+	mu = models.FloatField(default=100.0)
+	sigma = models.FloatField(default=(25/3))
+	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
+	date = models.DateField("Race date")'''

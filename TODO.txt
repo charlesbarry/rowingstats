@@ -27,6 +27,7 @@ Things to do:
 18A) Investigate Dominic Bennett further
 19) Write a check to make sure that no rower is in the same race twice
 20) Turn rankings into db table, rankings calcs into a management command
+21) Write an about page
 
 Races to add:
 2016 Fours' Head - rest of 4+ results

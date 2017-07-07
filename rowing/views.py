@@ -27,6 +27,9 @@ def current_datetime(request):
 class IndexView(TemplateView):
 	template_name = 'rowing/index.html'
 	
+class AboutView(TemplateView):
+	template_name = 'rowing/about.html'
+	
 class RowerList(ListView):
 	model = Rower
 	paginate_by = 50

@@ -2,11 +2,12 @@ from django.conf.urls import url, include
 from ajax_select import urls as ajax_select_urls
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView
 urlpatterns = [
 	#url(r'^$', views.current_datetime, name='index'),
 	#url(r'^recalculate/$', views.CalculateView),
 	url(r'^$', views.IndexView.as_view(), name='index'),
+	url(r'^about/$', views.AboutView.as_view(), name='index'),
 	url(r'^rowers/$', RowerList.as_view(), name="rower-list"),
 	url(r'^rowers/(?P<pk>[0-9]+)/$', views.RowerDetail, name="rower-detail"),
 	url(r'^races/$', RaceList.as_view(), name="race-list"),
