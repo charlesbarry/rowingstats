@@ -15,6 +15,7 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		duplicates = []
+		unusuals = []
 		for trace in Race.objects.all():
 			checked = []
 			for tresult in trace.result_set.all():
@@ -23,6 +24,10 @@ class Command(BaseCommand):
 						duplicates.append([athlete.name, tresult.position, trace.name])
 					else:
 						checked.append(athlete)
+					
+				if tresult.crew.count() not in [1, 2, 4, 8]:
+					unusuals.append([tresult.crew.count(), trace.name])
+					#print("Unusual crew number (%s) found in %s" % (trace.name, tresult.crew.count()))
 		
 		if len(duplicates) > 0:
 			print("The following duplicates were found:")
@@ -31,3 +36,12 @@ class Command(BaseCommand):
 				
 		else:
 			print("No duplicates found")
+
+		if len(unusuals) > 0:
+			print("The following unusual crew numbers were found:")
+			for item in unusuals:
+				print(item[0], " - ", item[1])
+				
+		else:
+			print("No unusual crew numbers found")
+		

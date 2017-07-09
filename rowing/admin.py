@@ -1,5 +1,4 @@
 from django.contrib import admin
-#from dal import autocomplete
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
 

@@ -35,7 +35,8 @@ Things to do:
 25) Solve multiple parameters issue on rankings page.
 26) Switch the races page to look at competitions/events
 27) Create a system for contributing results by form
-28) Fix online admin CSRF issue
+28) DONE - Fix online admin CSRF issue
+29) Polish admin interface
 
 Races to add:
 (DONE) 2016 Fours' Head - rest of 4+ results
