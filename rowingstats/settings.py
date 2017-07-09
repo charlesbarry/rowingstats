@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
 	'localhost',
 	'stormy-lowlands-67472.herokuapp.com',
 	'rowingstats.com',
+	'www.rowingstats.com',
 ]
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
