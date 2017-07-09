@@ -1,10 +1,11 @@
 # custom command to recalculate scores based on data
 
 from django.core.management.base import BaseCommand, CommandError
-from rowing.models import Result, Rower, Race, Score, Event
+from rowing.models import Result, Rower, Race, Score, Event, ScoreRanking
 from trueskill import Rating, rate, setup
 from django.db import transaction
 from itertools import groupby
+import datetime
 
 DEFAULT_SIGMA = 10.0 #(25/3)
 DEFAULT_MU = 100.0
@@ -30,11 +31,23 @@ def update_ts(n, rgroups, type):
 				result = item,
 				rower = member,
 				)
+				
+@transaction.atomic
+def add_ranking(data):
+	ScoreRanking.objects.create(
+		mu = data['mu'],
+		sigma = data['sigma'],
+		delta_mu_sigma = data['delta_mu_sigma'],
+		rower = data['rower'],
+		date = data['date'],
+		type = data['type'],
+		)
 	
 @transaction.atomic
 def reset_scores():
 	# double_check what happens with on delete in models
 	Score.objects.all().delete()
+	ScoreRanking.objects.all().delete()
 	
 class Command(BaseCommand):
 	help = 'Recalculates the scores of rowers'
@@ -122,4 +135,18 @@ class Command(BaseCommand):
 			print("Race %s completed. (%s).\t Race error: %s \t (%s)" % (race_i.pk, str(count_progress)+"%", str(round(r_error,2)), race_i.name))
 			
 		print("Calculations completed. Total error was %s" % (str(round(error,2))))
-			
+		print("Beginning ranking calculations.")
+		
+		cutoff_date = datetime.date(2016, 7, 5)
+		min_length = 4
+		# gets the latest score for each rower
+		for rower in Rower.objects.all():
+			s2 = rower.score_set.all()
+			# filter by latest provided they have sufficient results
+			if len(s2) > min_length:
+				s1 = s2.latest('result__race__date')
+				# ensure the result is in the recent period
+				if s1.result.race.date > cutoff_date:
+					add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 'date': s1.result.race.date, 'type': s1.result.race.event.type})
+		
+		print("Completed ranking calculations")	

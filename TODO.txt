@@ -10,13 +10,13 @@ Things to do:
 7) Add more races!
 8) DONE - Investigate ways to make recalculator faster
 9) Add search/filtering capability on rowers in admin and frontend
-10) Figure out how to get this on Heroku
+10) DONE - Figure out how to get this on Heroku
 11) DONE - Convert scores to scores over time
 11A) DONE - Write view to see these
-12) Write homepage for rowing app
+12) DONE - Write homepage for rowing app
 13) DONE - add Clubs
-14) Create new events for GB trials to separate scull and sweep events (2014 TT in 1x is listed as Sweep)
-15) Experiment with Tau and other parameters to get the TS algo working best. Also Sam Arnot suggestion of limiting time period.
+14) DONE - Create new events for GB trials to separate scull and sweep events (2014 TT in 1x is listed as Sweep)
+15) DONE FOR NOW - Experiment with Tau and other parameters to get the TS algo working best. Also Sam Arnot suggestion of limiting time period.
 15A) Dynamic Tau
 15B) DONE - Research draw probability for empirical data
 15C) DONE - Conduct error score analysis on the results
@@ -28,9 +28,13 @@ Things to do:
 19) Write a check to make sure that no rower is in the same race twice
 20) Turn rankings into db table, rankings calcs into a management command
 21) Write an about page
+22) DONE - Change Heroku database over to paid one
+23) Write a view that shows all the members of a given club (by looking at the distinct crew list)
+24) Add differing default_mu values for international rowers
+25) Solve multiple parameters issue on rankings page.
 
 Races to add:
-2016 Fours' Head - rest of 4+ results
+(DONE) 2016 Fours' Head - rest of 4+ results
 HOCR 2016 and previous
 Marlow Regatta
 BUCS Regatta 2016 and 2017

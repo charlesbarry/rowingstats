@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
-from .models import Rower, Race, Result, Competition, Event, Score
+from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
 
 # only used in development
 def CalculateView(request):
@@ -74,6 +74,12 @@ class CompetitionList(ListView):
 	model = Competition
 	paginate_by = 30
 	ordering = ['name']
+	
+class ClubList(ListView):
+	model = Club
+	paginate_by = 50
+	ordering = ['name']	
+
 '''	
 # a test which is purely for education
 def test_form(request):
@@ -118,8 +124,9 @@ def RankingView(request):
 	# to add on get parameter for scull/sweep
 	#ptype = "Sweep"
 	ptype = request.GET.get('type','Sweep')
+	g = request.GET.get('g', 'M')
 	
-	
+	'''
 	# filter to ensure there is a minimum no of scores
 	min_length = 4
 	
@@ -146,5 +153,9 @@ def RankingView(request):
 	
 	# cutoff to top 50
 	rankings = rankings[:50]
+	'''
 	
-	return render(request, 'rowing/ranking.html', {'rankings': rankings, 'type':ptype})
+	rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')[:50]
+	#t1 = rankings[0].type
+	
+	return render(request, 'rowing/ranking.html', {'rankings': rankings, 'type': ptype})

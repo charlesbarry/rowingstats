@@ -74,9 +74,9 @@ class Race(models.Model):
 	event = models.ForeignKey(Event, on_delete=models.PROTECT)
 	# for separating TTs, Heats, SFs and Fs conducted on the same day
 	order_choices = (
-		('TT/Heat/Single race', 0),
-		('Semi-Final', 1),
-		('Final', 2),
+		(0, 'TT/Heat/Single race'),
+		(1, 'Semi-Final'),
+		(2, 'Final'),
 	)
 	order = models.PositiveSmallIntegerField(default=0, choices=order_choices)
 	
@@ -139,7 +139,7 @@ class Score(models.Model):
 	)
 	type = models.CharField(max_length=10, choices=type_choices, default='Sweep')'''
 	mu = models.FloatField(default=100.0)
-	sigma = models.FloatField(default=(25/3))
+	sigma = models.FloatField(default=10)
 	#date = models.DateField("Score date")
 	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
 	# used to access race name and date - now done via result then race
@@ -149,8 +149,10 @@ class Score(models.Model):
 	def __str__(self):
 		return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.result.race.event.type)+" - "+str(self.result.race.date)
 		
-'''class ScoreRanking(models.Model):
+class ScoreRanking(models.Model):
 	mu = models.FloatField(default=100.0)
-	sigma = models.FloatField(default=(25/3))
+	sigma = models.FloatField(default=10)
+	delta_mu_sigma = models.FloatField(default=90.0)
 	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
-	date = models.DateField("Race date")'''
+	date = models.DateField("Score date")
+	type = models.CharField(max_length=10, default='Sweep')
