@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')u*rr0ew2h-incv5v31uc+)8_x71rl1!blsc-7x3y4cj-bi^p^'
+SECRET_KEY = 'EM9i.fBMiMLNU1K79TYqJcCHd+\}VLTZ&l3D>=vIU`@uSK%>5]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -93,12 +93,8 @@ WSGI_APPLICATION = 'rowingstats.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rowingstats',
-		'USER': 'postgres',
-		'PASSWORD': 'root',
-		'HOST': '127.0.0.1',
-		'PORT': '5433',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

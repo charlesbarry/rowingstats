@@ -22,16 +22,20 @@ Things to do:
 15C) DONE - Conduct error score analysis on the results
 15D) DONE - Fix ordering of races - confirm that sequence is being done correctly
 16) Create clubs view and see club membership by rower
-17) Add location to races
+17) Add location to races or events
 18) Fix errors in existing data
 18A) Investigate Dominic Bennett further
-19) Write a check to make sure that no rower is in the same race twice
-20) Turn rankings into db table, rankings calcs into a management command
-21) Write an about page
+18B) Remove duplicates
+19) DONE - Write a check to make sure that no rower is in the same race twice
+20) DONE - Turn rankings into db table, rankings calcs into a management command
+21) DONE - Write an about page
 22) DONE - Change Heroku database over to paid one
 23) Write a view that shows all the members of a given club (by looking at the distinct crew list)
 24) Add differing default_mu values for international rowers
 25) Solve multiple parameters issue on rankings page.
+26) Switch the races page to look at competitions/events
+27) Create a system for contributing results by form
+28) Fix online admin CSRF issue
 
 Races to add:
 (DONE) 2016 Fours' Head - rest of 4+ results
