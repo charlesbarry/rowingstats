@@ -23,9 +23,9 @@ Things to do:
 15D) DONE - Fix ordering of races - confirm that sequence is being done correctly
 16) Create clubs view and see club membership by rower
 17) Add location to races or events
-18) Fix errors in existing data
-18A) Investigate Dominic Bennett further
-18B) Remove duplicates
+18) DONE - Fix errors in existing data
+18A) DONE - Investigate Dominic Bennett further
+18B) DONE - Remove duplicates
 19) DONE - Write a check to make sure that no rower is in the same race twice
 20) DONE - Turn rankings into db table, rankings calcs into a management command
 21) DONE - Write an about page
@@ -37,6 +37,7 @@ Things to do:
 27) Create a system for contributing results by form
 28) DONE - Fix online admin CSRF issue
 29) Polish admin interface
+30) Add commas between club/rower names in results
 
 Races to add:
 (DONE) 2016 Fours' Head - rest of 4+ results

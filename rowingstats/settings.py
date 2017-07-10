@@ -15,6 +15,10 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+try:
+	comp_name = os.environ['COMPUTERNAME']
+except:
+	comp_name = "Unknown"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -23,7 +27,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'EM9i.fBMiMLNU1K79TYqJcCHd+\}VLTZ&l3D>=vIU`@uSK%>5]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+if comp_name in ("CHARLES-", "CHARLES-LAPTOP"):
+	DEBUG = True
+else:
+	DEBUG = False
+	SESSION_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = [
 	'localhost',
@@ -34,7 +42,7 @@ ALLOWED_HOSTS = [
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-SESSION_COOKIE_SECURE = True
+
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
@@ -91,13 +99,24 @@ WSGI_APPLICATION = 'rowingstats.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
+if comp_name == "CHARLES-LAPTOP":
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.sqlite3',
+			'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+		}
+	}
+else:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql',
+			'NAME': 'rowingstats',
+			'USER': 'postgres',
+			'PASSWORD': 'root',
+			'HOST': '127.0.0.1',
+			'PORT': '5433',
+		}
+	}
 '''
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
