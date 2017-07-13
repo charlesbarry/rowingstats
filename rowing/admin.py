@@ -15,13 +15,27 @@ class ResultAdmin(admin.ModelAdmin):
 		form = super(ResultAdmin, self).get_form(request, obj, **kwargs)
 		autoselect_fields_check_can_add(form, self.model, request.user)
 		return form
-	
-'''class ResultAdmin(admin.TabularInline):
+		
+class ResultInline(admin.TabularInline):
+	model = Result
 	form = ResultForm
-	model = Result'''
+	extra = 0
+	
+	# creates the add function
+	def get_form(self, request, obj=None, **kwargs):
+		form = super(ResultInline, self).get_form(request, obj, **kwargs)
+		autoselect_fields_check_can_add(form, self.model, request.user)
+		return form
+	
+class RaceAdmin(admin.ModelAdmin):
+	model = Race
+	list_display = ['name', 'date']
+	inlines = [ResultInline]
+	list_filter = ['event__comp__name']
+	#BROKEN: list_filter = (('event', admin.RelatedOnlyFieldListFilter))
 
 admin.site.register(Rower)
-admin.site.register(Race)
+admin.site.register(Race, RaceAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(Competition)
 admin.site.register(Event)

@@ -141,7 +141,7 @@ class Score(models.Model):
 	mu = models.FloatField(default=100.0)
 	sigma = models.FloatField(default=10)
 	#date = models.DateField("Score date")
-	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
+	rower = models.ForeignKey(Rower, on_delete=models.CASCADE)
 	# used to access race name and date - now done via result then race
 	#race = models.ForeignKey(Race, on_delete=models.PROTECT)
 	result = models.ForeignKey(Result, on_delete=models.PROTECT)

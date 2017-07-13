@@ -27,7 +27,7 @@ except:
 SECRET_KEY = 'EM9i.fBMiMLNU1K79TYqJcCHd+\}VLTZ&l3D>=vIU`@uSK%>5]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if comp_name in ("CHARLES-", "CHARLES-LAPTOP"):
+if comp_name in ("CHARLES-", "CHARLES-LAPTOP2"):
 	DEBUG = True
 else:
 	DEBUG = False
@@ -99,7 +99,7 @@ WSGI_APPLICATION = 'rowingstats.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-if comp_name == "CHARLES-LAPTOP":
+if comp_name == "CHARLES-LAPTOP2":
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.sqlite3',

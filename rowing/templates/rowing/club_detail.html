@@ -1,0 +1,17 @@
+{% extends "rowing/base.html" %}
+{% block title %}{{object.name}} - Detail{% endblock %}
+{% block content %}
+<div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
+
+<!--
+<div class="col-sm-12 row"><h3>Attributes</h3></div>
+<div class="row">
+	<div class="col-sm-4">Rowing type: {{object.type}}</p></div>
+	<div class="col-sm-4">Date: {{object.date}}</p></div>
+	<div class="col-sm-4">Event class: {{object.raceclass}}</p></div>
+	<div class="col-sm-4">Last updated: {{object.last_updated}}</p></div>
+</div>
+-->
+<div class="col-sm-12 row"><p><em>More details on Clubs will be added at a later date</em></p></div>
+
+{% endblock %}

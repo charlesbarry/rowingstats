@@ -79,6 +79,9 @@ class ClubList(ListView):
 	model = Club
 	paginate_by = 50
 	ordering = ['name']	
+	
+class ClubDetail(DetailView):
+	model = Club
 
 '''	
 # a test which is purely for education

@@ -5,7 +5,7 @@
 <div class="row">
 	<ul>
 		{% for club in object_list %}
-			<div class="col-sm-4"><li>{{ club.name }}</li></div>
+			<div class="col-sm-4"><li><a href="/clubs/{{club.pk}}">{{ club.name }}</a></li></div>
 		{% endfor %}
 	</ul>
 </div>
