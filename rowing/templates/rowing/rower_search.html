@@ -1,0 +1,5 @@
+{% for rank in results %}
+<tr>
+	<td><a href="{% url 'rower-detail' pk=rank.pk %}">{{rank.name}}</a></td>
+</tr>
+{% endfor %}

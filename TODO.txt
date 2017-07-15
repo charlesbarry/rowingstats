@@ -36,8 +36,9 @@ Things to do:
 26) Switch the races page to look at competitions/events
 27) Create a system for contributing results by form
 28) DONE - Fix online admin CSRF issue
-29) Polish admin interface
+29) PARTLY DONE - Polish admin interface
 30) Add commas between club/rower names in results
+31) Restore add button to inlines results page
 
 Races to add:
 (DONE) 2016 Fours' Head - rest of 4+ results

@@ -20,7 +20,6 @@
 			<th>Position</th>
 			<th>Crew</th>
 			<th>Club</th>
-			<th>Flag</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -30,19 +29,22 @@
 			<td>{{rank.position}}</td>
 			<td>
 				{% for member in rank.crew.all %}
-					<a href="/rowers/{{member.pk}}">{{member.name}}</a>&nbsp;
+					<a href="/rowers/{{member.pk}}">{{member.name}}</a>{% if not forloop.last %},{% else %}&nbsp;{% endif %}
 				{% endfor %}
 			</td>
 			<td>
 				{% if rank.clubs.all %}
 					{% for member in rank.clubs.all %}
-						<a href="/clubs/{{member.pk}}">{{member.name}}</a>&nbsp;
+						<a href="/clubs/{{member.pk}}">{{member.name}}</a>{% if not forloop.last %},{% else %}&nbsp;{% endif %}
 					{% endfor %}
 				{% else %}
 					<p>Club unknown</p>
 				{% endif %}
+				{% if rank.flag %}
+				({{rank.flag}})
+				{% endif %}
 			</td>
-			<td>{{rank.flag}}</td>
+			<!-- <td>{{rank.flag}}</td> -->
 		</tr>
 		{% endfor %}
 		{% else %}

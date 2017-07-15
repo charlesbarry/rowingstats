@@ -1,25 +1,33 @@
 {% extends "rowing/base.html" %}
-{% block title %}View rowers{% endblock %}
+{% block title %}Find rowers{% endblock %}
 {% block content %}
+<script>
+	var nurl = "{% url 'rower-search' %}?q=";
+	function rowerSearch() {
+		var qtext = $('#rower-enter').val();
+		var qurl = nurl.concat(qtext);
+		$.ajax({
+			type: "GET",
+			url: qurl,
+			success: function(data) {
+				$('#sresults').html(data);
+			}
+		});
+	}
+</script>
+
 <div class="row col-sm-12"><h2>Rowers</h2></div>
-<div class="row">
-	<ul>
-		{% for rower in object_list %}
-			<div class="col-sm-4"><li><a href="{{rower.pk}}">{{ rower }}</a></li></div>
-		{% endfor %}
-	</ul>
+<div  class="row col-sm-12">
+		<input type="text" id="rower-enter" class="form-control" placeholder="Enter a name..." onkeyup="rowerSearch()">
 </div>
-{% if is_paginated %}
-	<div class="pagination">
-		{% if page_obj.has_previous %}
-			<a href="./?page={{ page_obj.previous_page_number }}">Previous</a> |
-		{% endif %}
-		<span class="page-current">
-			Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-		</span>
-		{% if page_obj.has_next %}
-			| <a href="./?page={{ page_obj.next_page_number }}">Next</a>
-		{% endif %}
-	</div>
-{% endif %}
+
+<div class="row col-sm-12">&nbsp;</div>
+<div class="row col-sm-12">
+	<table>
+	<tbody id="sresults">
+	
+	</tbody>
+	</table>
+</div>
+
 {% endblock %}

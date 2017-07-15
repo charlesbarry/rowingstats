@@ -30,10 +30,29 @@ class IndexView(TemplateView):
 class AboutView(TemplateView):
 	template_name = 'rowing/about.html'
 	
-class RowerList(ListView):
+''' class RowerList(ListView):
 	model = Rower
 	paginate_by = 50
-	ordering = ['name']
+	ordering = ['name']'''
+	
+class RowerList(TemplateView):
+	template_name = 'rowing/rower_list.html'
+	
+def RowerSearch(request):
+	if request.method == 'GET' and 'q' in request.GET:
+		#q = request.GET.get('q', None)
+		q = request.GET['q']
+		
+		if q:
+			results = Rower.objects.filter(name__icontains=q)[:20]
+			context = {'results': results}
+		else:
+			context = {}
+	
+	else:
+		context = {}
+	
+	return render(request, 'rowing/rower_search.html', context)
 	
 def RowerDetail(request, pk):
 	context = {}
