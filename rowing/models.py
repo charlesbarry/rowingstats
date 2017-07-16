@@ -42,13 +42,9 @@ class Event(models.Model):
 	
 class Rower(models.Model):
 	name = models.CharField(max_length=100)
-	'''mu_sweep = models.FloatField(default=100.0) #ts mu
-	sigma_sweep = models.FloatField(default=(25/3)) #ts sigma
-	mu_scull = models.FloatField(default=100.0) #ts mu
-	sigma_scull = models.FloatField(default=(25/3)) #ts sigma'''
 	
 	# to be implemented, left out for now for simplicity
-	#lightweight = models.BooleanField()
+	#lightweight = models.BooleanField() - may be moved to be result attribute
 	#u20 = lightweight = models.BooleanField()
 	#u23 = lightweight = models.BooleanField()
 	#BUCS = lightweight = models.BooleanField()
@@ -124,6 +120,7 @@ class Result(models.Model):
 	# time = timefields or perhaps 1toM relationship?
 	# cox threw some errors and probably needs to be a M2M relationship too
 	# cox = models.ForeignKey(Rower, on_delete=models.PROTECT, null=True, blank=True)
+	# lwt field - can be used for determining whether crew members are lightweight
 	
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)

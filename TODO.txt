@@ -7,9 +7,9 @@ Things to do:
 6) DONE - Write view to see rowers ranked
 6B) DONE - Write view to see races/results per rower on rower detail view 
 6C) DONE - Update rower detail view to adapt to scores now being time series
-7) Add more races!
+7) DONE - Add more races!
 8) DONE - Investigate ways to make recalculator faster
-9) Add search/filtering capability on rowers in admin and frontend
+9) DONE - Add search/filtering capability on rowers in admin and frontend
 10) DONE - Figure out how to get this on Heroku
 11) DONE - Convert scores to scores over time
 11A) DONE - Write view to see these
@@ -36,9 +36,12 @@ Things to do:
 26) Switch the races page to look at competitions/events
 27) Create a system for contributing results by form
 28) DONE - Fix online admin CSRF issue
-29) PARTLY DONE - Polish admin interface
-30) Add commas between club/rower names in results
-31) Restore add button to inlines results page
+29) DONE - Polish admin interface
+30) DONE - Add commas between club/rower names in results
+31) DONE - Restore add button to inlines results page
+32) DONE - Make rowers searchable
+33) Look at implementing U20/U23 and Lwt boolean values
+34) Look at adding custom plugins to provide improved admin date filter and alphabet filter
 
 Races to add:
 (DONE) 2016 Fours' Head - rest of 4+ results

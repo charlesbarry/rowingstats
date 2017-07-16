@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from ajax_select import urls as ajax_select_urls
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionList
 urlpatterns = [
 	#url(r'^$', views.current_datetime, name='index'),
 	#url(r'^recalculate/$', views.CalculateView),
@@ -18,8 +18,9 @@ urlpatterns = [
 	#url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
 	#url(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),
 	
+	# used in the search function on the rowers view
 	url(r'^rowersearch/$', views.RowerSearch, name="rower-search"),
 	
-	#used in autoselect?
+	# used in autoselect in admin
 	url(r'^ajax_select/', include(ajax_select_urls)),
 ]
