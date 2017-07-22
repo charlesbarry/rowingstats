@@ -39,7 +39,7 @@
 			<td>{{rank.result.race.event.comp.name}}</td>
 			<td>
 			{% for club in rank.result.clubs.all %}
-				<a href="/clubs/{{club.pk}}">{{club.name}}</a>&nbsp;
+				<a href="/clubs/{{club.pk}}">{{club.name}}</a>{% if not forloop.last %},<br>{% else %}&nbsp;{% endif %}
 			{% endfor %}
 			</td>
 			<td>{{rank.mu|floatformat:1}}</td>

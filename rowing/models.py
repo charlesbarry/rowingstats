@@ -141,7 +141,7 @@ class Score(models.Model):
 	rower = models.ForeignKey(Rower, on_delete=models.CASCADE)
 	# used to access race name and date - now done via result then race
 	#race = models.ForeignKey(Race, on_delete=models.PROTECT)
-	result = models.ForeignKey(Result, on_delete=models.PROTECT)
+	result = models.ForeignKey(Result, on_delete=models.CASCADE)
 	
 	def __str__(self):
 		return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.result.race.event.type)+" - "+str(self.result.race.date)
