@@ -6,6 +6,7 @@ import datetime
 from django.core.management import call_command
 from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
+from itertools import groupby
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
@@ -60,10 +61,27 @@ def RowerDetail(request, pk):
 	
 	r1 = Rower.objects.get(pk=pk)
 	context['object'] = r1
+	context['jsuplist'] = []
+	context['jsmulist']	= []
+	context['jslolist'] = []
 	try:
 		context['scores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('-result__race__date', '-result__race__order')
+		context['rscores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order')
+		
+		# adds the count for the position
 		for item in context['scores']:
 			item.total_pos = len(Result.objects.filter(race__id=item.result.race.pk))
+		
+		# generates chart data
+		for k, group in groupby(context['rscores'], key = lambda x: x.result.race.date):
+			item2 = ""
+			for item2 in group:
+				pass
+			
+			context['jsuplist'].append([item2.result.race.date, (item2.mu+item2.sigma)])
+			context['jsmulist'].append([item2.result.race.date, item2.mu])
+			context['jslolist'].append([item2.result.race.date, (item2.mu-item2.sigma)])
+		
 	except ObjectDoesNotExist:
 		context['scores'] = None
 	#context['clubs'] = r1.result_set.all()

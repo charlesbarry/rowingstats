@@ -1,5 +1,7 @@
 {% extends "rowing/base.html" %}
+{% load staticfiles %}
 {% block title %}{{object.name}} - Detail {% endblock %}
+
 {% block content %}
 <div class="row">
 <div class="col-sm-8"><h2>{{object.name}}</h2></div>
@@ -12,6 +14,54 @@
 	<div class="col-sm-4"><p>Lightweight? [object.lightweight]</p></div>
 </div>
 -->
+
+{% if scores|length >= 4  %}
+<div class="col-sm-12 row"><h3>Time Series</h3></div>
+<div id="chart-container"></div>
+<script type="text/javascript">
+
+Highcharts.chart('chart-container', {
+	title: {
+		text: 'Score over time'
+	},
+	xAxis: {
+		type: 'datetime'
+	},
+	yAxis: {
+		title: {text: 'Score'}
+	},
+	legend: {
+		enabled: false
+	},
+	series: [
+	{
+		name: 'Upper estimate',
+		data: [
+			{% for item in jsuplist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	},
+	{
+		name: 'Mean',
+		data: [
+			{% for item in jsmulist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	},
+	{
+		name: 'Lower Estimate',
+		data: [
+			{% for item in jslolist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	}]
+});
+</script>
+{% endif %}
+
 <div class="col-sm-12 row"><h3>Results</h3></div>
 <table class="table table-striped">
 <caption>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a></caption>
@@ -52,5 +102,9 @@
 		{% endif %}
 	</tbody>
 </table>
+{% endblock %}
 
+{% block header_extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
+<script src="{% static 'rowing/js/highcharts.js' %}"></script>
 {% endblock %}
