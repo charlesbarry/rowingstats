@@ -5,6 +5,7 @@
 <div class="col-sm-12 row"><p>Use the form below to choose two rowers to compare:</p></div>
 <form action="/compare/" method="post">
 	<div class="form-group">
+		{% csrf_token %}
 		<div class="col-xs-12 row">{{form.rower1}}</div>
 		<div class="col-xs-12 row">{{form.rower2}}</div>
 		<div class="col-xs-3 row"><strong>Type:</strong>{{form.type}}</div>
