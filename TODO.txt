@@ -49,6 +49,7 @@ Things to do:
 39) DONE - Fix relationship with scores and rankings - cascade/protect in model (race 17 delete result 3)
 40) Compare rowers features - overlapping charts, probability calculations
 41) Optimise search results using google webmaster
+42) Review compare function to see if it could be done using GET not POST - and thus whether form could be included in comparisons page.
 
 
 Races to add:
