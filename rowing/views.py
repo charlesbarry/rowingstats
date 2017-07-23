@@ -12,6 +12,7 @@ from scipy.stats import norm
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
 from .forms import CompareForm, RankingForm
+from django.views.decorators.csrf import csrf_exempt
 
 # only used in development
 def CalculateView(request):
@@ -91,7 +92,7 @@ def RowerDetail(request, pk):
 	return render(request, 'rowing/rower_detail.html', context)
 	
 
-
+@csrf_exempt
 def RowerCompare(request, pk1, pk2):
 	ptype = request.GET.get('type','Sweep')
 	context = {}
