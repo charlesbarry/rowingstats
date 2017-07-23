@@ -48,6 +48,7 @@ Things to do:
 38) Ranking on each rowers page - or not ranked
 39) DONE - Fix relationship with scores and rankings - cascade/protect in model (race 17 delete result 3)
 40) Compare rowers features - overlapping charts, probability calculations
+41) Optimise search results using google webmaster
 
 
 Races to add:
@@ -62,14 +63,19 @@ International Results - Olympics, World Champs, World Cup
 Pair's Head
 Ghent
 Previous Boat Races
+Henley Women's
 
 Ronards thoughts
 -Link between a rower's profile and the ranking page
 -And the text/ranking number can be a link to the ranking page, scrolled so Person's rank is in the centre
 -I also would like to generate a bit of chat with "most searched for" and "people also viewed"
+-Add an 'In the pipeline' section to the about page
 
 Rowers to research:
 A Mander (Broxbourne), Ashley Mander (City of Cam)
 Freddie Davidson - CUBC/Goldie vs Brookes
 NUBC vs Exeter crew - seems wrong
 Charlie Evans vs C Evans - UWE and Stratford U Avon
+Oliver Arscott  vs Oliver Arscott - one for the twitter feed
+Basically all the Met ones need QA'ings
+Josh Davidson of Marlow vs J Davidson of Twickenhams

@@ -1,0 +1,93 @@
+{% extends "rowing/base.html" %}
+{% load staticfiles %}
+{% block title %}{{object.name}} - Detail {% endblock %}
+
+{% block content %}
+<div class="col-sm-12 row"><h2>Compare Rowers - {{type}}</h2></div>
+{% if error == 0 %}
+<div class="col-sm-12 row"><p>Comparing <a href="/rowers/{{rower1.pk}}">{{rower1.name}}</a> and <a href="/rowers/{{rower2.pk}}">{{rower2.name}}</a> on their estimated {{type}} skill.</p></div>
+<div class="col-sm-12 row"><p>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a></p><p><a href="{% url 'compare-index' %}">Go back</a> to change comparison.</p></div>
+
+<div class="col-sm-12 row"><h3>Current prediction</h3></div>
+<div class="col-sm-12 row"><p>Based on the latest results we have in our database for each rower, we would currently expect 
+
+{% if win_prob1 > win_prob2 %}
+<strong>{{rower1.name}}</strong> would beat <strong>{{rower2.name}}</strong> in a one-on-one comparison <strong>{{win_prob1|floatformat:1}}%</strong>
+{% else %}
+<strong>{{rower2.name}}</strong> would beat <strong>{{rower1.name}}</strong> in a one-on-one comparison <strong>{{win_prob2|floatformat:1}}%</strong>
+{% endif %}
+ of the time.
+</p></div>
+<div class="col-sm-6 row"><p>This prediction is based on the following data:</p>
+<table class="table table-striped">
+<thead><tr>
+	<th></th>
+	<th>Skill</th>
+	<th>Uncertainty</th>
+</tr></thead>
+<tbody>
+	<tr>
+		<td>{{rower1.name}}</td>
+		<td>{{fscore1.mu|floatformat:1}}</td>
+		<td>{{fscore1.sigma|floatformat:1}}</td>
+	</tr>
+	<tr>
+		<td>{{rower2.name}}</td>
+		<td>{{fscore2.mu|floatformat:1}}</td>
+		<td>{{fscore2.sigma|floatformat:1}}</td>
+	</tr>
+</tbody>
+</table>
+</div>
+{% if len_js1 > 1 and len_js2 > 1 %}
+<div class="col-sm-12 row"><h3>Historical skill levels</h3>
+<p>This chart shows how the two rowers' skill level for {{type}} has changed over time.</p>
+</div>
+<div id="chart-container"></div>
+<script type="text/javascript">
+
+Highcharts.chart('chart-container', {
+	title: {
+		text: 'Estimated skill over time'
+	},
+	xAxis: {
+		type: 'datetime'
+	},
+	yAxis: {
+		title: {text: 'Estimated skill level'}
+	},
+	legend: {
+		enabled: true
+	},
+	series: [
+	{
+		name: '{{rower1.name}}',
+		data: [
+			{% for item in jsmulist1 %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	},
+	{
+		name: '{{rower2.name}}',
+		data: [
+			{% for item in jsmulist2 %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	}]
+});
+</script>
+{% endif %}
+{% elif error == 1 %}
+<p>Sorry, but it seems one of the rowers you are trying to compare doesn't have any data for {{type}}. {% if type == 'Sweep' %}Try switching to <a href="{{request.path}}?type=Sculling">Sculling</a> instead?{% elif type == 'Sculling' %}Try switching to <a href="{{request.path}}?type=Sweep">Sweep</a> instead?{% else %}Are you sure that {{ptype}} is a valid type of rowing?{% endif %}</p>
+{% elif error == 2 %}
+<p>Sorry, but that rower you have selected doesn't seem to exist.</p>
+{% endif %}
+
+{% endblock %}
+
+{% block header_extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
+<script src="{% static 'rowing/js/highcharts.js' %}"></script>
+{% endblock %}

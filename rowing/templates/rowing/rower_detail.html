@@ -15,23 +15,23 @@
 </div>
 -->
 
-{% if scores|length >= 4  %}
+{% if jsmulist|length >= 3  %}
 <div class="col-sm-12 row"><h3>Time Series</h3></div>
 <div id="chart-container"></div>
 <script type="text/javascript">
 
 Highcharts.chart('chart-container', {
 	title: {
-		text: 'Score over time'
+		text: 'Skill over time'
 	},
 	xAxis: {
 		type: 'datetime'
 	},
 	yAxis: {
-		title: {text: 'Score'}
+		title: {text: 'Estimated skill level'}
 	},
 	legend: {
-		enabled: false
+		enabled: true
 	},
 	series: [
 	{
