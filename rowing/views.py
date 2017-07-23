@@ -90,6 +90,8 @@ def RowerDetail(request, pk):
 	
 	return render(request, 'rowing/rower_detail.html', context)
 	
+
+@csrf_exempt
 def RowerCompare(request, pk1, pk2):
 	ptype = request.GET.get('type','Sweep')
 	context = {}
