@@ -16,8 +16,9 @@ urlpatterns = [
 	url(r'^rankings/$', views.RankingView, name="ranking"),
 	url(r'^clubs/$', ClubList.as_view(), name="club-list"),
 	url(r'^clubs/(?P<pk>[0-9]+)/$', ClubDetail.as_view(), name="club-list"),
-	url(r'^compare/$', csrf_exempt(views.Compare), name="compare-index"),
-	url(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
+	#url(r'^compare/$', csrf_exempt(views.Compare), name="compare-index"),
+	url(r'^compare/$', csrf_exempt(views.RowerCompare2), name="compare2"),
+	#url(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
 	#url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
 	#url(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),
 	

@@ -11,7 +11,7 @@ from scipy.stats import norm
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
-from .forms import CompareForm, RankingForm
+from .forms import CompareForm, RankingForm, RowerForm
 from django.views.decorators.csrf import csrf_exempt
 
 # only used in development
@@ -89,6 +89,8 @@ def RowerDetail(request, pk):
 		context['scores'] = None
 	#context['clubs'] = r1.result_set.all()
 	
+	context['form'] = RowerForm(request.GET)
+	
 	return render(request, 'rowing/rower_detail.html', context)
 	
 @csrf_exempt
@@ -150,6 +152,81 @@ def RowerCompare(request, pk1, pk2):
 		context['error'] = 2
 	
 	return render(request, 'rowing/rower_compare.html', context)
+	
+def RowerCompare2(request):
+	ptype = request.GET.get('type','Sweep')
+	pk1 = request.GET.get('rower1', None)
+	pk2 = request.GET.get('rower2', None)
+	context = {}
+	context['type'] = ptype
+	context['jsmulist1'] = []
+	context['jsmulist2'] = []
+	
+	if pk1 is not None and pk2 is not None:
+	# render the comparison
+	
+		try:
+			#get their latest scores
+			r1 = Rower.objects.get(pk=pk1)
+			r2 = Rower.objects.get(pk=pk2)
+			context['rower1'] = r1
+			context['rower2'] = r2
+			
+			try: 
+				context['rscores1'] = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order')
+				context['rscores2'] = r2.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order')
+				
+				# generates chart data
+				for k, group in groupby(context['rscores1'], key = lambda x: x.result.race.date):
+					item = ""
+					for item in group:
+						pass
+					
+					context['jsmulist1'].append([item.result.race.date, item.mu])
+					
+				for k, group in groupby(context['rscores2'], key = lambda x: x.result.race.date):
+					item = ""
+					for item in group:
+						pass
+					
+					context['jsmulist2'].append([item.result.race.date, item.mu])
+					
+				context['len_js1'] = len(context['jsmulist1'])
+				context['len_js2'] = len(context['jsmulist2'])
+				
+				# calculate win probability
+				# TODO: add list of races where they have competed against each other
+				fscore1 = context['rscores1'].latest('result__race__date')
+				fscore2 = context['rscores2'].latest('result__race__date')
+				context['fscore1'] = fscore1
+				context['fscore2'] = fscore2
+				
+				wp1 = 1 - norm.cdf( -(fscore1.mu - fscore2.mu) / (fscore1.sigma + fscore2.sigma) )
+				wp2 = 1 - wp1
+				
+				context['win_prob1'] = wp1 * 100
+				context['win_prob2'] = wp2 * 100
+				
+				context['error'] = 0
+				
+				
+				
+			except ObjectDoesNotExist:
+				# no scores for one of the rowers
+				context['error'] = 1
+		except ObjectDoesNotExist:
+			# a rower is missing from the db
+			context['error'] = 2
+	
+	else:
+		# if a rower is missing from the get string
+		context['error'] = 3
+		
+		# serve up the blank page
+	
+	context['form'] = CompareForm(request.GET)
+	
+	return render(request, 'rowing/rower_compare2.html', context)	
 	
 class RaceList(ListView):
 	model = Race

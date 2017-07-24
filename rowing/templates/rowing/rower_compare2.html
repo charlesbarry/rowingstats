@@ -3,10 +3,20 @@
 {% block title %}{{object.name}} - Detail {% endblock %}
 
 {% block content %}
-<div class="col-sm-12 row"><h2>Compare Rowers - {{type}}</h2></div>
+<div class="col-sm-12 row"><h2>Compare Rowers{% if error != 3 %} - {{type}}{% endif %}</h2></div>
+
+<form class="form-inline" action="/compare/" method="get">
+
+			<div class="form-group">{{form.rower1.label}}{{form.rower1}}</div>
+			<div class="form-group">{{form.rower2.label}}{{form.rower2}}</div>
+
+			<div class="form-group">{{form.type}}</div>
+			<button class="btn btn-default" type="submit">Submit</button>
+
+</form>
 {% if error == 0 %}
+<div class="col-sm-12 row"><p>&nbsp;</p></div>
 <div class="col-sm-12 row"><p>Comparing <a href="/rowers/{{rower1.pk}}">{{rower1.name}}</a> and <a href="/rowers/{{rower2.pk}}">{{rower2.name}}</a> on their estimated {{type}} skill.</p></div>
-<div class="col-sm-12 row"><p>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a></p><p><a href="{% url 'compare-index' %}">Go back</a> to change comparison.</p></div>
 
 <div class="col-sm-12 row"><h3>Current prediction</h3></div>
 <div class="col-sm-12 row"><p>Based on the latest results we have in our database for each rower, we would currently expect 
@@ -81,7 +91,6 @@ Highcharts.chart('chart-container', {
 {% endif %}
 {% elif error == 1 %}
 <p>Sorry, but it seems one of the rowers you are trying to compare doesn't have any data for {{type}}. {% if type == 'Sweep' %}Try switching to <a href="{{request.path}}?type=Sculling">Sculling</a> instead?{% elif type == 'Sculling' %}Try switching to <a href="{{request.path}}?type=Sweep">Sweep</a> instead?{% else %}Are you sure that {{ptype}} is a valid type of rowing?{% endif %}</p>
-<p><a href="{% url 'compare-index' %}">Or go back</a> to change rowers.</p>
 {% elif error == 2 %}
 <p>Sorry, but that rower you have selected doesn't seem to exist.</p>
 {% endif %}
@@ -91,4 +100,5 @@ Highcharts.chart('chart-container', {
 {% block header_extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
 <script src="{% static 'rowing/js/highcharts.js' %}"></script>
+{{form.media}}
 {% endblock %}

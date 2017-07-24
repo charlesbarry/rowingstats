@@ -27,11 +27,13 @@ class ResultForm(forms.ModelForm):
 	clubs = AutoCompleteSelectMultipleField('clubs', required=True, help_text="Add club (or multiple for composite)")
 	
 class CompareForm(forms.Form):
-	rower1 = AutoCompleteSelectField('crew', required=False, help_text="Rower 1")
-	rower2 = AutoCompleteSelectField('crew', required=False, help_text="Rower 2")
+	rower1 = AutoCompleteSelectField('crew', required=False, help_text=None, label="Rower 1")
+	rower2 = AutoCompleteSelectField('crew', required=False, help_text=None, label="Rower 2")
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	
 class RankingForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	g = forms.ChoiceField(label='Gender', required=True, choices=(('M','Men'),('W','Women')), widget=forms.Select(attrs={'class':'form-control'}))
-	
+
+class RowerForm(forms.Form):
+	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
