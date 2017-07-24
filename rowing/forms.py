@@ -31,6 +31,13 @@ class CompareForm(forms.Form):
 	rower2 = AutoCompleteSelectField('crew', required=False, help_text=None, label="Rower 2")
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	
+class CrewCompareForm(forms.Form):
+	crew1 = AutoCompleteSelectMultipleField('crew', required=False, help_text=None, label="Crew 1")
+	crew2 = AutoCompleteSelectMultipleField('crew', required=False, help_text=None, label="Crew 2")
+	#crew1_name = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
+	#crew2_name = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
+	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
+	
 class RankingForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	g = forms.ChoiceField(label='Gender', required=True, choices=(('M','Men'),('W','Women')), widget=forms.Select(attrs={'class':'form-control'}))

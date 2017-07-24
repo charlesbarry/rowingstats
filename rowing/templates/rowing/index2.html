@@ -1,0 +1,21 @@
+{% extends "rowing/base.html" %}
+{% block title %} Rowing Stats{% endblock %}
+{% block content %}
+	<div class="jumbotron">
+	  <h1>The home of rowing statistics</h1>
+	  <p>This is a new website that aims to provide a complete database of all rowing results. It is freely available to all. It's a work in progress, so bear with us.</p>
+	  <p><a class="btn btn-primary btn-lg" href="rankings" role="button">See the rankings</a></p>
+	</div>
+
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">In our database...</h3>
+	</div>
+	<div class="panel-body">
+		<div class="md-12-col"><h1>{{results}} <small>results</small></h1></div>
+		<div class="md-12-col"><h1>{{rowers}} <small>rowers</small></h1></div>
+		<div class="md-12-col"><h1>{{races}} <small>races</small></h1></div>
+	</div>
+</div>
+	
+{% endblock %}

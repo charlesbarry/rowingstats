@@ -11,7 +11,7 @@ from scipy.stats import norm
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
-from .forms import CompareForm, RankingForm, RowerForm
+from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm
 from django.views.decorators.csrf import csrf_exempt
 
 # only used in development
@@ -30,6 +30,14 @@ def current_datetime(request):
 	
 class IndexView(TemplateView):
 	template_name = 'rowing/index.html'
+	
+def IndexView2(request):
+	context = {}
+	context['races'] = Race.objects.count()
+	context['rowers'] = Rower.objects.count()
+	context['results'] = Result.objects.count()
+
+	return render(request, 'rowing/index2.html', context)
 	
 class AboutView(TemplateView):
 	template_name = 'rowing/about.html'
@@ -227,6 +235,74 @@ def RowerCompare2(request):
 	context['form'] = CompareForm(request.GET)
 	
 	return render(request, 'rowing/rower_compare2.html', context)	
+
+def CrewCompare(request):
+	ptype = request.GET.get('type','Sweep')
+	crewpk1 = request.GET.get('crew1', None)
+	crewpk2 = request.GET.get('crew2', None)
+	context = {}
+	context['type'] = ptype
+	
+	if crewpk1 is not None and crewpk2 is not None:
+		# parse the pks (from |26|27| to ['26','27'])
+		crewpk1 = crewpk1[1:-1].split('|')
+		crewpk2 = crewpk2[1:-1].split('|')
+	
+		# render the comparison	
+		rowers1 = []
+		rowers2 = []
+		for member in crewpk1:
+			r1 = Rower.objects.get(pk=member)
+			try:
+				r1s = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
+				rowers1.append([r1,r1s.mu,r1s.sigma, r1s.result.race.date])
+			except ObjectDoesNotExist:
+				rowers1.append([r1,100.0,10.0, 'No data (default assumed)'])
+			
+		for member in crewpk2:
+			r1 = Rower.objects.get(pk=member)
+			try:
+				r2 = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
+				rowers2.append([r1,r2.mu,r2.sigma, r2.result.race.date])
+			except ObjectDoesNotExist:
+				rowers2.append([r1,100.0,10.0, 'No data (default assumed)'])
+				
+		context['rowers1'] = rowers1
+		context['rowers2'] = rowers2
+		
+		# calculate the win probability
+		mu1 = 0
+		sigma1 = 0
+		mu2 = 0
+		sigma2 = 0
+		
+		for r in rowers1:
+			mu1 += r[1]
+			sigma1 += r[2]
+			
+		for r in rowers2:
+			mu2 += r[1]
+			sigma2 += r[2]
+		
+		wp1 = 1 - norm.cdf( -(mu1 - mu2) / (sigma1 + sigma2) )
+		wp2 = 1 - wp1
+		
+		context['mu1'] = mu1
+		context['sigma1'] = sigma1
+		context['mu2'] = mu2
+		context['sigma2'] = sigma2
+		context['win_prob1'] = wp1 * 100
+		context['win_prob2'] = wp2 * 100
+	
+		context['error'] = 0 # clean pass
+	else:
+		# if a rower is missing from the get string
+		# serve up the blank page
+		context['error'] = 1
+		
+	context['form'] = CrewCompareForm(request.GET)
+	
+	return render(request, 'rowing/crew_compare.html', context)	
 	
 class RaceList(ListView):
 	model = Race
