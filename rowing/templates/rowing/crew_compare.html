@@ -27,61 +27,72 @@
 <strong>Crew 2</strong> would beat <strong>Crew 1</strong> in a one-on-one comparison <strong>{{win_prob2|floatformat:1}}%</strong>
 {% endif %}
  of the time.
-</p></div>
-<div class="col-sm-6 row"><p>This prediction is based on the following data:</p>
-<table class="table table-striped">
-<caption>Crew 1</caption>
-<thead><tr>
-	<th>Name</th>
-	<th>Skill</th>
-	<th>Uncertainty</th>
-	<th>Date of result</th>
-</tr></thead>
-<tbody>
-	{% for r in rowers1 %}
-	<tr>
-		<td>{{r.0.name}}</td>
-		<td>{{r.1|floatformat:1}}</td>
-		<td>{{r.2|floatformat:1}}</td>
-		<td>{{r.3}}</td>
-	</tr>
-	{% endfor %}
-	<tr>
-		<td><strong>Total:</strong></td>
-		<td>{{mu1|floatformat:1}}</td>
-		<td>{{sigma1|floatformat:1}}</td>
-		<td></td>
-	</tr>
-</tbody>
-</table>
-<table class="table table-striped">
-<caption>Crew 2</caption>
-<thead><tr>
-	<th>Name</th>
-	<th>Skill</th>
-	<th>Uncertainty</th>
-	<th>Date of result</th>
-</tr></thead>
-<tbody>
-	{% for r in rowers2 %}
-	<tr>
-		<td>{{r.0.name}}</td>
-		<td>{{r.1|floatformat:1}}</td>
-		<td>{{r.2|floatformat:1}}</td>
-		<td>{{r.3}}</td>
-	</tr>
-	{% endfor %}
-	<tr>
-		<td><strong>Total:</strong></td>
-		<td>{{mu2|floatformat:1}}</td>
-		<td>{{sigma2|floatformat:1}}</td>
-		<td></td>
-	</tr>
-</tbody>
-</table>
+</p>
+<p>This prediction is based on the following data:</p>
+</div>
+
+<div class="container">
+	<div class="row">
+		
+		<div class="col-md-6">
+			<table class="table table-striped">
+			<caption>Crew 1</caption>
+			<thead><tr>
+				<th>Name</th>
+				<th>Skill</th>
+				<th>Uncertainty</th>
+				<th>Date of result</th>
+			</tr></thead>
+			<tbody>
+				{% for r in rowers1 %}
+				<tr>
+					<td>{{r.0.name}}</td>
+					<td>{{r.1|floatformat:1}}</td>
+					<td>{{r.2|floatformat:1}}</td>
+					<td>{{r.3}}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td><strong>Total:</strong></td>
+					<td>{{mu1|floatformat:1}}</td>
+					<td>{{sigma1|floatformat:1}}</td>
+					<td></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		<div class="col-md-6">
+			<table class="table table-striped">
+			<caption>Crew 2</caption>
+			<thead><tr>
+				<th>Name</th>
+				<th>Skill</th>
+				<th>Uncertainty</th>
+				<th>Date of result</th>
+			</tr></thead>
+			<tbody>
+				{% for r in rowers2 %}
+				<tr>
+					<td>{{r.0.name}}</td>
+					<td>{{r.1|floatformat:1}}</td>
+					<td>{{r.2|floatformat:1}}</td>
+					<td>{{r.3}}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td><strong>Total:</strong></td>
+					<td>{{mu2|floatformat:1}}</td>
+					<td>{{sigma2|floatformat:1}}</td>
+					<td></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 {% endif %}
 
+<div class="col-md-12"><p>&nbsp;</p></div>
 {% endblock %}
 
 {% block header_extra %}

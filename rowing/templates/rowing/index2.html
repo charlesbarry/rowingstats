@@ -1,4 +1,5 @@
 {% extends "rowing/base.html" %}
+{% load humanize %}
 {% block title %} Rowing Stats{% endblock %}
 {% block content %}
 	<div class="jumbotron">
@@ -12,9 +13,9 @@
 		<h3 class="panel-title">In our database...</h3>
 	</div>
 	<div class="panel-body">
-		<div class="md-12-col"><h1>{{results}} <small>results</small></h1></div>
-		<div class="md-12-col"><h1>{{rowers}} <small>rowers</small></h1></div>
-		<div class="md-12-col"><h1>{{races}} <small>races</small></h1></div>
+		<div class="md-12-col"><h1>{{results|intcomma}} <small>results</small></h1></div>
+		<div class="md-12-col"><h1>{{rowers|intcomma}} <small>rowers</small></h1></div>
+		<div class="md-12-col"><h1>{{races|intcomma}} <small>races</small></h1></div>
 	</div>
 </div>
 	
