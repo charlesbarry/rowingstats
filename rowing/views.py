@@ -75,6 +75,7 @@ def RowerDetail(request, pk):
 	context['jsuplist'] = []
 	context['jsmulist']	= []
 	context['jslolist'] = []
+	context['jscilist'] = []
 	try:
 		context['scores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('-result__race__date', '-result__race__order')
 		context['rscores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order')
@@ -92,6 +93,7 @@ def RowerDetail(request, pk):
 			context['jsuplist'].append([item2.result.race.date, (item2.mu+item2.sigma)])
 			context['jsmulist'].append([item2.result.race.date, item2.mu])
 			context['jslolist'].append([item2.result.race.date, (item2.mu-item2.sigma)])
+			context['jscilist'].append([item2.result.race.date, (item2.mu-item2.sigma), (item2.mu+item2.sigma)])
 		
 	except ObjectDoesNotExist:
 		context['scores'] = None

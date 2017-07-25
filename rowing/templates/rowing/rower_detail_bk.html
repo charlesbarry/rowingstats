@@ -35,6 +35,31 @@ Highcharts.chart('chart-container', {
 	},
 	series: [
 	{
+		name: 'Upper estimate',
+		data: [
+			{% for item in jsuplist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	},
+	{
+		name: 'Mean',
+		data: [
+			{% for item in jsmulist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	},
+	{
+		name: 'Lower Estimate',
+		data: [
+			{% for item in jslolist %}
+			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
+			{% endfor %}
+		]
+	
+	},
+	{
 		name: 'Confidence Interval',
 		type: 'arearange',
 		data: [
@@ -42,16 +67,7 @@ Highcharts.chart('chart-container', {
 			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}},{{item.2|floatformat:1}}],
 			{% endfor %}
 		]
-	},
-	{
-		name: 'Skill',
-		data: [
-			{% for item in jsmulist %}
-			[Date.UTC({{item.0.year}},{{item.0.month|add:"-1"}},{{item.0.day}}), {{item.1|floatformat:1}}],
-			{% endfor %}
-		]
-	}
-	]
+	}]
 });
 </script>
 {% endif %}

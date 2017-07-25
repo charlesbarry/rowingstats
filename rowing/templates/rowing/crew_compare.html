@@ -46,7 +46,7 @@
 			<tbody>
 				{% for r in rowers1 %}
 				<tr>
-					<td>{{r.0.name}}</td>
+					<td><a href="/rowers/{{r.0.pk}}">{{r.0.name}}</a></td>
 					<td>{{r.1|floatformat:1}}</td>
 					<td>{{r.2|floatformat:1}}</td>
 					<td>{{r.3}}</td>
@@ -73,7 +73,7 @@
 			<tbody>
 				{% for r in rowers2 %}
 				<tr>
-					<td>{{r.0.name}}</td>
+					<td><a href="/rowers/{{r.0.pk}}">{{r.0.name}}</a></td>
 					<td>{{r.1|floatformat:1}}</td>
 					<td>{{r.2|floatformat:1}}</td>
 					<td>{{r.3}}</td>
