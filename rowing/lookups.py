@@ -12,7 +12,7 @@ class CrewLookup(LookupChannel):
 		return True
 		
 	def format_item_display(self, item):
-		return "<span class='tag'>%s</span>" % item.name
+		return "<span class='tag'>%s (%s)</span>" % (item.name, item.gender)
 		
 @register('clubs')
 class ClubLookup(LookupChannel):

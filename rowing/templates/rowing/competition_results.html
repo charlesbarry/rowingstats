@@ -1,0 +1,44 @@
+{% extends "rowing/base.html" %}
+{% block title %}Competition details{% endblock %}
+{% block content %}
+<div class="row col-sm-12"><h2>{{competition.name}} - Details</h2><p><a href="/competition">Switch competition</a></p></div>
+
+<div class="col-sm-12"><p>&nbsp;</p></div>
+<form class="form-inline" action="/competition/{{competition.pk}}" method="get">
+		{% for field in form %}
+		<div class="/*col-sm-2*/ form-group">{{field}}</div>
+		{% endfor %}
+		<button class="btn btn-default" type="submit">Switch</button>
+	
+</form>
+<table class="table table-striped">
+<!--<caption>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a>  --- <a href="{{request.path}}?g=M">Men</a> | <a href="{{request.path}}?g=W">Women</a></caption>-->
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Event</th>
+			<th>Entries</th>
+			<th>Type</th>
+			<th>Class</th>
+			<th>Date</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if races %}
+		{% for race in races %}
+		<tr>
+			<td><a href="/races/{{race.pk}}">{{race.name}}</a></td>
+			<td>{{race.event.name}}</td>
+			<td>{{race.total_pos}}</td>
+			<td>{{race.event.type}}</td>
+			<td>{{race.raceclass}}</td>
+			<td>{{race.date}}</td>
+		</tr>
+		{% endfor %}
+		{% else %}
+		<tr><td colspan="5">No results to show</td></tr>
+		{% endif %}
+	</tbody>
+</table>
+
+{% endblock %}

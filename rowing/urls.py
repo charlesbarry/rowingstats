@@ -3,7 +3,7 @@ from ajax_select import urls as ajax_select_urls
 from django.views.decorators.csrf import csrf_exempt
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionList, RowerCompare, Compare, IndexView2
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2
 urlpatterns = [
 	#url(r'^$', views.current_datetime, name='index'),
 	#url(r'^recalculate/$', views.CalculateView),
@@ -15,6 +15,8 @@ urlpatterns = [
 	url(r'^races/$', RaceList.as_view(), name="race-list"),
 	url(r'^races/(?P<pk>[0-9]+)/$', views.RaceDetail, name="race-detail"),
 	url(r'^rankings/$', views.RankingView, name="ranking"),
+	url(r'^competition/$', views.CompetitionView, name="comp-list"),
+	url(r'^competition/(?P<pk>[0-9]+)/$', views.CompetitionResults, name="comp-detail"),
 	url(r'^clubs/$', ClubList.as_view(), name="club-list"),
 	url(r'^clubs/(?P<pk>[0-9]+)/$', ClubDetail.as_view(), name="club-list"),
 	#url(r'^compare/$', csrf_exempt(views.Compare), name="compare-index"),

@@ -11,7 +11,7 @@ from scipy.stats import norm
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
-from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm
+from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 from django.views.decorators.csrf import csrf_exempt
 
 # only used in development
@@ -72,9 +72,9 @@ def RowerDetail(request, pk):
 	
 	r1 = Rower.objects.get(pk=pk)
 	context['object'] = r1
-	context['jsuplist'] = []
+	#context['jsuplist'] = []
 	context['jsmulist']	= []
-	context['jslolist'] = []
+	#context['jslolist'] = []
 	context['jscilist'] = []
 	try:
 		context['scores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('-result__race__date', '-result__race__order')
@@ -90,9 +90,9 @@ def RowerDetail(request, pk):
 			for item2 in group:
 				pass
 			
-			context['jsuplist'].append([item2.result.race.date, (item2.mu+item2.sigma)])
+			#context['jsuplist'].append([item2.result.race.date, (item2.mu+item2.sigma)])
 			context['jsmulist'].append([item2.result.race.date, item2.mu])
-			context['jslolist'].append([item2.result.race.date, (item2.mu-item2.sigma)])
+			#context['jslolist'].append([item2.result.race.date, (item2.mu-item2.sigma)])
 			context['jscilist'].append([item2.result.race.date, (item2.mu-item2.sigma), (item2.mu+item2.sigma)])
 		
 	except ObjectDoesNotExist:
@@ -325,10 +325,46 @@ def RaceDetail(request, pk):
 # in progress
 # Want /races to go to list of competitions
 # Want /races/1 to go to list of all Races for that competition, with filters by event
-class CompetitionList(ListView):
+'''class CompetitionList(ListView):
 	model = Competition
 	paginate_by = 30
-	ordering = ['name']
+	ordering = ['name']'''
+	
+def CompetitionView(request):
+	data = Competition.objects.all().order_by('name')
+	
+	return render(request, 'rowing/competition.html', {'data':data})
+	
+def CompetitionResults(request, pk):
+	rtype = request.GET.get('type')
+	#gender = request.GET.get('g') - to be implemented (data not in model)
+	event = request.GET.get('event')
+	raceclass = request.GET.get('raceclass')
+	year = request.GET.get('year') #- to be implemented
+	context = {}
+	context['competition'] = Competition.objects.get(pk=pk)
+	
+	races = Race.objects.filter(event__comp__pk=pk)
+	# add a filter for year
+	if event not in (None, ''):
+		races = races.filter(event=event)
+	if rtype not in (None, ''):
+		races = races.filter(event__type=rtype)
+	if raceclass not in (None, ''):
+		races = races.filter(raceclass=raceclass)
+	if year not in (None, ''):
+		races = races.filter(date__year=year)
+	
+	
+	context['races'] = races.order_by('-date')
+	
+	# adds the count for the entries
+	for item in context['races']:
+		item.total_pos = Result.objects.filter(race__id=item.pk).count()
+		
+	context['form'] = CompetitionForm(request.GET)
+	
+	return render(request, 'rowing/competition_results.html', context)
 	
 class ClubList(ListView):
 	model = Club

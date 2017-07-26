@@ -1,0 +1,17 @@
+{% extends "rowing/base.html" %}
+{% block title %}Find races{% endblock %}
+{% block content %}
+
+<div class="row col-sm-12"><h2>Races</h2></div>
+
+
+<div class="row col-sm-12"><p>Select a competition:</p></div>
+
+<div class="list-group row" id="sresults">
+{% for item in data %}
+<div class="col-sm-6 col-md-4"><a class="list-group-item list-group-item-action" href="/competition/{{item.pk}}/">{{item.name}}</a></div>
+{% endfor %}
+</div>
+
+<div class="row col-sm-12">&nbsp;</div>
+{% endblock %}
