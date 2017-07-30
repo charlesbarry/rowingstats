@@ -11,8 +11,11 @@ class CrewLookup(LookupChannel):
 	def check_auth(self, request):
 		return True
 		
+	def format_match(self, item):
+		return "<span class='tag'>%s (%s-%s)</span>" % (item.name, item.gender, item.nationality)	
+		
 	def format_item_display(self, item):
-		return "<span class='tag'>%s (%s)</span>" % (item.name, item.gender)
+		return "<span class='tag'>%s (%s-%s)</span>" % (item.name, item.gender, item.nationality)
 		
 @register('clubs')
 class ClubLookup(LookupChannel):

@@ -33,7 +33,7 @@ Things to do:
 23) Write a view that shows all the members of a given club (by looking at the distinct crew list)
 24) Add differing default_mu values for international rowers
 25) Solve multiple parameters issue on rankings page.
-26) Switch the races page to look at competitions/events
+26) PARTLY DONE (needs dynamic list choices and one for events) Switch the races page to look at competitions/events
 27) Create a system for contributing results by form
 28) DONE - Fix online admin CSRF issue
 29) DONE - Polish admin interface

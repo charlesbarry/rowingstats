@@ -7,8 +7,9 @@ from django.db import transaction
 from itertools import groupby
 import datetime
 
-DEFAULT_SIGMA = 10.0 #(25/3)
+DEFAULT_SIGMA = 10.0 # Used to be (25/3)
 DEFAULT_MU = 100.0
+INT_MU = 110.0
 
 setup(beta=5, tau=0.5, draw_probability=0.002)
 
@@ -82,6 +83,12 @@ class Command(BaseCommand):
 							sigma=trial.latest("result__race__date").sigma)
 							)
 						mu_sum += trial.latest("result__race__date").mu
+					elif race_i.raceclass == "International":
+						temp.append(
+							Rating(mu=INT_MU,
+							sigma=DEFAULT_SIGMA)
+						)
+						mu_sum += INT_MU
 					else:
 						temp.append(
 							Rating(mu=DEFAULT_MU,
