@@ -1,12 +1,12 @@
 {% extends "rowing/base.html" %}
-{% block title %}Competition details{% endblock %}
+{% block title %}{{competition.name}} - details{% endblock %}
 {% block content %}
 <div class="row col-sm-12"><h2>{{competition.name}} - Details</h2><p><a href="/competition">Switch competition</a></p></div>
 
 <div class="col-sm-12"><p>&nbsp;</p></div>
 <form class="form-inline" action="/competition/{{competition.pk}}" method="get">
 		{% for field in form %}
-		<div class="/*col-sm-2*/ form-group">{{field}}</div>
+		<div class="/*col-sm-2*/ form-group">{{field.options.count}}{{field}}</div>
 		{% endfor %}
 		<button class="btn btn-default" type="submit">Filter</button>
 	

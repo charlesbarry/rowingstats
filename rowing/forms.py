@@ -46,7 +46,17 @@ class RowerForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	
 class CompetitionForm(forms.Form):
+	# some magic to create dynamic fields - I don't understand it
+	#super(CompetitionForm, self).__init__(*args, **kwargs)
+	def __init__(self, class_choices, event_choices, year_choices, *args, **kwargs):
+		super(CompetitionForm, self).__init__(*args, **kwargs)
+		self.fields["raceclass"].choices = class_choices
+		self.fields["event"].choices = event_choices
+		self.fields["year"].choices = year_choices
+
 	type = forms.ChoiceField(label='Type', required=False, choices=(('','Any'),('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
-	raceclass = forms.ChoiceField(label='Class', required=False, choices=(('','Any'),('Senior','Senior'),('Club','Club')), widget=forms.Select(attrs={'class':'form-control'}))
-	#event = forms.ChoiceField(label='Class', required=False, choices=(('','Any'),('O4-','O4-'),('O8+','O8+')), widget=forms.Select(attrs={'class':'form-control'})) - event needs to be pk not str
-	year = forms.ChoiceField(label='Class', required=False, choices=(('','Any'),('2016','2016'),('2015','2015'),('2014','2014')), widget=forms.Select(attrs={'class':'form-control'}))
+	
+	# choices was = (('','Any'),('Senior','Senior'),('Club','Club'))
+	raceclass = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+	event = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+	year = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))

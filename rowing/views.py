@@ -352,6 +352,10 @@ def CompetitionResults(request, pk):
 		races = races.filter(event__type=rtype)
 	if raceclass not in (None, ''):
 		races = races.filter(raceclass=raceclass)
+		
+	# pre_year_races exists so that the year_choices filter ignores the current year
+	# if this didn't exist, selecting a year would remove the other years from the form choices
+	pre_year_races = races
 	if year not in (None, ''):
 		races = races.filter(date__year=year)
 	
@@ -361,8 +365,22 @@ def CompetitionResults(request, pk):
 	# adds the count for the entries
 	for item in context['races']:
 		item.total_pos = Result.objects.filter(race__id=item.pk).count()
-		
-	context['form'] = CompetitionForm(request.GET)
+	
+	# create event and class choices for form and create the form
+	raceclass_choices = [('','Any')]
+	for item in context['races'].order_by('raceclass').values_list('raceclass', flat=True).distinct():
+		raceclass_choices.append((item,item))
+	
+	event_choices = [('','Any')]
+	for item3 in context['races'].order_by('event__name').values_list('event',flat=True).distinct():
+		event_choices.append((item3, Event.objects.get(pk=item3).name))
+	
+	# NB different method for dates
+	year_choices = [('', 'Any')]
+	for yitem in pre_year_races.dates('date', 'year', order='DESC'):
+		year_choices.append((yitem.year, yitem.year))
+	
+	context['form'] = CompetitionForm(raceclass_choices, event_choices, year_choices, request.GET)
 	
 	return render(request, 'rowing/competition_results.html', context)
 	
