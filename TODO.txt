@@ -31,9 +31,9 @@ Things to do:
 21) DONE - Write an about page
 22) DONE - Change Heroku database over to paid one
 23) Write a view that shows all the members of a given club (by looking at the distinct crew list)
-24) Add differing default_mu values for international rowers
-25) Solve multiple parameters issue on rankings page.
-26) PARTLY DONE (needs dynamic list choices and one for events) Switch the races page to look at competitions/events
+24) DONE- Add differing default_mu values for international rowers
+25) DONE - Solve multiple parameters issue on rankings page.
+26) DONE - (needs dynamic list choices and one for events) Switch the races page to look at competitions/events
 27) Create a system for contributing results by form
 28) DONE - Fix online admin CSRF issue
 29) DONE - Polish admin interface
@@ -47,9 +47,18 @@ Things to do:
 37) Related rowers
 38) Ranking on each rowers page - or not ranked
 39) DONE - Fix relationship with scores and rankings - cascade/protect in model (race 17 delete result 3)
-40) Compare rowers features - overlapping charts, probability calculations
+40) DONE - Compare rowers features - overlapping charts, probability calculations
 41) Optimise search results using google webmaster
-42) Review compare function to see if it could be done using GET not POST - and thus whether form could be included in comparisons page.
+42) DONE - Review compare function to see if it could be done using GET not POST - and thus whether form could be included in comparisons page.
+43) Link races in series
+44) Allow copy pasting of crews from previous races in series
+45) Create series view of races (race tree eg for Henley)
+46) Update about page to include text on bubble mixing and new intl default mu
+47) DONE - If no sweep values, default to sculling instead on rower detail page 
+48) Move ranking detail to rankings page in collapsible box
+49) Add ability to start recalculator at specific date/race number
+50) Tweak default_mu for juniors, and juniors/lwts/u23s at international events
+51) Add filtering to rower admin page
 
 
 Races to add:
@@ -70,7 +79,7 @@ Ronards thoughts
 -Link between a rower's profile and the ranking page
 -And the text/ranking number can be a link to the ranking page, scrolled so Person's rank is in the centre
 -I also would like to generate a bit of chat with "most searched for" and "people also viewed"
--Add an 'In the pipeline' section to the about page
+-Add an 'In the pipeline' section to the about page (DONE)
 
 Rowers to research:
 A Mander (Broxbourne), Ashley Mander (City of Cam)

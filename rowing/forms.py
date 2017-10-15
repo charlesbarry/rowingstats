@@ -41,6 +41,8 @@ class CrewCompareForm(forms.Form):
 class RankingForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	g = forms.ChoiceField(label='Gender', required=True, choices=(('M','Men'),('W','Women')), widget=forms.Select(attrs={'class':'form-control'}))
+	current = forms.ChoiceField(label='Current', required=True, choices=(('y','Current results'),('n','All time')), widget=forms.Select(attrs={'class':'form-control'}))
+	gb = forms.ChoiceField(label='GB Only?', required=True, choices=(('y','GB Only'),('n','All / International')), widget=forms.Select(attrs={'class':'form-control'}))
 
 class RowerForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))

@@ -144,7 +144,7 @@ class Command(BaseCommand):
 		print("Calculations completed. Total error was %s" % (str(round(error,2))))
 		print("Beginning ranking calculations.")
 		
-		#cutoff_date = datetime.date(2016, 7, 5)
+		cutoff_date = datetime.date(2016, 7, 5)
 		min_length = 4
 		# gets the latest score for each rower
 		for rower in Rower.objects.all():
@@ -153,7 +153,7 @@ class Command(BaseCommand):
 			if len(s2) > min_length:
 				s1 = s2.latest('result__race__date')
 				# ensure the result is in the recent period
-				#if s1.result.race.date > cutoff_date:
-				add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 		'date': s1.result.race.date, 'type': s1.result.race.event.type})
+				if s1.result.race.date > cutoff_date:
+					add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 'date': s1.result.race.date, 'type': s1.result.race.event.type})
 		
 		print("Completed ranking calculations")	

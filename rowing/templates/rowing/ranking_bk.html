@@ -3,15 +3,10 @@
 {% block content %}
 <div class="row col-sm-12"><h2>Rankings - {% if gender == 'M' %}Men{% elif gender == 'W' %}Women{% endif %} {{type}}</h2></div>
 <div class="row col-sm-12"><h4><mark>EXPERIMENTAL</mark></h4></div>
-<div class="col-xs-12">&nbsp;</div>
 <div class="row col-sm-12">
-<p>
-<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#notescollapse" aria-expanded="false" aria-controls="notescollapse">Show explanation</button>
-</p>
-</div>
-<div class="collapse row col-sm-12" id="notescollapse">
+<strong>Notes:</strong>
 <ul>
-<li>To appear in this table, athletes must have at least 4 recorded scores. </li>
+<li>To appear in this table, athletes must have at least 4 recorded scores, and their most recent score must date within the previous year. </li>
 <li>The scores below are only calculated on the data available. This is incomplete, but more data will be added over time. <a href="/races">Browse the races to see what is included</a>.</li>
 <li>"Skill" is an estimate of how good a rower is at sweep rowing or sculling. More points = more likely to win a race. The average/default is 100 points.</li>
 <li>"Uncertainty" is an measure of how sure the estimate of the skill is. In short, fewer races on the system or more inconsistent results means a higher measure of uncertainty. The default starting point is 10.</li>
@@ -19,9 +14,7 @@
 <li>The ranking is on their estimated skill level <em>minus</em> the level of uncertainty attached to that estimate. See <a href="/about">the about page</a> for more information on the calculations.</li>
 <li>This is currently at the prototype stage (pre-alpha) so there are only full rankings for sweep men at the moment. Rankings for women (and scullers) will be included as more data is added to the system.</li>
 </ul>
-<p>More information can be found on the <a href="/about/">about page</a>.</p>
 </div>
-
 <div class="col-xs-12">&nbsp;</div>
 <form class="form-inline" action="/rankings/" method="get">
 		{% for field in form %}

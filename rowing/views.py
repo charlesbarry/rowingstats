@@ -14,6 +14,19 @@ from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreR
 from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 from django.views.decorators.csrf import csrf_exempt
 
+def add_years(d, years):
+	# stolen from stackoverflow: https://stackoverflow.com/a/15743908
+    """Return a date that's `years` years after the date (or datetime)
+    object `d`. Return the same calendar date (month and day) in the
+    destination year, if it exists, otherwise use the following day
+    (thus changing February 29 to March 1).
+
+    """
+    try:
+        return d.replace(year = d.year + years)
+    except ValueError:
+        return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))
+
 # only used in development
 def CalculateView(request):
 	try:
@@ -68,9 +81,18 @@ def RowerSearch(request):
 	
 def RowerDetail(request, pk):
 	context = {}
-	ptype = request.GET.get('type','Sweep')
-	
+	ptype = request.GET.get('type')
+	copyGET = request.GET.copy() # required because request.GET is otherwise immutable
 	r1 = Rower.objects.get(pk=pk)
+	
+	if ptype in (None, ''):
+		if r1.score_set.filter(result__race__event__type='Sweep').count() == 0:
+			copyGET['type'] = 'Sculling'
+			ptype = 'Sculling'
+		else:
+			copyGET['type'] = 'Sweep'
+			ptype = 'Sweep'
+	
 	context['object'] = r1
 	#context['jsuplist'] = []
 	context['jsmulist']	= []
@@ -99,7 +121,7 @@ def RowerDetail(request, pk):
 		context['scores'] = None
 	#context['clubs'] = r1.result_set.all()
 	
-	context['form'] = RowerForm(request.GET)
+	context['form'] = RowerForm(copyGET)
 	
 	return render(request, 'rowing/rower_detail.html', context)
 	
@@ -448,6 +470,8 @@ def RankingView(request):
 	#ptype = "Sweep"
 	ptype = request.GET.get('type','Sweep')
 	g = request.GET.get('g', 'M')
+	currentrank = request.GET.get('current','y')
+	gbonly = request.GET.get('gb','y')
 	
 	'''
 	# filter to ensure there is a minimum no of scores
@@ -476,10 +500,23 @@ def RankingView(request):
 	
 	# cutoff to top 50
 	rankings = rankings[:50]
+	#t1 = rankings[0].type
+		# get ranking based on type and gender
+	rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')
 	'''
 	
-	rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')[:50]
-	#t1 = rankings[0].type
+	tmp_currentdate = add_years(datetime.date.today(), -1)
+	
+	if currentrank == "y":
+		if gbonly == "y":
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, rower__nationality='GBR').order_by('-delta_mu_sigma')[:50]
+		else:
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate).order_by('-delta_mu_sigma')[:50]
+	else:
+		if gbonly == "y":
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, rower__nationality='GBR').order_by('-delta_mu_sigma')[:50]
+		else:
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')[:50]
 	
 	form = RankingForm(request.GET)
 	
