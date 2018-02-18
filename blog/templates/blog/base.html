@@ -1,0 +1,77 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+	<!-- Google analytics --->
+	{% if request.META.HTTP_HOST == "rowingstats.com" %}
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-102240092-1', 'auto');
+		ga('send', 'pageview');
+	</script>
+	{% elif request.META.HTTP_HOST == "www.rowingstats.com" %}
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-102240092-2', 'auto');
+		ga('send', 'pageview');
+	</script>
+	{% endif %}
+
+    <title>{% block title %}{% endblock %}</title>
+	{% block header_extra %}{% endblock %}
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="/">Rowing Stats <small class="text-muted">BETA</small></a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggerDemo02" aria-controls="navbarToggerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		
+		<div class="collapse navbar-collapse" id="navbarToggerDemo02">
+			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+				<li class="nav-item"><a class="nav-link active" href="/articles">Blog</a></li>
+				<li class="nav-item"><a class="nav-link" href="/rowers/">Rowers</a></li>
+				<li class="nav-item"><a class="nav-link" href="/competition/">Races</a></li>
+				<li class="nav-item"><a class="nav-link" href="/rankings/">Rankings</a></li>
+				<li class="nav-item"><a class="nav-link" href="/compare/">Compare</a></li>
+			</ul>
+		</div>
+	</nav>
+	</div>
+	
+    <div id="content" class="container">
+		
+        {% block content %}{% endblock %}
+		
+		
+		
+    </div>
+	<div class="container">
+	<hr class="my-4">
+	<div class="nav">Rowingstats.com  &copy; 2018</div>
+	<div class="row col">&nbsp;</div>
+	</div>
+   {% block footer %} {% endblock %}
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -31,9 +31,14 @@ SECRET_KEY = 'EM9i.fBMiMLNU1K79TYqJcCHd+\}VLTZ&l3D>=vIU`@uSK%>5]'
 # SECURITY WARNING: don't run with debug turned on in production!
 if comp_name in ("CHARLES-", "CHARLES-LAPTOP2"):
 	DEBUG = True
+	SESSION_COOKIE_SECURE = False
+	CSRF_COOKIE_SECURE = False
+	CSRF_COOKIE_HTTPONLY = False
 else:
 	DEBUG = False
 	SESSION_COOKIE_SECURE = True
+	CSRF_COOKIE_SECURE = True
+	CSRF_COOKIE_HTTPONLY = True
 
 ALLOWED_HOSTS = [
 	'localhost',
@@ -45,8 +50,6 @@ ALLOWED_HOSTS = [
 # Security settings
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
 
 
@@ -55,6 +58,7 @@ X_FRAME_OPTIONS = 'DENY'
 INSTALLED_APPS = [
 	'ajax_select',
 	'rowing.apps.RowingConfig',
+	'blog.apps.BlogConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -1,0 +1,21 @@
+{% extends "blog/base.html" %}
+{% load staticfiles %}
+{% block title %} Rowingstats - {{object.title}} {% endblock %}
+
+{% block content %}
+<div class="col-md"><h1 class="">{{object.title}}</h1></div>
+<div class="col-md"><p><em>Published on: {{object.published}}</em></p></div>
+
+<!--<div class="col-sm-4"><p>[Picture will go here]</p></div>-->
+<!--
+<div class="col-sm-12 row"><h3>Attributes</h3></div>
+<div class="row">
+	<div class="col-sm-4"><p>Gender: [object.gender]</p></div>
+	<div class="col-sm-4"><p>Lightweight? [object.lightweight]</p></div>
+</div>
+-->
+{% autoescape off %}
+<div class="col">{{object.content}}</div>
+{% endautoescape %}
+
+{% endblock %}
