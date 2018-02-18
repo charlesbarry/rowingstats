@@ -15,11 +15,7 @@
 				<h5 class="mb-1"><strong>{{item.title}}</strong></h5>
 				<small>{{item.published|date}}</small>
 			</div>
-			<p class="mb-1">
-			{% autoescape off %}
-			{{item.content|truncatewords_html:20}}
-			{% endautoescape %}
-			</p>
+			<p class="mb-1">{{item.summary}}</p>
 		</a>
 		{% endfor %}
 	</div>

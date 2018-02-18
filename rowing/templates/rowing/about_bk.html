@@ -1,0 +1,76 @@
+{% extends "rowing/base.html" %}
+{% block title %} {{type}} Rankings{% endblock %}
+{% block content %}
+	<div class="col-sm-12 row"><h1>About</h1></div>
+	<div class="col-sm-12 row"><p>This is a volunteer project to create a comprehensive database of all rowing results. We are also experimenting with methods of ranking rowers based on aggregating their public race results.</p></div>
+	<div class="col-sm-12 row"><h3 id="goals">Goals</h3></div>
+	<div class="col-sm-12 row"><p>We have several related aims:</p>
+	<ul>
+	<li>To create a comprehensive, searchable database of all rowing results, starting with the UK domestically and rolling out to the wider world.</li>
+	<li>In doing so, to use modern digital technologies and open data standards, including by developing an API for people to use for their own research or applications.</li>
+	<li>To encourage all races in the UK to use a common data standard for the publication of their race results.</li>
+	<li>To investigate ways of analytically ranking or comparing athletes in sweep rowing and sculling, informed by the data stored on this website.</li>
+	</ul>
+	</div>
+	<div class="col-sm-12 row"><h3 id="goals">Rankings</h3></div>
+	<div class="col-sm-12 row"><p>In this section we will try to explain how the ranking system works.</p></div>
+	<div class="col-sm-12 row"><h4>Background</h4></div>
+	<div class="col-sm-12 row"><p>To recap what is on the rankings page:</p>
+	<ul>
+		<li>To appear in the rankings table, athletes must have at least 4 recorded scores (although estimates will appear for all rowers on their individual results page), and their most recent score must date within the previous year. The ranking is on their estimated skill level <em>minus</em> the level of uncertainty attached to that estimate.</li>
+		<li>The scores are only calculated on the data available. This is incomplete, but more data will be added over time. <a href="/races">Browse the races to see what is included</a>.</li>
+		<li>"Skill" is an estimate of how good a rower is at sweep rowing or sculling. More points = more likely to win a race. The average/default is 100 points.</li>
+		<li>"Uncertainty" is an measure of how sure the estimate of the skill is. In short, fewer races on the system or more inconsistent results means a higher measure of uncertainty. The default starting point is 10.</li>
+	</ul>
+	<p>The idea of ranking rowers comes from Chess. For more than 50 years, chess players have been ranked on a <a href="https://en.wikipedia.org/wiki/Elo_rating_system">system known as ELO</a>. Players start out with a set number of points. If they beat someone, they gain points, and vice versa. However, the amount of points awarded varies depending on how unexpected the win was - if one beats another player much more skilled than them, they will get more points for that win than if they had beaten a novice. Live league tables are maintained online, <a href="http://www.2700chess.com/">for example here</a>. </p></div>
+	<div class="col-sm-12 row"><h4>Calculations</h4></div>
+	<div class="col-sm-12 row"><p>The calculations in this website are an adaptation and refinement of these ideas. The rankings are based upon the <a href="https://www.microsoft.com/en-us/research/project/trueskill-ranking-system/">Trueskill algorithm</a>, first developed by Microsoft to ensure that people playing online multiplayer online games face a fair level of challenge that matches their skill level. It is based upon the principle that everyone's skill in a particular domain (e.g. rowing or chess) can be represented by <a href="https://en.wikipedia.org/wiki/Normal_distribution">a statistical probability distribution</a>. In other words, the idea here is that while we can never know exactly what someone's skill level is - particularly if race results are infrequent and rowers are inconsistent over time - we can give an informed central estimate of what we think their skill level is, and we can also talk about how certain we are of that estimate. For the technically minded, the skill level quoted is the mean of the individual's skill distribution, and the 'uncertainty' figure quoted is their standard deviation.</p>
+	<p>The maths involved in calculating the rankings are quite involved - <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2007/01/NIPS2006_0688.pdf">see for example the original paper on the algorithm</a>. However, there are a number of important factors to note:</p>
+	<ul>
+	<li>It is the result relative to other players in a race, rather than an absolute performance, that counts.</li>
+	<li>This means that you can beat someone by 5 lengths or a bow ball, at the end of the day, a win is a win. In a multi-lane race or a time trial, the thing that matters is where you place in the finish results, not what your overall time was.</li>
+	<li>As above, if a GB Squad Member beats a bunch of novices at (for example) Twickenham Regatta, their ranking is not going to be as affected as if they had won the A Final of the Olympics.</li>
+	<li>The smaller the boat competing, the more meaningful a result and the more their skill estimate will be affected.</li>
+	<li>Similarly, the more people competing in a race, the more the result affects their skill level.</li>
+	</ul>
+	<p>The two factors above combine so that a large time trial of singles or pairs will be much more influential on an athlete's ranking scores than a Henley-style one-on-one eights race.</p></div>
+	<div class="col-sm-12 row"><h4>Limitations</h4></div>
+	<div class="col-sm-12 row"><p>At the moment, the data used to calculate the rankings is still quite limited - a handful of races over a small period of time. Therefore the rankings currently present reflect these individual data points more than what the people involved are really capable of. It remains to be seen whether these skill estimates can be used for predictive purposes (as was originally envisaged), as opposed to merely reflecting previous performances.</p>
+	<p>A final note in this regard is on the information that a race result can tell us. Mathematically speaking, there is a finite amount of data that can be collected from any race result. This is equal to the number of teams (crews) that compete in that event multipled by the binary logarithm of that number. A race of 6 eights generates only 16 bits of data, compared to 110 bits generated by a time trial of 24 pairs. Similarly, if we have a number of people to rank (say 1000 active UK rowers), the amount of data needed is also equal to the number of rowers times by the binary logarithm of that number.</p>
+	<p>These two factors can be combined. If all 1000 rowers got into a single and raced each other in a big time trial, we would only need one race to be able to produce a comprehensive ranking. If instead they switched to sweep and got into pairs (or sculled in doubles), they would need to time trial at least three times before enough data had been produced. If they raced in quads or fours, they would need 5 races. In eights they would need 12 races to be able to obtain the same amount of data (imagine repeating eights head 12 times!). Consider how little data is produced by a six lane side-by-side regatta semi or final, and you may understand the difficulty in producing an accurate ranking. The answer to the problem, of course, is to simply have more data!</p>
+	<h4>How do the predictions work?</h4>
+	<p>It's straightforward. We take the two rower's latest skill level and uncertainty, and effectively reverse those to give us a probability that rower A will beat rower B. If your skill level is higher, you should be more likely to beat your opponent, and the closer the two values, the more likely it will be a 50:50 chance. Given a certain skill level, if your uncertainty is higher, the more likely it is that it will be a 50:50 chance of you winning.</p>
+	<p>The two factors, the skill difference (i.e. your skill minus that of your opponent) and the combined uncertainty (your uncertainty value plus that of your opponent) both affect your win probability. For example, if you have 5 points more skill than your opponent (e.g. you have 95 vs 90 points, or 110 vs 105) and you both have 9 uncertainty points, your win probability will be 61%. If we are more sure of both the skill levels and reduce your uncertainty to 3 points each, the same skill difference of 5 points will give you a win probability of 80%.</p>
+	</div>
+	
+	<div class="col-sm-12 row"><h3 id="todo">To do</h3></div>
+	<div class="col-sm-12 row"><p>We still have quite a lot to do to make this website a success. Our primary goal is to stabilise this website, make it useable and functioning, and then to add more data!</p>
+	<h4 id="data">Data to be added</h4>
+	<p>We can only include racing results if we receive a complete crew list along with a list of finish positions for any regatta/head. Times are not important, which is why at the moment we haven't bothered to put any in the results database. Importantly, knowing the club name of a crew (e.g. "Leander A") is not enough - we have to know the names of the rowers.</p>
+	<ul>
+	<li>Senior British Championships Regatta - 2015, 2016, 2017 (Women's and Men's Sculling events)</li>
+	<li>BUCS Regatta - 2016, 2017 (all events)</li>
+	<li>Henley Royal Regatta - 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 (all events). We have a lovely set of the Regatta Records to digitise :) If you know of older editions, we'd be interested to hear from you.</li>
+	<li>Fours Head 2016 - Sculling and Women's Events</li>
+	<li>GB Trials - 4th assessment 2015 (all events), 2016 and 2017 cycles (lightweight, Women's and sculling)</li>
+	<li>Met Regatta - 2015 (partly complete), 2016 and 2017 (all events)</li>
+	<li>Marlow Regatta - 2013, 2014, 2015, 2016 (all events), 2017 (partly complete)</li>
+	<li>Henley Women's Regatta - 2017</li>
+	<li><em>We are also looking at including data from international races (e.g. Olympics, World Champs)</em></li>
+	</ul>
+	<h4>Features in the pipeline</h4>
+	<ul>
+	<li>Improvements to the user interface</li>
+	<li>Ability to view competitions, events and results more effectively</li>
+	<li>Improved filtering of rankings</li>
+	<li>Ability for you to correct errors in the results and suggest contributions</li>
+	<li>Time data in results</li>
+	<li>Lightweight, U23 and U20 data in results</li>
+	<li>See Club data, including the current members of a Club</li>
+	<li>New statistics for rowers, such as most likely to row with</li>
+	<li>Crew comparisons - build crews and see who is more likely to win</li>
+	</ul>
+	<p></p></div>
+	<div class="col-sm-12 row"><p>&nbsp;</p></div>
+
+{% endblock %}
