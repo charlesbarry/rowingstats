@@ -19,6 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 	url(r'^articles/', include('blog.urls')),
-	url(r'^ckeditor/', include('ckeditor_uploader.urls')),
 	url(r'^', include('rowing.urls')),
 ]
