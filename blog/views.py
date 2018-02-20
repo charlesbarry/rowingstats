@@ -8,8 +8,7 @@ class ArticleList(ListView):
 	model = Article
 	paginate_by = 5
 	ordering = ['-published']
+	queryset = Article.objects.filter(public=1)
 	
 class ArticleDetail(DetailView):
 	model = Article
-
-# detail view: detail of item

@@ -5,7 +5,8 @@
 {% block content %}
 <div class="row col-sm">&nbsp;</div>
 <div class="col-md"><h1 class="">{{object.title}}</h1></div>
-<div class="col-md"><p><em>Published on: {{object.published|date}}</em></p></div>
+<div class="col"><em>Published on: {{object.published|date}}</em> </div>
+<div class="col"><p><small class="text-muted">Times viewed: {{object.views}}</small></p></div>
 
 <!--<div class="col-sm-4"><p>[Picture will go here]</p></div>-->
 <!--
