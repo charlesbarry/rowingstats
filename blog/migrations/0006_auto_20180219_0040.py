@@ -14,11 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        '''migrations.AlterField(
-            model_name='article',
-            name='content',
-            field=models.TextField(),
-        ),'''
         migrations.AlterField(
             model_name='article',
             name='published',
