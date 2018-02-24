@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import groupby
 from scipy.stats import norm
+from django.utils import timezone
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
@@ -411,8 +412,34 @@ class ClubList(ListView):
 	paginate_by = 50
 	ordering = ['name']	
 	
-class ClubDetail(DetailView):
-	model = Club
+def ClubDetail(request, pk):
+	this_club = Club.objects.get(pk=pk)
+	
+	#TODO: filtering by year, with a form and everything
+	#this_year = request.GET.get('year', timezone.now().year)
+	
+	# work out people who raced for that club in that year - set avoids duplicates
+	temp_members = set()
+	for this_result in this_club.result_set.all():
+		for this_rower in this_result.crew.all():
+			temp_members.add(this_rower)
+	
+	# turn the set into a sorted list	
+	club_members = sorted(temp_members, key = lambda x: x.name, reverse=False)
+	
+	# work out races the club took part in that year
+	temp_races = set()
+	for this_result in this_club.result_set.all():
+		temp_races.add(this_result.race)
+		
+	club_races = sorted(temp_races, key = lambda x: x.name, reverse=False)
+	
+	# creates the entry total
+	for item in club_races:
+		item.total_pos = Result.objects.filter(race__id=item.pk).count()
+		
+	context = {'club': this_club, 'races': club_races, 'members': club_members}
+	return render(request, 'rowing/club_detail.html', context)
 	
 def Compare(request):
 

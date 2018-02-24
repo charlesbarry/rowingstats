@@ -78,7 +78,8 @@ class Race(models.Model):
 	
 	# to be implemented
 	# location = 
-
+	
+	complete = models.BooleanField(default=True, help_text="If set to True (checked) the Race will be published and will be used in calculating scores. Leave unchecked for incomplete races. Useful for big races that need to be done in chunks.")
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
 

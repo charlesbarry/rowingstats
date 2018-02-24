@@ -1,7 +1,7 @@
 from django import forms
 #from dal import autocomplete
 from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
-from rowing.models import Rower, Result
+from rowing.models import Rower, Result, Club
 
 # a manual form
 class TestForm(forms.Form):
@@ -61,4 +61,12 @@ class CompetitionForm(forms.Form):
 	# choices was = (('','Any'),('Senior','Senior'),('Club','Club'))
 	raceclass = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
 	event = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+	year = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+	
+class ClubForm(forms.Form):
+	# copied from CompetitionForm so errors doubtless abound
+	def __init__(self, year_choices, *args, **kwargs):
+		super(CompetitionForm, self).__init__(*args, **kwargs)
+		self.fields["year"].choices = year_choices
+
 	year = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))

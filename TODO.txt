@@ -60,7 +60,9 @@ Things to do:
 50) Tweak default_mu for juniors, and juniors/lwts/u23s at international events
 51) Add filtering to rower admin page
 52) Add a function to run the recalculator with optional arguments - eg sweep only, men only, from a date
-53) Create an 'incomplete field' for a race - add logic so it doesn't appear online or be used in the recalculator if checked
+53) DONE - Create an 'incomplete field' for a race - add logic so it doesn't appear online or be used in the recalculator if checked
+54) DONE - improve rowercheck so that it calculates avg number of crew (ie doesnt miss pair and doubles)
+55) Add dynamic tau to recalculator - by increasing it depending on the gap between the previous result.
 
 
 Races to add:
