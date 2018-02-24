@@ -432,7 +432,7 @@ def ClubDetail(request, pk):
 	for this_result in this_club.result_set.all():
 		temp_races.add(this_result.race)
 		
-	club_races = sorted(temp_races, key = lambda x: x.date, reverse=False)
+	club_races = sorted(temp_races, key = lambda x: x.date, reverse=True)
 	
 	# creates the entry total
 	for item in club_races:
