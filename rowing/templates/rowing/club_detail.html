@@ -4,10 +4,11 @@
 <div class="col-sm-12 row"><h2>{{club.name}}</h2><hr></div>
 
 <div class="col-sm-12 row"><h3>People who have raced for this club</h3></div>
+<div class="col-sm-12 row"><p><em>NB: people who have raced in composites will appear in the lists of every Club in that composite boat</em></p></div>
 <div class="row">
 	<ul class="list-unstyled">
 		{% for rower in members %}
-			<div class="col-sm-4"><li><a href="{{rower.pk}}">{{ rower.name }}</a></li></div>
+			<div class="col-sm-4"><li><a href="/rowers/{{rower.pk}}">{{ rower.name }}</a></li></div>
 		{% endfor %}
 	</ul>
 </div>
