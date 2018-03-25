@@ -67,7 +67,7 @@ class Command(BaseCommand):
 		# loop through all complete races
 		counter = 0
 		length = len(races_used)
-		for race_i in races_used.objects.order_by('date','order'):
+		for race_i in races_used.order_by('date','order'):
 			ratings = []
 			positions = []
 			error_list = []
