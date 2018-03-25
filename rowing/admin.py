@@ -40,6 +40,9 @@ class RaceAdmin(admin.ModelAdmin):
 	get_event.short_description = 'Event'
 	get_event.admin_order_field = 'event__name'
 	
+	'''def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "name"'''
+	
 class RowerAdmin(admin.ModelAdmin):
 	model = Race
 	list_display = ['name', 'gender', 'nationality']

@@ -120,6 +120,7 @@ def RowerDetail(request, pk):
 		
 	except ObjectDoesNotExist:
 		context['scores'] = None
+	
 	#context['clubs'] = r1.result_set.all()
 	
 	context['form'] = RowerForm(copyGET)

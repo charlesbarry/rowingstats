@@ -62,10 +62,12 @@ class Command(BaseCommand):
 		reset_scores()
 		print("Scores reset to default.")
 		
-		# loop through all races
+		races_used = Race.objects.filter(complete = True)
+		
+		# loop through all complete races
 		counter = 0
-		length = len(Race.objects.all())
-		for race_i in Race.objects.order_by('date','order'):
+		length = len(races_used)
+		for race_i in races_used.objects.order_by('date','order'):
 			ratings = []
 			positions = []
 			error_list = []

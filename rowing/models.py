@@ -40,6 +40,10 @@ class Event(models.Model):
 		except:
 			return None
 	
+	# old stackoverflow tip
+	class Meta:
+		ordering = ['comp__name', 'name']
+	
 class Rower(models.Model):
 	name = models.CharField(max_length=100)
 	
