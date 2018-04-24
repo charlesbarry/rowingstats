@@ -11,7 +11,7 @@ with open('data/wehorr crews.csv') as csvfile:
 	reader = csv.DictReader(csvfile)
 	data = (list(reader))
 	
-for row in data:
+for row in data[113:]:
 	new_res = Result.objects.create(
 		race = wehorr,
 		position = row['FPos'],
