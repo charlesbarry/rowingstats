@@ -5,7 +5,7 @@ import csv
 from django.db.models import Q
 #from django.core.exceptions import MultipleObjectsReturned 
 
-wehorr = Race.objects.get(pk=92)
+wehorr = Race.objects.get(pk=413)
 
 with open('data/wehorr crews.csv') as csvfile:
 	reader = csv.DictReader(csvfile)
