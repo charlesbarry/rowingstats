@@ -7,11 +7,11 @@ from django.db.models import Q
 
 wehorr = Race.objects.get(pk=92)
 
-with open('wehorr crews.csv') as csvfile:
+with open('data/wehorr crews.csv') as csvfile:
 	reader = csv.DictReader(csvfile)
 	data = (list(reader))
 	
-for row in data[39:]:
+for row in data:
 	new_res = Result.objects.create(
 		race = wehorr,
 		position = row['FPos'],
