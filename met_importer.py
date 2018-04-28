@@ -96,7 +96,7 @@ def crewsearch(new_res, race, crew, irish, club_str):
 	# split the crew string into individual names
 	if "[" in crew:
 		# eliminate the cox
-		crewl = crew[:crew.rfind("[")-1].split(", ")
+		crewl = crew[:crew.rfind("[")-2].split(", ")
 	else:
 		crewl = crew.split(", ")
 
