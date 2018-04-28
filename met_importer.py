@@ -11,11 +11,13 @@ from django.db.models import Q
 import datetime
 #from django.core.exceptions import MultipleObjectsReturned 
 
+METDATE = datetime.date(2017, 6, 3)
+
 # pk is 9 on production, 10 on testing
-met = Competition.objects.get(pk=10)
+met = Competition.objects.get(pk=9)
 
 # composite placeholder
-composite_placeholder = Club.objects.get(pk=188)
+composite_placeholder = Club.objects.get(pk=362)
 
 composite_list = []
 
@@ -26,8 +28,8 @@ with open('data/met-sat-17.csv') as csvfile:
 	data = (list(reader))
 	
 # initial pass over the data - group the rows, create events for each
-if Race.objects.filter(event__comp=met).count() > 0:
-	craces = Race.objects.filter(event__comp=met)[28:]
+if Race.objects.filter(event__comp=met, date=METDATE).count() > 0:
+	craces = Race.objects.filter(event__comp=met, date=METDATE)
 else:	
 	# create a unique list of races
 	events = set()
@@ -78,7 +80,7 @@ else:
 				order = 2
 			new_race = Race.objects.create(
 				name = f[1] + " - " + f[0],
-				date = datetime.date(2017, 6, 3),
+				date = METDATE,
 				raceclass = "Club",
 				event = event,
 				order = order,
