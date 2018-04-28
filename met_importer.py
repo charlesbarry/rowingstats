@@ -29,7 +29,7 @@ with open('data/met-sat-17.csv') as csvfile:
 	
 # initial pass over the data - group the rows, create events for each
 if Race.objects.filter(event__comp=met, date=METDATE).count() > 0:
-	craces = Race.objects.filter(event__comp=met, date=METDATE)
+	craces = Race.objects.filter(event__comp=met, date=METDATE)[33:]
 else:	
 	# create a unique list of races
 	events = set()
