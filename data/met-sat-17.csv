@@ -1,4 +1,4 @@
-Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
+﻿Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 1,Eights Tier 2,Heat 1,1,5,SAA,Star & Arrow,"Tom Wiblin, Patrick George, Harry Higginbottom, James Fox, Jonathan Cameron, Callum Johnson, Chris Ray, Bertie Woodward-Fisher, [Cox] Samuel Royston"
 1,Eights Tier 2,Heat 1,2,1,AGE (A),Agecroft RC,"Andrew Thomas, Tristan Hollis, Thomas Buckley, Rory O'Neill, Sean Szekely, John Ford, Benedict Adey-Johnson, Jack Roe, [Cox] Lucy Masters"
 1,Eights Tier 2,Heat 1,3,3,TRC (B),Thames RC,"Simon Moss, Joe Abdalla, Nicholas Pusinelli, Andrew Gordon, Charlie Bouch, Sam Thornton, Huw Jones, Sebastien Tyrie, [Cox] Emily Burge"
@@ -17,7 +17,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 3,Eights Tier 4,Heat 1,2,2,LEE (A),Leeds RC,"Androioannis Lorentzatos, Mark Tarrant, Lewis Marston, Conor Vincent, James Tipper, Daniel Humphrey, Vasileios Athanasiadis, Theodosios Travlos, [Cox] Jasmine Jones"
 3,Eights Tier 4,Heat 1,3,4,DUB,Durham Univ,"Matthew Roe, Harry Cox, Lachie Ives, George Cansdale, Lloyd Barron-Robinson, Christian Palmer, Lucas Rodd, Benjamin Evans, [Cox] Fiona Hardyman"
 3,Eights Tier 4,Heat 1,4,1,UBR (B),Bristol Univ,"Gareth Davies, Tom Sykes, William Feakes, Charlie Baker, Alasdair Knight, Tom Watkinson, Morgan Gray, Marcus Smith, [Cox] Alicia Hardy"
-3,Eights Tier 4,Heat 1,5,3,VRC (C),Vesta RC,"Robert Alexander, Christian Green, Joseph Casey, Rory Baggott, Alexander Küng, James Cox, Laurence Hookway, Oliver Chapman, [Cox] Chloe Ramambason"
+3,Eights Tier 4,Heat 1,5,3,VRC (C),Vesta RC,"Robert Alexander, Christian Green, Joseph Casey, Rory Baggott, Alexander KÃ¼ng, James Cox, Laurence Hookway, Oliver Chapman, [Cox] Chloe Ramambason"
 3,Eights Tier 4,Heat 1,6,5,ZDU (B),Dublin University BC,"Paulus Heemskerk, Ross Layden, John Taaffe, Hugh Lohan, Constantine Knauer, Brian Egan, Andrew Burgess, Gavin Moore, [Cox] Hannah Colgan"
 4,Eights Tier 4,Heat 2,1,6,JEO,Jesus Coll Oxf,"John Gardner, Iolo Jones, Robert Strachan, Hugo Markland, Thomas de Sousa, Keir Bowater, Andrew Everall, Tom Commins, [Cox] Iona Gilby"
 4,Eights Tier 4,Heat 2,2,5,NRC,Nottingham RC,"Hamish Hughes, Toby Piggott, Matthew Bowles, Adam Wright, George Rymell, Stephen Bennett, Ben Farrell, James Doleman, [Cox] Sophie Jones"
@@ -95,7 +95,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 15,Women's Eights Tier 2,Heat 1,6,5,ZDT (C),Dublin U Ladies,"Ruthie McHugh, Jane Hogg, Aideen Fay, Aoife McGranaghan, Molly Brennan, Gabriele Gusciute, Anna Mangan, Ellen Murphy, [Cox] Clare White"
 16,Women's Eights Tier 2,Heat 2,1,6,ZDT (B),Dublin U Ladies,"Nora Fisher, Sarah Kelly, Aoife Corcoran, Caoimhe Dempsey, Aoife Byrne, Gemma Foley, Laura Walsh, Sarah Higgins, [Cox] Aoife Reid"
 16,Women's Eights Tier 2,Heat 2,2,3,VRC (A),Vesta RC,"Cameo Choquer, Victoria Carroll, Fiona Robinson, Cherry Fermor, Hannah Futter, Clare Wood, Fiona Palamarczuk, Kirsty McGregor-Ritchie, [Cox] Lauren Hardcastle"
-16,Women's Eights Tier 2,Heat 2,3,4,COX (B),Oxford City,"Caroline Barnes, Isobel Diment, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-Aël Carré, Naomi Sharma, [Cox] Dhaval Desai"
+16,Women's Eights Tier 2,Heat 2,3,4,COX (B),Oxford City,"Caroline Barnes, Isobel Diment, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-AÃ«l CarrÃ©, Naomi Sharma, [Cox] Dhaval Desai"
 16,Women's Eights Tier 2,Heat 2,4,5,UBR (B),Bristol Univ,"Lily Donovan, Sophie Angel, Maddie Sanders, Rosie Watkins, Madeleine Jannoe, Grace Ward-Allen, Catherine Nohre, Charlotte Marshall, [Cox] Caroline Welsh"
 16,Women's Eights Tier 2,Heat 2,5,2,TRC (B),Thames RC,"Robyn Carter, Louisa Horton, Jennifer O'Boyle, Lucy Nee, Sophie Jenkins, Bryony Spottiswoode, Charlotte Potter, Eleanor Roberts, [Cox] Alastair Jackson"
 17,Women's Coxed Fours Tier 3,Heat 1,1,5,LLA,Llandaff RC,"Catherine Raine, Grace Mahony, Emily Brace, Suzanne Erith, [Cox] Richard Summers"
@@ -107,7 +107,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 18,Women's Coxed Fours Tier 3,Heat 2,1,1,PTR (B),Putney Town,"Rachel Dean, Deborah Oakley, Catriona Docherty, Sophie Bluff, [Cox] Heather Longstaff"
 18,Women's Coxed Fours Tier 3,Heat 2,2,2,LEE (A),Leeds RC,"Jessica Brush, Charlotte Milligan, Ella Sadler-Andrews, Emily Holt, [Cox] Harin Wijayathunga"
 18,Women's Coxed Fours Tier 3,Heat 2,3,7,TSS (A),Tideway Sc Sch,"Jennifer Scrine, Rachel Scanlan, Kate Thorne, Katya De Gentile-Williams, [Cox] Jessica Saunders"
-18,Women's Coxed Fours Tier 3,Heat 2,4,6,ZNU (B),NUI Galway BC,"Aisling Nolan, Ailbhe N�- Griofa, Sorcha O'Donnell, Shannon Sheridian, [Cox] Johanna Walsh"
+18,Women's Coxed Fours Tier 3,Heat 2,4,6,ZNU (B),NUI Galway BC,"Aisling Nolan, Ailbhe NÃ- Griofa, Sorcha O'Donnell, Shannon Sheridian, [Cox] Johanna Walsh"
 18,Women's Coxed Fours Tier 3,Heat 2,5,3,ZDT (A),Dublin U Ladies,"Susie O' Neill, Ellen Clohessy, Maria Kennedy, Aine Kennedy, [Cox] Aoife Reid"
 18,Women's Coxed Fours Tier 3,Heat 2,6,4,EXU,Exeter Univ,"Sophie Taylor, Amy Louise Ward, Caitlin Kickham, Emily Batchelor, [Cox] Sophie Wrixon"
 18,Women's Coxed Fours Tier 3,Heat 2,7,5,NEW,Newcastle Univ,"Christina Castledine, Charlotte Penrose, Victoria Chamberlain, Kathleen Blake, [Cox] Sophie Grisewood"
@@ -143,7 +143,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 24,Women's Single Sculls Tier 4,Heat 1,2,5,GRF,Greenbank,Sarah E Lewis
 24,Women's Single Sculls Tier 4,Heat 1,3,4,ZQL,Queens U Ladies,Olivia Blundell
 24,Women's Single Sculls Tier 4,Heat 1,4,3,CNN,Cambridge 99,Catherine Watson
-24,Women's Single Sculls Tier 4,Heat 1,5,6,NRC,Nottingham RC,Fleur Tavaré
+24,Women's Single Sculls Tier 4,Heat 1,5,6,NRC,Nottingham RC,Fleur TavarÃ©
 24,Women's Single Sculls Tier 4,Heat 1,6,2,WRR,Worcester RC,Eloise Foulds
 24,Women's Single Sculls Tier 4,Heat 1,8,1,SPG,St Paul's Girls,Lucinda Douse
 25,Women's Single Sculls Tier 4,Heat 2,1,4,BAU,Bath Univ,Laura Macro
@@ -249,7 +249,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 42,Women's Eights Tier 2,Final,3,3,VRC (A),Vesta RC,"Cameo Choquer, Victoria Carroll, Fiona Robinson, Cherry Fermor, Hannah Futter, Clare Wood, Fiona Palamarczuk, Kirsty McGregor-Ritchie, [Cox] Lauren Hardcastle"
 42,Women's Eights Tier 2,Final,4,2,CUR,Curlew RC,"Rebecca Jackson, Inga Jirgensone, Lianne Abbott, Anna Palsdottir, Claire Williams, Gemma Barker, Charlotte Waghorne, Jessica Phillips, [Cox] Alexander Smith"
 42,Women's Eights Tier 2,Final,5,6,YRK,York City RC,"Louise Hawkyard, Helen Waller, Jessica Pidgeon, Amy Newton, Edith Bourne, Rachel Witherick, Michelle Alexander, Joselyn Rankin, [Cox] Tabatha Cole"
-42,Women's Eights Tier 2,Final,6,7,COX (B),Oxford City,"Caroline Barnes, Isobel Diment, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-Aël Carré, Naomi Sharma, [Cox] Dhaval Desai"
+42,Women's Eights Tier 2,Final,6,7,COX (B),Oxford City,"Caroline Barnes, Isobel Diment, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-AÃ«l CarrÃ©, Naomi Sharma, [Cox] Dhaval Desai"
 43,Women's Coxless Pairs Tier 2,Final,1,4,LEH,Lady E Holles,"Catherine King, Gemma King"
 43,Women's Coxless Pairs Tier 2,Final,2,3,VRC,Vesta RC,"Robyn McGregor-Ritchie, Ruth McKellar"
 43,Women's Coxless Pairs Tier 2,Final,3,2,ZNU (A),NUI Galway BC,"Georgina Deane, Sadhbh O'Connor"
@@ -337,7 +337,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 58,Eights Tier 3,Heat 2,1,6,UBR (A),Bristol Univ,"Arthur Smith, Harry Rosen, Alex Heslop, James Foster, John Allden, Elias Kassell Raymond, Benjamin Slingsby, Carl Cox, [Cox] Johanna Dodgson"
 58,Eights Tier 3,Heat 2,2,1,ETN/ RNY (B),Eton Coll/ Navy & Marines,"Oliver Brufal de Melgarejo (ETN), Adam Mombru (ETN), Andy Matheson (RNY), Kuttel Rorke (ETN), Theodore Hall (ETN), Alex Rusis (ETN), Aubrey Warley (ETN), Richard Taylor (ETN), [Cox] Edward Bracey (ETN)"
 58,Eights Tier 3,Heat 2,3,5,CNN,Cambridge 99,"Rhidian Maltby, Robert Sargent, Karel Kabelik, Edward Gardiner, Dominic Bennett, Nicholas Thorn, Helge Dietert, Nathan Ryan, [Cox] Lily Chan"
-58,Eights Tier 3,Heat 2,4,2,LTU,Latymer Upper,"Saami Tajeddin, Thomas De Meeûs d'Argenteuil, Hamish Lister, Petar Suvajic, David Ferm, Mathew Brett, Ethan Ward, Nicholas Mayhew, [Cox] Ishan Barve"
+58,Eights Tier 3,Heat 2,4,2,LTU,Latymer Upper,"Saami Tajeddin, Thomas De MeeÃ»s d'Argenteuil, Hamish Lister, Petar Suvajic, David Ferm, Mathew Brett, Ethan Ward, Nicholas Mayhew, [Cox] Ishan Barve"
 58,Eights Tier 3,Heat 2,5,4,COX,Oxford City,"Hamish Bowie, William Rogers, Edward Podgorski, Dmitry Nazarenko, George New, Luke Kelly, Harry Robinson, Thomas Briggs, [Cox] Kirstin Anderson"
 58,Eights Tier 3,Heat 2,6,3,RAD (B),Radley Coll,"Max Cragoe, Will Farrer-Brown, Theo Metcalf, James Innes-Ker, Tiger Beck, Henry Taylor, William A Brassard, Joshua Beck, [Cox] Christoph Wallendahl"
 59,Eights Tier 3,Heat 3,1,2,ZCD (A),University Coll Dublin RC,"Cameron Murphy, Coman O'Connell, Michael Noonan, Mark Doyle, Seamus Kennedy, David Somers, Niall Farrell, James O'Sullivan, [Cox] Shauna Fitz"
@@ -379,7 +379,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 65,Eights Tier 5,Heat 1,4,2,ZCD (B),University Coll Dublin RC,"Ben Layden, Thomas O Reilly, Thomas Birmingham, Robbie Glynn, Andrew Mays, Finnian Shilling, O Sullivan Cian, Tim Burke, [Cox] Caoimhe Fitzgerald"
 65,Eights Tier 5,Heat 1,5,3,TYN,Tyne RC,"Michael Dodds, George Starr, Joshua Bate, Peter Storey, Serkan Turkmen, A J Musgrave, Danny Hunter, Henry Galbraith, [Cox] Rosie Connolly"
 65,Eights Tier 5,Heat 1,6,1,UBR (C),Bristol Univ,"Sean Alexander, Joseph Mallet, Louis Heath, Jack Fradd, George Kilgour, James Hogben, Harry Baker, Angus Firth, [Cox] Shona Wilcox"
-65,Eights Tier 5,Heat 1,7,7,KCL (C),King's Coll Lon,"Ayush Joshi, Jack Mulekezi, Guy Anderson, Talyn Jones, Rory Swan, Derek Watson, Luke Lyons, Frederic Léon Ritter, [Cox] Bethan Grech"
+65,Eights Tier 5,Heat 1,7,7,KCL (C),King's Coll Lon,"Ayush Joshi, Jack Mulekezi, Guy Anderson, Talyn Jones, Rory Swan, Derek Watson, Luke Lyons, Frederic LÃ©on Ritter, [Cox] Bethan Grech"
 66,Eights Tier 5,Heat 2,1,1,UWE,W England Univ,"Aghaude Amadi, Edward Dean, Benjamin Stafford, Will Lord, Liam Hopkins, Robert Bonham, Andrew Heath, Tim Waller, [Cox] Freya Jennings"
 66,Eights Tier 5,Heat 2,2,4,NTU,Nottm Trent,"Callum Donington, James Beagles, Adam Swain, Guy Woolford, Yiana Shakespeare, Edd Maryon, Samuel Geller, Edward Stracey, [Cox] Joe Elliott"
 66,Eights Tier 5,Heat 2,3,3,CCS,Claires Court,"Alex Jackson, Ben Broadhead, Alexander Getley, Raamie Falck Award, Oliver Hill, Toby Yate, Adam Fairley, Ben Forster, [Cox] Charles Nash"
@@ -427,7 +427,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 74,Women's Eights Tier 3,Heat 2,1,2,ZGY,Galway RC,"Ruth Elwood, Kellie-Ann Folan, Isabella McDonald, Roisin Cahill, Kellie Wade, Amy Sims, Claire Elwood, Fiona Murtagh, [Cox] Sarah Lynch"
 74,Women's Eights Tier 3,Heat 2,2,3,EXU,Exeter Univ,"Sophie Ackert, Julia Bradley, Ella Armstrong, Arabella Weetch, Emily Batchelor, Caitlin Kickham, Samantha Over, Sophie Taylor, [Cox] Sophie Wrixon"
 74,Women's Eights Tier 3,Heat 2,3,6,NUN,Nottm & Union,"Jasmine Michalowska, Clodagh Gallagher, Amy Fenoulhet, Alice Williams, Mary Bryant Jeans, Heather Lund, Hannah Walker, Isobel Pullinger, [Cox] Laura Stops"
-74,Women's Eights Tier 3,Heat 2,4,4,COX (A),Oxford City,"Isobel Diment, Caroline Barnes, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-Aël Carré, Naomi Sharma, [Cox] Dhaval Desai"
+74,Women's Eights Tier 3,Heat 2,4,4,COX (A),Oxford City,"Isobel Diment, Caroline Barnes, Emily Lyons, Ella Cope, Tabitha Peel, Jodie Buswell, Gwenn-AÃ«l CarrÃ©, Naomi Sharma, [Cox] Dhaval Desai"
 74,Women's Eights Tier 3,Heat 2,5,1,ULO,London Univ,"Hannah Lidbetter, Amelie Peiker, Esme Jones, Annabel Strachan, Jenny Budden, Alexandra Courage, Jessica Milborne, Martina Larsson, [Cox] Tanya Hossain"
 74,Women's Eights Tier 3,Heat 2,6,5,PTR,Putney Town,"Laura Tompkins, Joely Dicks, Laura Peck, Lauren Buchanan, Francesca Lawley, Melanie Perkins, Georgina Killick, Jade Gowan, [Cox] Tanya Bates"
 75,Junior 18 Quad Sculls,Final,1,4,CCS,Claires Court,"Jack Jesseman, Henry Osborne, Callum Perera, Oliver Costley"
@@ -444,7 +444,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 77,Single Sculls Tier 5,Heat 2,1,4,DUB,Durham Univ,Montague Norman
 77,Single Sculls Tier 5,Heat 2,2,3,NWK,Newark RC,Oliver Saunders
 77,Single Sculls Tier 5,Heat 2,3,5,DUB,Durham Univ,Ryan Todhunter
-77,Single Sculls Tier 5,Heat 2,4,2,GLW,Glasgow RC,Lukáš Melichar
+77,Single Sculls Tier 5,Heat 2,4,2,GLW,Glasgow RC,LukÃ¡Å¡ Melichar
 77,Single Sculls Tier 5,Heat 2,5,6,RNY,Navy & Marines,Andy Matheson
 78,Women's Coxed Fours Tier 2,Heat 1,1,5,ULO,London Univ,"Anna Collins, Holly Exton-Smith, Amber Pierce, Olivia Rogerson, [Cox] Lauren Holland"
 78,Women's Coxed Fours Tier 2,Heat 1,2,4,UTC,Upper Thames RC,"Gabriella Halloran, Emma Peacock, Rhianna Cearns, Sally Pollok-Morris, [Cox] Zoe Thomas"
@@ -462,7 +462,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 80,Eights Championship,Heat 1,4,6,CUR (A),Curlew RC,"John Stewart, Angus Wilson, Lukas Schmidt, Callum Stayton, Eoghan Beamish, Alexander James Parsons-Mills, T Weekes, Matthew Richardson, [Cox] Nicola Freeman"
 80,Eights Championship,Heat 1,5,4,MBC (B),Molesey BC,"Fraser Steel, Laurence Ellis, Felix Warren, Ollie Stanhope, William Johnston, Jake Greig, Matthew Hardy, Theo Darlow, [Cox] Scott Cockle"
 80,Eights Championship,Heat 1,6,7,KRC,Kingston RC,"Tom Hopkins, Matthew McWilliam, Ben Handy, Thomas Rawlins, Jonathan Webber, Peter Wales, Nick Pepper, Sam Tunbridge, [Cox] Prudence Seaward"
-81,Eights Championship,Heat 2,1,1,WIN,Winchester Coll,"Dent Goodman, Alex Wythe, William Passmore, Hugo Durward, Oliver Le May, Milford Killian-Dawson, Tobias Schröder, Luke Robinson, [Cox] Gabriel Cuaycong"
+81,Eights Championship,Heat 2,1,1,WIN,Winchester Coll,"Dent Goodman, Alex Wythe, William Passmore, Hugo Durward, Oliver Le May, Milford Killian-Dawson, Tobias SchrÃ¶der, Luke Robinson, [Cox] Gabriel Cuaycong"
 81,Eights Championship,Heat 2,2,6,WES,Westminster Sch,"Baptiste Bouvier, Mathijs Deetman, Nicholas Cowling, Jake Swann, Alexander Green, Reginald Mitchell, Henry Jones, George Middleton, [Cox] Hugh Spaughton"
 81,Eights Championship,Heat 2,3,2,ETN (B),Eton Coll,"Charles Pearson, Alexander Boardman, Francis Baring, Noah Norman, Patrick Adams, Felix Drinkall, Oscar Carr-Middleton, Max Ridgewell, [Cox] George Cozens"
 81,Eights Championship,Heat 2,4,5,HAM (A),Hampton Sch,"Matthew Hamilton, Matthew Turner, Tom Davis, Rory Gilligan, Edward Butler, Thomas Worthington, Tom Cross, Piero Ladhur, [Cox] Charlie Marcus"
@@ -497,7 +497,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 86,Coxless Fours Tier 4,Heat 1,2,1,DUB,Durham Univ,"Matthew Roe, Harry Cox, Lachie Ives, Benjamin Evans"
 86,Coxless Fours Tier 4,Heat 1,3,2,CFC (B),Cardiff City RC,"Shane Ahearne, Matthew Nicholls, Rhys Paul, Adrien Grubb"
 86,Coxless Fours Tier 4,Heat 1,4,4,YRK (A),York City RC,"Patrick Evans, Andrew Wilkinson, Daniel Lewis, Benjamin Bollans"
-86,Coxless Fours Tier 4,Heat 1,5,7,VRC,Vesta RC,"Laurence Hookway, James Cox, Alexander Küng, Oliver Chapman"
+86,Coxless Fours Tier 4,Heat 1,5,7,VRC,Vesta RC,"Laurence Hookway, James Cox, Alexander KÃ¼ng, Oliver Chapman"
 86,Coxless Fours Tier 4,Heat 1,6,3,BRI (B),Bridgnorth RC,"Daryl Breakwell, Richard Pilsbury, Stuart Round, Nick McNeil"
 87,Coxless Fours Tier 4,Heat 2,1,7,CBR (C),Bristol City,"Charles Caton, Patrick Wright, George Verdon, Ben Trotman"
 87,Coxless Fours Tier 4,Heat 2,2,4,PMB,Pembroke Oxford,"Edward Rolls, Willem de Bruijn, Carl Gergs, Andrew James Saul"
@@ -658,7 +658,7 @@ Race No,Event Name,Race Type,Position,Lane Number,Club Code,Club Name,Crew List
 113,Eights Championship,Final,2,6,ULO (A),London Univ,"Ben Freeman, James Richards, Alex Steventon, Max Townley, Joshua Tolley, Patrick Boomer, Joshua Kent, Patrick Sullivan, [Cox] Rajaei Sharma"
 113,Eights Championship,Final,3,3,WES,Westminster Sch,"Baptiste Bouvier, Mathijs Deetman, Nicholas Cowling, Jake Swann, Alexander Green, Reginald Mitchell, Henry Jones, George Middleton, [Cox] Hugh Spaughton"
 113,Eights Championship,Final,4,7,ETN (B),Eton Coll,"Charles Pearson, Alexander Boardman, Francis Baring, Noah Norman, Patrick Adams, Felix Drinkall, Oscar Carr-Middleton, Max Ridgewell, [Cox] George Cozens"
-113,Eights Championship,Final,5,5,WIN,Winchester Coll,"Dent Goodman, Alex Wythe, William Passmore, Hugo Durward, Oliver Le May, Milford Killian-Dawson, Tobias Schröder, Luke Robinson, [Cox] Gabriel Cuaycong"
+113,Eights Championship,Final,5,5,WIN,Winchester Coll,"Dent Goodman, Alex Wythe, William Passmore, Hugo Durward, Oliver Le May, Milford Killian-Dawson, Tobias SchrÃ¶der, Luke Robinson, [Cox] Gabriel Cuaycong"
 113,Eights Championship,Final,6,2,LRC (A),London RC,"Matthew Reeder, Dylan Wing, Todd Hale, Thomas Neeld, Tom Monaghan, Jamie Saunders, Sebastien Thomas, Lucas Vitale, [Cox] Kim Wilkinson"
 114,Women's Single Sculls Tier 3,Final,1,4,LER,Leicester RC,Sophie Connolly
 114,Women's Single Sculls Tier 3,Final,2,2,CAB,Cantabrigian RC,Georgina Plunkett
