@@ -1,10 +1,5 @@
 # script to import the csv data into sqlite
 
-# TODO 
-## update rower name similar to club search - correct name of rower eg Initial Surname -> Forename Surname - DONE but not debugged
-## add ability to search for different club string - eg W Borlase or S'Hampton Uni - DONE but not debugged
-## fix mystery searches for ' ' - DONE(?)
-
 from rowing.models import Rower, Race, Result, Club, Competition, Event
 import csv
 from django.db.models import Q
@@ -29,7 +24,7 @@ with open('data/met-sat-17.csv') as csvfile:
 	
 # initial pass over the data - group the rows, create events for each
 if Race.objects.filter(event__comp=met, date=METDATE).count() > 0:
-	craces = Race.objects.filter(event__comp=met, date=METDATE)
+	craces = Race.objects.filter(event__comp=met, date=METDATE)[33:]
 else:	
 	# create a unique list of races
 	events = set()

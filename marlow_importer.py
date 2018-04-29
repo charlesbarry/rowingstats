@@ -1,9 +1,7 @@
 # script to import the csv data into sqlite
 
-# TODO 
-## update rower name similar to club search - correct name of rower eg Initial Surname -> Forename Surname - DONE but not debugged
-## add ability to search for different club string - eg W Borlase or S'Hampton Uni - DONE but not debugged
-## fix mystery searches for ' ' - DONE(?)
+# TODO - take out masters races
+## remove irish function
 
 from rowing.models import Rower, Race, Result, Club, Competition, Event
 import csv
@@ -11,25 +9,28 @@ from django.db.models import Q
 import datetime
 #from django.core.exceptions import MultipleObjectsReturned 
 
-METDATE = datetime.date(2017, 6, 3)
+#METDATE = datetime.date(2017, 6, 3)
+SATDATE = datetime.date(2013, 6, 15)
+SUNDATE = datetime.date(2013, 6, 16)
 
 # pk is 9 on production, 10 on testing
-met = Competition.objects.get(pk=9)
+marlow = Competition.objects.get(pk=3)
 
-# composite placeholder
-composite_placeholder = Club.objects.get(pk=362)
+# composite placeholder - 188 in dev, 362 in production
+composite_placeholder = Club.objects.get(pk=188)
 
 composite_list = []
 
 clubtemptest = []
+crewtemptest = []
 
-with open('data/met-sat-17.csv') as csvfile:
+with open('data/2013_Marlow.csv') as csvfile:
 	reader = csv.DictReader(csvfile)
 	data = (list(reader))
 	
 # initial pass over the data - group the rows, create events for each
-if Race.objects.filter(event__comp=met, date=METDATE).count() > 0:
-	craces = Race.objects.filter(event__comp=met, date=METDATE)
+if Race.objects.filter(event__comp=marlow, date__in=[SATDATE, SUNDATE]).count() > 0:
+	craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])[23:]
 else:	
 	# create a unique list of races
 	events = set()
@@ -39,16 +40,17 @@ else:
 	cevents = []
 	ecounter = 0
 	for event in events:
-		# conveniently, all the sculling races have 'Scull' in their name
-		if "Scull" in event:
+		# conveniently, all the sculling races have x on the end of their name.
+		if "x" in event:
 			type = 'Sculling'
 		else:
 			type = 'Sweep'
 	
-		if event.rfind("Junior") == -1:
+		# avoid junior events e.g. J14.8x+
+		if event[:1] != "J":
 			new_event = Event.objects.create(
 				name = event,
-				comp = met,
+				comp = marlow,
 				type = type,
 				distance = '2000m',
 			)
@@ -70,17 +72,25 @@ else:
 		fracenames = set()
 		for frace in fraces:
 			# tuple has to be used rather than list
-			fracenames.add((frace['Race Type'], frace['Event Name']))
+			fracenames.add((frace['Race Id'], frace['Event Name'], frace['Date']))
 		
 		# create a new race from members of the fracenames set
 		for f in fracenames:
-			if f[0].rfind("Final") == -1:
+			if "Final" in f[0]:
 					order = 0
+			elif "Rep" in f[0]:
+				order = 1
 			else:
 				order = 2
+				
+			if f[2] == "6/15/2013":
+				rdate = SATDATE
+			elif f[2] == "6/16/2013":
+				rdate = SUNDATE
+			
 			new_race = Race.objects.create(
 				name = f[1] + " - " + f[0],
-				date = METDATE,
+				date = rdate,
 				raceclass = "Club",
 				event = event,
 				order = order,
@@ -92,135 +102,127 @@ else:
 			rcounter += 1
 
 # crew is a list of names
-def crewsearch(new_res, race, crew, irish, club_str):
-	# split the crew string into individual names
-	if "[" in crew:
-		# eliminate the cox
-		crewl = crew[:crew.rfind("[")-2].split(", ")
-	else:
-		crewl = crew.split(", ")
-
-	for r in crewl:
-			# get the fullname - lstrip/rstrip removes whitespace
-			rname = r.rstrip()
-			rname = rname.lstrip()
-			
-			if "Women" in race.name:
-				gender = "W"
-			else:
-				gender = "M"
-			
-			# exception to shortcut logic if one exact match found
-			try:
-				exactcheck = Rower.objects.get(name = rname, gender = gender)
-				new_res.crew.add(exactcheck)
-				continue
-			
-			except Rower.MultipleObjectsReturned:
-				print("!"*20)
-				print("Error: multiple objects returned for an exact name and gender match.")
-				print("Search database for duplicates of %s." % rname)
-				print("!"*20)
-				continue
-			
-			except Rower.DoesNotExist:
-				pass
-			
-			# commence looser search
-			# get the surname - obtains the word after the last space in the name
-			if rname.find("(") == -1:
-				sname = rname[(rname.rfind(" ") + 1):] 
-			else:
-				tname = rname[:rname.find("(")].rstrip()
-				sname = tname[(tname.rfind(" ") + 1):]
-			# Q object used to do an OR query
-			choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], gender = gender)
-			
-			# branch caused by prior error in the split function above
-			if len(choicelist) > 50:
-				print("A search for %s has generated a very large choicelist (%s results). Debug info as follows:" % (rname, len(choicelist)))
-				print("Surname: %s" % sname)
-				print("Shortened rname: %s" % rname[:1])
-				print("Full crew information:")
-				for item in crewl:
-					print(item, ",")
-				return None
-			elif len(choicelist) > 0:				
-				print("#"*20)
-				print("Input required for rower %s (of club %s)" % (rname, club_str))
-				# print all the choices - the ,1 starts enumeration at 1
-				for i, item in enumerate(choicelist, 1):
-					print("%s): %s - %s - %s" % (i, item.name, item.gender, item.nationality))
-					
-					# show all associated clubs
-					assoc_clubs = set()
-					for res1 in item.result_set.all():
-						for club in res1.clubs.all():
-							if club is not None:
-								assoc_clubs.add(club.name)
-					print("Associated clubs - %s" % str(assoc_clubs))
+def crewsearch(new_res, race, rname, row, irish, club_str):
+	if row['Seat'] != 'Coxswain':
+		if "W" in race.event.name:
+			gender = "W"
+		else:
+			gender = "M"
+		
+		# exception to shortcut logic if one exact match found
+		try:
+			exactcheck = Rower.objects.get(name = rname, gender = gender)
+			new_res.crew.add(exactcheck)
+			return None
+		
+		except Rower.MultipleObjectsReturned:
+			print("!"*20)
+			print("Error: multiple objects returned for an exact name and gender match.")
+			print("Search database for duplicates of %s." % rname)
+			print("!"*20)
+			return None
+		
+		except Rower.DoesNotExist:
+			pass
+		
+		# commence looser search
+		# get the surname - obtains the word after the last space in the name
+		if rname.find("(") == -1:
+			sname = rname[(rname.rfind(" ") + 1):] 
+		else:
+			tname = rname[:rname.find("(")].rstrip()
+			sname = tname[(tname.rfind(" ") + 1):]
+		# Q object used to do an OR query
+		choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], gender = gender)
+		
+		# branch caused by prior error in the split function above
+		if len(choicelist) > 50:
+			print("A search for %s has generated a very large choicelist (%s results). Debug info as follows:" % (rname, len(choicelist)))
+			print("Surname: %s" % sname)
+			print("Shortened rname: %s" % rname[:1])
+			print("Full crew information:")
+			for item in crewl:
+				print(item, ",")
+			return None
+		elif len(choicelist) > 0:				
+			print("#"*20)
+			print("Input required for rower %s (of club %s)" % (rname, club_str))
+			# print all the choices - the ,1 starts enumeration at 1
+			for i, item in enumerate(choicelist, 1):
+				print("%s): %s - %s - %s" % (i, item.name, item.gender, item.nationality))
 				
-				# infinite loop to ensure you input correctly
-				print("#"*20)
-				print("Enter the number of the result to add to the crew. Or choose 0 to ignore this list and add a new entry to the DB. Make the number negative to modify the name of that rower.")
-				while True:
-					try:
-						choice = int(input("Your choice: "))
-					except ValueError:
-						print("That wasn't an integer. Try again.")
-						continue
-					if choice > len(choicelist):
-						print("Choice out of range. Try again.")
-						continue
-					if choice < -len(choicelist):
-						print("Choice out of range. Try again.")
-						continue
-					else:
-						break
-				
-				# the ignore branch
-				if choice == 0:
-					if irish == True:
-						nationality = "IRE"
-					else:
-						nationality = "GBR"
-					new_rower = Rower.objects.create(
-						name = rname,
-						gender = gender,
-						nationality = nationality,
-					)
-					new_res.crew.add(new_rower)
-					print("New rower %s added to the DB and the crew." % rname)
-				
-				# otherwise, add that rower to the crew. 
-				# NB choice is -1 because the list enumerated for entry is +1 to reserve the ignore branch as 0.
-				elif choice > 0:
-					new_res.crew.add(choicelist[choice - 1])
-					print("Rower %s added to the crew." % choicelist[choice - 1].name)
-				
-				# branch to modify the rower name
-				elif choice < 0:
-					achoice = abs(choice)
-					new_res.crew.add(choicelist[achoice-1])
-					print("Enter the name that the choice should be updated to.")
-					newname = input("Name: ")
-					choicelist[achoice - 1].name = newname
-					choicelist[achoice - 1].save()
-					print("Rower %s added to the crew." % choicelist[achoice - 1].name)
-				
-			# the branch for when no search results found
-			else:
+				# show all associated clubs
+				assoc_clubs = set()
+				for res1 in item.result_set.all():
+					for club in res1.clubs.all():
+						if club is not None:
+							assoc_clubs.add(club.name)
+				print("Associated clubs - %s" % str(assoc_clubs))
+			
+			# infinite loop to ensure you input correctly
+			print("#"*20)
+			print("Enter the number of the result to add to the crew. Or choose 0 to ignore this list and add a new entry to the DB. Make the number negative to modify the name of that rower.")
+			while True:
+				try:
+					choice = int(input("Your choice: "))
+				except ValueError:
+					print("That wasn't an integer. Try again.")
+					continue
+				if choice > len(choicelist):
+					print("Choice out of range. Try again.")
+					continue
+				if choice < -len(choicelist):
+					print("Choice out of range. Try again.")
+					continue
+				else:
+					break
+			
+			# the ignore branch
+			if choice == 0:
 				if irish == True:
 					nationality = "IRE"
 				else:
 					nationality = "GBR"
 				new_rower = Rower.objects.create(
-					name = rname,
+					name = rname += ("(" + club_str + ")"),
 					gender = gender,
 					nationality = nationality,
 				)
 				new_res.crew.add(new_rower)
-				print("No rower found under name %s. Added to the database" % rname)
+				print("New rower %s added to the DB and the crew." % rname)
+				crewtemptest.append((rname, new_rower))
+			
+			# otherwise, add that rower to the crew. 
+			# NB choice is -1 because the list enumerated for entry is +1 to reserve the ignore branch as 0.
+			elif choice > 0:
+				new_res.crew.add(choicelist[choice - 1])
+				print("Rower %s added to the crew." % choicelist[choice - 1].name)
+				crewtemptest.append((rname, choicelist[choice - 1]))
+			
+			# branch to modify the rower name
+			elif choice < 0:
+				achoice = abs(choice)
+				new_res.crew.add(choicelist[achoice-1])
+				print("Enter the name that the choice should be updated to.")
+				newname = input("Name: ")
+				choicelist[achoice - 1].name = newname
+				choicelist[achoice - 1].save()
+				print("Rower %s added to the crew." % choicelist[achoice - 1].name)
+				crewtemptest.append((rname, choicelist[achoice - 1]))
+			
+		# the branch for when no search results found
+		else:
+			if irish == True:
+				nationality = "IRE"
+			else:
+				nationality = "GBR"
+			new_rower = Rower.objects.create(
+				name = rname,
+				gender = gender,
+				nationality = nationality,
+			)
+			new_res.crew.add(new_rower)
+			print("No rower found under name %s. Added to the database" % rname)
 
 # function to search for club members goes here...
 def clubsearch(new_res, race, cname, composite, irish):	
@@ -478,48 +480,55 @@ for race in craces:
 	rname = race.name[(race.name.find("-")+2):]
 	
 	# filter the rows to find only those relating to that race
-	fraces2 = [x for x in data if x['Event Name'] == ename and x['Race Type'] == rname]
+	fraces2 = [x for x in data if x['Event Name'] == ename and x['Race Id'] == rname]
 	
-	# loop over the results
+	entries = set()
+	# because Marlow has athlete not crew level rows, we need to add a further refine
 	for row in fraces2:
-		# flag detection
-		flagn = row['Club Code'].find("(")
-		if flagn == -1:
-			flag = ''
-		else:
-			# eg "TRC (A)"
-			flag = row['Club Code'][5]
-		
-		# irish detection - eg "ZDB"
-		if row['Club Code'][0] == "Z":
-			isirish = True
-		else:
-			isirish = False
-		
-		# composite detection
-		if "/" in row['Club Name']:
-			composite = True
-		else:
-			composite = False
-		
+		entries.add(row['Place'])
+	
+	for entry in entries:
+		fraces3 = [x for x in fraces2 if x['Place'] == entry]
+
 		new_res = Result.objects.create(
-			race = race,
-			position = row['Position'],
-			flag = flag,
+		race = race,
+		position = fraces3[0]['Place'],
+		flag = '',
 		)
 		
-		# call the search functions
-		crewsearch(new_res, race, row['Crew List'], isirish, row['Club Name'])
-		
+		for row in fraces3:
+			composite = False
+			isirish = False
+			
+			# get the fullname - lstrip/rstrip removes whitespace
+			rname = row['Name'].rstrip()
+			rname = rname.lstrip()
+			
+			# splits "Surname, A."
+			rname = rname[:-1]
+			rname1 = rname[:rname.find(",")]
+			rname2 = rname[-1:]
+			
+			# recombines as "A Surname"
+			rname = rname2 + " " + rname1
+			
+			if any(rname in i for i in crewtemptest):
+				for name_i in crewtemptest:
+					if rname in clubt[0]:
+						new_res.clubs.add(clubt[1])
+						print("%s added to the result." % clubt[1].name)
+			else:
+				crewsearch(new_res, race, rname, row, isirish, row["Entry Club"])
+				
 		# clubtemptest used to avoid repetitive idiosycratic corrections eg Molesey BC -> Molesey Boat Club
 		# structure is [(Incorrect entry, club object)]
-		if any(row['Club Name'] in i for i in clubtemptest):
+		if any(fraces3[0]["Entry Club"] in i for i in clubtemptest):
 			for clubt in clubtemptest:
-				if row['Club Name'] in clubt[0]:
+				if fraces3[0]["Entry Club"] in clubt[0]:
 					new_res.clubs.add(clubt[1])
 					print("%s added to the result." % clubt[1].name)
 		else:
-			clubsearch(new_res, race, row['Club Name'], composite, isirish)
+			clubsearch(new_res, race, row["Athlete's Club"], composite, isirish)
 		
 	print("Race %s of %s completed." % (counter, len(craces)+1))
 	counter += 1
