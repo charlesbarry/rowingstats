@@ -8,29 +8,59 @@ import csv
 from django.db.models import Q
 import datetime
 #from django.core.exceptions import MultipleObjectsReturned 
+import sys
 
-#METDATE = datetime.date(2017, 6, 3)
-SATDATE = datetime.date(2013, 6, 15)
-SUNDATE = datetime.date(2013, 6, 16)
+if sys.argv[1] == "2013":
+	SATDATE = datetime.date(2013, 6, 15)
+	SUNDATE = datetime.date(2013, 6, 16)
+	SATDATE_str = "6/15/2013"
+	SUNDATE_str = "6/16/2013"
+	datafile = "data/2013_Marlow.csv"
+elif sys.argv[1] == "2014":
+	SATDATE = datetime.date(2014, 6, 21)
+	SUNDATE = datetime.date(2014, 6, 22)
+	SATDATE_str = "6/21/2014"
+	SUNDATE_str = "6/22/2014"
+	datafile = "data/2014_Marlow.csv"
+elif sys.argv[1] == "2015":
+	SATDATE = datetime.date(2015, 6, 20)
+	SUNDATE = datetime.date(2015, 6, 21)
+	SATDATE_str = "6/20/2015"
+	SUNDATE_str = "6/21/2015"
+	datafile = "data/2015_Marlow.csv"
+elif sys.argv[1] == "2016":
+	SATDATE = datetime.date(2016, 6, 18)
+	SUNDATE = datetime.date(2016, 6, 19)
+	SATDATE_str = "18/06/2016"
+	SUNDATE_str = "19/06/2016"
+	datafile = "data/2016_Marlow.csv"
+elif sys.argv[1] == "2017":
+	SATDATE = datetime.date(2017, 6, 17)
+	SUNDATE = datetime.date(2017, 6, 18)
+	SATDATE_str = "6/17/2017"
+	SUNDATE_str = "6/18/2017"
+	datafile = "data/2017_Marlow.csv"
 
-# pk is 9 on production, 10 on testing
+# pk is 3 on both testing and production
 marlow = Competition.objects.get(pk=3)
 
 # composite placeholder - 188 in dev, 362 in production
 composite_placeholder = Club.objects.get(pk=188)
 
 composite_list = []
-
 clubtemptest = []
 crewtemptest = []
 
-with open('data/2013_Marlow.csv') as csvfile:
+with open(datafile, 'r', encoding='UTF-8-sig', newline='') as csvfile:
 	reader = csv.DictReader(csvfile)
 	data = (list(reader))
 	
 # initial pass over the data - group the rows, create events for each
 if Race.objects.filter(event__comp=marlow, date__in=[SATDATE, SUNDATE]).count() > 0:
-	craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])[23:]
+	if sys.argv[2]:
+		craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])[sys.argv[2]:]
+	else:
+		craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])
 else:	
 	# create a unique list of races
 	events = set()
@@ -77,15 +107,15 @@ else:
 		# create a new race from members of the fracenames set
 		for f in fracenames:
 			if "Final" in f[0]:
-					order = 0
+					order = 2
 			elif "Rep" in f[0]:
 				order = 1
 			else:
-				order = 2
+				order = 0
 				
-			if f[2] == "6/15/2013":
+			if f[2] == SATDATE_str:
 				rdate = SATDATE
-			elif f[2] == "6/16/2013":
+			elif f[2] == SUNDATE_str:
 				rdate = SUNDATE
 			
 			new_race = Race.objects.create(
@@ -184,7 +214,7 @@ def crewsearch(new_res, race, rname, row, irish, club_str):
 				else:
 					nationality = "GBR"
 				new_rower = Rower.objects.create(
-					name = rname += ("(" + club_str + ")"),
+					name = rname + " (" + club_str + ")",
 					gender = gender,
 					nationality = nationality,
 				)
@@ -494,6 +524,7 @@ for race in craces:
 		race = race,
 		position = fraces3[0]['Place'],
 		flag = '',
+		complete = False,
 		)
 		
 		for row in fraces3:
@@ -504,19 +535,21 @@ for race in craces:
 			rname = row['Name'].rstrip()
 			rname = rname.lstrip()
 			
-			# splits "Surname, A."
-			rname = rname[:-1]
+			# splits "Surname, Forename"
+			# removes . from "Surname, Initial."
+			if "." in rname[-1:]:
+				rname = rname[:-1]
 			rname1 = rname[:rname.find(",")]
-			rname2 = rname[-1:]
+			rname2 = rname[rname.find(",")+2:]
 			
-			# recombines as "A Surname"
+			# recombines as "Forename Surname"
 			rname = rname2 + " " + rname1
 			
 			if any(rname in i for i in crewtemptest):
 				for name_i in crewtemptest:
-					if rname in clubt[0]:
-						new_res.clubs.add(clubt[1])
-						print("%s added to the result." % clubt[1].name)
+					if rname in name_i[0]:
+						new_res.crew.add(name_i[1])
+						print("%s added to the result." % name_i[1].name)
 			else:
 				crewsearch(new_res, race, rname, row, isirish, row["Entry Club"])
 				
@@ -532,6 +565,10 @@ for race in craces:
 		
 	print("Race %s of %s completed." % (counter, len(craces)+1))
 	counter += 1
+	
+	# should only be reached when all crew/clubs added. Prevents error accumulating un-noticed
+	race.complete = True
+	race.save()
 	
 print("All races completed. The following composite crews need to be resolved manually:")
 for item in composite_list:
