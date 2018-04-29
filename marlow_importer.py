@@ -124,7 +124,7 @@ else:
 				raceclass = "Club",
 				event = event,
 				order = order,
-				complete = True,				
+				complete = False,				
 			)
 			craces.append(new_race)
 			
@@ -524,7 +524,6 @@ for race in craces:
 		race = race,
 		position = fraces3[0]['Place'],
 		flag = '',
-		complete = False,
 		)
 		
 		for row in fraces3:
