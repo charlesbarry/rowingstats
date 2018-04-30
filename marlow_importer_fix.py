@@ -58,9 +58,9 @@ with open(datafile, 'r', encoding='UTF-8-sig', newline='') as csvfile:
 	
 # initial pass over the data - group the rows, create events for each
 if Race.objects.filter(event__comp=marlow, date__in=[SATDATE, SUNDATE]).count() > 0:
-	if sys.argv[2]:
+	try:
 		craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])[sys.argv[2]:]
-	else:
+	except IndexError:
 		craces = []
 		for item in Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE]):
 			if item.name.count("-") > 1:
