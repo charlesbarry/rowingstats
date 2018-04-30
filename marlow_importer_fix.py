@@ -61,7 +61,10 @@ if Race.objects.filter(event__comp=marlow, date__in=[SATDATE, SUNDATE]).count() 
 	if sys.argv[2]:
 		craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])[sys.argv[2]:]
 	else:
-		craces = Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE])
+		craces = []
+		for item in Race.objects.filter(event__comp=marlow, date__in=[SATDATE,SUNDATE]):
+			if item.name.count("-") > 1:
+				craces.append(item)
 else:	
 	# create a unique list of races
 	events = set()
