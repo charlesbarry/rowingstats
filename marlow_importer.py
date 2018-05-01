@@ -167,14 +167,14 @@ def crewsearch(new_res, race, rname, row, irish, club_str):
 		choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], gender = gender)
 		
 		# branch caused by prior error in the split function above
-		if len(choicelist) > 50:
+		if len(choicelist) > 150:
 			print("A search for %s has generated a very large choicelist (%s results). Debug info as follows:" % (rname, len(choicelist)))
 			print("Surname: %s" % sname)
 			print("Shortened rname: %s" % rname[:1])
-			print("Full crew information:")
-			for item in crewl:
-				print(item, ",")
-			return None
+			#print("Full crew information:")
+			#for item in crewl:
+			#	print(item, ",")
+			#return None
 		elif len(choicelist) > 0:				
 			print("#"*20)
 			print("Input required for rower %s (of club %s)" % (rname, club_str))
