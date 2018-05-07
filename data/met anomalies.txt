@@ -43,3 +43,10 @@ Merge Gavin O Dwyer and Gavin O'Dwyer
 
 Check Marlow Sat and Sun races with duplicate events aren't mixing...
 Check 2013 IM1 4+
+Check 2013 MasF 8+ Final
+Check 2013 Sen 1x Rep A
+Check 2013 Sen 4+ Rep A
+Check 2013 Elite Ltw 1x Heat 1
+Check 2013 MasD 4x-
+Check 2013 IM2 8+ Final (Sunday)
+Check 2014 IM1 4- B Final

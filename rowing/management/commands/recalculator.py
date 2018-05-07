@@ -118,10 +118,18 @@ class Command(BaseCommand):
 			for item in error_list:
 				r_error += ((item[1]-item[2])**2)
 			
-			r_error = r_error / len(error_list)
+			try:
+				r_error = r_error / len(error_list)
+			except:
+				print("Error! Race %s has no results!" % race_i.name)
+				continue
 			
 			# run the TrueSkill algorithm
-			rgroups = rate(ratings, ranks=positions)
+			try:
+				rgroups = rate(ratings, ranks=positions)
+			except:
+				print("Error! Race %s has only 1 entry!" % race_i.name)
+				continue
 			
 			#update the rower scores with the outcomes - looping through results and rowers
 			'''for i, item in enumerate(Result.objects.filter(race_id = race_i.pk).order_by('position')):
