@@ -4,7 +4,7 @@ from ajax_select.fields import autoselect_fields_check_can_add
 from ajax_select.admin import AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
 
 # Register your models here.
-from .models import Rower, Race, Result, Competition, Event, Club
+from .models import Rower, Race, Result, Competition, Event, Club, Time
 from .forms import ResultForm
 
 # custom admin to allow ajax many 2 many selection for crew members
@@ -54,3 +54,4 @@ admin.site.register(Result, ResultAdmin)
 admin.site.register(Competition)
 admin.site.register(Event)
 admin.site.register(Club)
+admin.site.register(Time)

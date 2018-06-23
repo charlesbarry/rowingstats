@@ -112,7 +112,7 @@ class Club(models.Model):
 		return self.name
 	
 class Result(models.Model):
-	race = models.ForeignKey(Race, on_delete=models.PROTECT)
+	race = models.ForeignKey(Race, on_delete=models.CASCADE)
 	position = models.IntegerField()
 	crew = models.ManyToManyField(Rower)
 	# Not to store club membership for each rower, but indirectly through the race entry
@@ -132,6 +132,12 @@ class Result(models.Model):
 	
 	def __str__(self):
 		return str(self.race)+": #"+str(self.position)
+		
+class Time(models.Model):
+	result = models.ForeignKey(Result, on_delete=models.CASCADE)
+	description = models.CharField(max_length=100)
+	value = models.TimeField()
+	order = models.PositiveSmallIntegerField(default=0)
 	
 class Score(models.Model):
 	''' Not needed as can be pulled through from Event through Race

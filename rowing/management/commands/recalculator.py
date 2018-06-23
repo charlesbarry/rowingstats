@@ -8,8 +8,8 @@ from itertools import groupby
 import datetime
 
 DEFAULT_SIGMA = 10.0 # Used to be (25/3)
-DEFAULT_MU = 100.0
-INT_MU = 110.0
+DEFAULT_MU = 0.0 # 100.0
+INT_MU = 10.0 # 110.0
 
 setup(beta=5, tau=0.5, draw_probability=0.002)
 
