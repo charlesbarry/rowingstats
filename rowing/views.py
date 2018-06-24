@@ -116,7 +116,13 @@ def RowerDetail(request, pk):
 			#context['jsuplist'].append([item2.result.race.date, (item2.mu+item2.sigma)])
 			context['jsmulist'].append([item2.result.race.date, item2.mu])
 			#context['jslolist'].append([item2.result.race.date, (item2.mu-item2.sigma)])
-			context['jscilist'].append([item2.result.race.date, (item2.mu-item2.sigma), (item2.mu+item2.sigma)])
+			
+			# floor function to prevent lower confidence interval going below zero
+			if (item2.mu-item2.sigma) < 0.0:
+				lci = 0.0
+			else:
+				lci = (item2.mu-item2.sigma)
+			context['jscilist'].append([item2.result.race.date, lci, (item2.mu+item2.sigma)])
 		
 	except ObjectDoesNotExist:
 		context['scores'] = None

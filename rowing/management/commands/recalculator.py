@@ -25,6 +25,11 @@ setup(beta=5, tau=0.5, draw_probability=0.002)
 def update_ts(n, rgroups, type):
 	for i, item in enumerate(Result.objects.filter(race_id = n).order_by('position')):
 		for j, member in enumerate(item.crew.all()):
+			# score floor at 0
+			if rgroups[i][j].mu < 0.0:
+				tmu = 0.0
+			else:
+				tmu = rgroups[i][j].mu
 			Score.objects.create(
 				mu = rgroups[i][j].mu,
 				sigma = rgroups[i][j].sigma,
