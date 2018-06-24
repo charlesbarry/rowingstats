@@ -31,7 +31,7 @@ def update_ts(n, rgroups, type):
 			else:
 				tmu = rgroups[i][j].mu
 			Score.objects.create(
-				mu = rgroups[i][j].mu,
+				mu = tmu,
 				sigma = rgroups[i][j].sigma,
 				#race = item.race,
 				result = item,
