@@ -174,4 +174,10 @@ class ScoreRanking(models.Model):
 	delta_mu_sigma = models.FloatField(default=90.0)
 	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
 	date = models.DateField("Score date")
-	type = models.CharField(max_length=10, default='Sweep')
+	type = models.CharField(max_length=20, default='Sweep')
+	
+	sr_choices = (
+		('Current', 'Current'),
+		('All time', 'All time'),
+	)
+	sr_type = models.CharField(max_length=20, choices=sr_choices, default='Current')

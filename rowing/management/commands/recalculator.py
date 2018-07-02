@@ -59,6 +59,7 @@ def add_ranking(data):
 		rower = data['rower'],
 		date = data['date'],
 		type = data['type'],
+		sr_type = data['sr_type'],
 		)
 	
 @transaction.atomic
@@ -70,8 +71,10 @@ def reset_scores():
 class Command(BaseCommand):
 	help = 'Recalculates the scores of rowers'
 
-	'''def add_arguments(self, parser):
-		parser.add_argument('poll_id', nargs='+', type=int)'''
+	'''#def add_arguments(self, parser):
+		#parser.add_argument('poll_id', nargs='+', type=int)
+		
+		#parser.add_argument()'''
 
 	def handle(self, *args, **options):
 		# clear all previous scores, reset to default
@@ -183,15 +186,17 @@ class Command(BaseCommand):
 		print("Beginning ranking calculations.")
 		
 		#cutoff_date = datetime.date(2016, 7, 5)
-		min_length = 4
+		
 		# gets the latest score for each rower
 		for rower in Rower.objects.all():
 			s2 = rower.score_set.all()
-			# filter by latest provided they have sufficient results
-			if len(s2) > min_length:
+			# requires to have more than 5 results
+			if s2.count() > 4:
 				s1 = s2.latest('result__race__date')
+				s_max = s2.extra(select={'dsm':'mu - sigma'}).order_by('-dsm')[0]
 				# ensure the result is in the recent period
 				#if s1.result.race.date > cutoff_date:
-				add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 		'date': s1.result.race.date, 'type': s1.result.race.event.type})
+				add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 		'date': s1.result.race.date, 'type': s1.result.race.event.type, 'sr_type': 'Current'})
+				add_ranking({'rower': rower, 'mu': s_max.mu, 'sigma': s_max.sigma, 'delta_mu_sigma': s_max.dsm, 		'date': s_max.result.race.date, 'type': s_max.result.race.event.type, 'sr_type': 'All time'})
 		
 		print("Completed ranking calculations")

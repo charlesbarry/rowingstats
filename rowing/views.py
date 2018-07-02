@@ -546,18 +546,19 @@ def RankingView(request):
 	rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')
 	'''
 	
+	# take today minus one year as the cutoff for current scores
 	tmp_currentdate = add_years(datetime.date.today(), -1)
 	
 	if currentrank == "y":
 		if gbonly == "y":
-			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, rower__nationality='GBR').order_by('-delta_mu_sigma')[:50]
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, rower__nationality='GBR', sr_type='Current').order_by('-delta_mu_sigma')[:50]
 		else:
-			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate).order_by('-delta_mu_sigma')[:50]
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, sr_type='Current').order_by('-delta_mu_sigma')[:50]
 	else:
 		if gbonly == "y":
-			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, rower__nationality='GBR').order_by('-delta_mu_sigma')[:50]
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, rower__nationality='GBR', sr_type='All time').order_by('-delta_mu_sigma')[:50]
 		else:
-			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g).order_by('-delta_mu_sigma')[:50]
+			rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, sr_type='All time').order_by('-delta_mu_sigma')[:50]
 	
 	form = RankingForm(request.GET)
 	

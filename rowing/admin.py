@@ -47,6 +47,9 @@ class RowerAdmin(admin.ModelAdmin):
 	model = Race
 	list_display = ['name', 'gender', 'nationality']
 	#list_filter = ['name']
+	
+class TimeAdmin(admin.ModelAdmin):
+	raw_id_fields = ("result",)
 
 admin.site.register(Rower, RowerAdmin)
 admin.site.register(Race, RaceAdmin)
@@ -54,4 +57,4 @@ admin.site.register(Result, ResultAdmin)
 admin.site.register(Competition)
 admin.site.register(Event)
 admin.site.register(Club)
-admin.site.register(Time)
+admin.site.register(Time, TimeAdmin)
