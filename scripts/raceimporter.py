@@ -48,7 +48,7 @@ def add_time(desc, ts, result, order):
 		raise e
 
 # crew is a list of names
-def crewsearch(new_res, race, name, nationality, club_str, crewtemptest):
+def crewsearch(new_res, race, name, gender, nationality, club_str, crewtemptest, add_exact=True):
 	logging.debug("Crewsearch called with parameters as follows:")
 	logging.debug("--new_res: %s", str(new_res))
 	logging.debug("--race: %s", str(race))
@@ -61,19 +61,18 @@ def crewsearch(new_res, race, name, nationality, club_str, crewtemptest):
 	rname = name.rstrip()
 	rname = rname.lstrip()
 	
-	if "Women" in race.name:
-		gender = "W"
-	else:
-		gender = "M"
-	
 	# exception to shortcut logic if one exact match found
 	logging.debug("Trying exact match for name=%s and gender=%s", rname, gender)
 	try:
 		exactcheck = Rower.objects.get(name = rname, gender = gender)
 		new_res.crew.add(exactcheck)
 		
+		# this if statement (on by default) allows large crewtemptests to avoid adding simple exact matches.
+		# Turn off if you have very standardised data that will match the DB
+		if add_exact:
+			crewtemptest.append((rname, exactcheck))
+		
 		# skipping the rest of the function due to success
-		crewtemptest.append((rname, exactcheck))
 		return crewtemptest
 	
 	except Rower.MultipleObjectsReturned:
@@ -93,22 +92,47 @@ def crewsearch(new_res, race, name, nationality, club_str, crewtemptest):
 	# commence looser search
 	# get the surname - obtains the word after the last space in the name
 	if rname.find("(") == -1:
-		sname = rname[(rname.rfind(" ") + 1):] 
+		sname = rname[rname.rfind(" "):] 
 	else:
 		tname = rname[:rname.find("(")].rstrip()
-		sname = tname[(tname.rfind(" ") + 1):]
+		# space before surname to help with v short surnames eg Lo
+		sname = tname[tname.rfind(" "):]
 	# Q object used to do an OR query
-	choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], gender = gender)
+	# TODO shorten choicelist where doesn't end with SNAME
+	# EITHER starts with initial or starts with 
+	# gender__in used in case search against M or W made when rower has only U as prev race history
+	choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], name__iendswith = sname, gender__in = [gender, "U"])
 	logging.debug("Looser search started, parameters as follows: name=%s, surname=%s, initial=%s, gender=%s", rname, sname, rname[:1], gender)
 	
+	# method shortening choicelist where firstname doesn't match
+	# EG Tom Middleton != Tim Middleton
+	# if search is not initials or initial.
+	# think about multiple initial eg AG Grace or A. G. Grace
+	if len(rname[:rname.find(" ")]) > 2:
+		for item in choicelist:
+			# check if both DB and search have fullnames - 2 includes intal
+			if len(item.name[:item.name.find(" ")]) > 2:
+				# check for exact case insensitive match
+				db_str = item.name[:item.name.find(" ")]
+				r_str = rname[:rname.find(" ")]
+				# if don't match, remove			
+				# exception for Tim, Tom, Oli and Fred - nicknames
+				exceptionlist = ['tim', 'tom', 'oli', 'fred']
+				if any(db_str.lower() in word for word in exceptionlist) or any(r_str.lower() in word for word in exceptionlist):
+					pass
+				elif db_str.lower() != r_str.lower():
+					choicelist = choicelist.exclude(id=item.id)
+			
+	
 	# branch caused by prior error in the split function above
-	if len(choicelist) > 250:
+	if choicelist.count() > 250:
 		print("A search for %s has generated a very large choicelist (%s results). Debug info as follows:" % (rname, len(choicelist)))
 		print("Surname: %s" % sname)
 		print("Shortened rname: %s" % rname[:1])
 		logging.error("A search for %s and %s has generated a very large choicelist (%s results).", rname, sname, len(choicelist))
 		return crewtemptest
-	elif len(choicelist) > 0:				
+	## TODO if exactly 1 match and the club is the same == that match
+	elif choicelist.count() > 0:				
 		print("#"*20)
 		print("Input required for rower %s (of club %s)" % (rname, club_str))
 		# print all the choices - the ,1 starts enumeration at 1
@@ -176,7 +200,7 @@ def crewsearch(new_res, race, name, nationality, club_str, crewtemptest):
 			crewtemptest.append((rname, choicelist[achoice - 1]))
 			return crewtemptest
 			
-	# the branch for when no search results found
+	# the branch for when no search results found ie len == 0
 	else:
 		new_rower = Rower.objects.create(
 			name = rname,

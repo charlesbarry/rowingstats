@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 from ajax_select import urls as ajax_select_urls
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import RedirectView
 
 from . import views
 from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2
@@ -22,6 +23,7 @@ urlpatterns = [
 	#url(r'^compare/$', csrf_exempt(views.Compare), name="compare-index"),
 	url(r'^compare/$', views.RowerCompare2, name="compare2"),
 	url(r'^crewcompare/$', views.CrewCompare, name="compare2"),
+	url(r'^favicon\.ico$',RedirectView.as_view(url='/static/favicon.ico')),
 	#url(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
 	#url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
 	#url(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),

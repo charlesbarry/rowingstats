@@ -1,524 +1,441 @@
-# script to import the csv data into sqlite
+# script to import the 2018 bucs regatta data
 
-from rowing.models import Rower, Race, Result, Club, Competition, Event
-import csv
+#TODO: move to django management command, allow options such as rollback for events
+
+from rowing.models import Rower, Race, Result, Club, Competition, Event, Time
+import json, csv, datetime, logging, os, pickle
 from django.db.models import Q
-import datetime
-#from django.core.exceptions import MultipleObjectsReturned 
+from scripts.raceimporter import crewsearch, clubsearch, add_time
 
-METDATE = datetime.date(2017, 6, 3)
+##### BEGIN CONFIG #####
+logging.basicConfig(filename='./log/worldrowing.log', level=logging.DEBUG, format='%(levelname)s: %(message)s')
+logging.info("####### Start of Log ########")
+logging.info("Timestamp -- %s", datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S - %A, %d %B %Y"))
 
-# pk is 9 on production, 10 on testing
-met = Competition.objects.get(pk=9)
+#fname = './data/worldrowing/wr200013data.csv'
+#fname = './data/worldrowing/wr201417data.csv'
+fname = './data/worldrowing/wrdatacombined.csv'
 
-# composite placeholder
-composite_placeholder = Club.objects.get(pk=362)
+olympics = Competition.objects.get(pk=10)
+worldchamps = Competition.objects.get(pk=13)
+worldcup = Competition.objects.get(pk=16)
+euros = Competition.objects.get(pk=17)
 
+composite = False
+
+picklepath_crewtemptest = './log/wr_crewtemptest.pickle'
+picklepath_clubtemptest = './log/wr_clubtemptest.pickle'
+picklepath_counter = './log/wr_counter.pickle'
+picklepath_allraces = './log/wr_allraces.pickle'
+picklepath_allevents = './log/wr_allevents.pickle'
+picklepath_wrdata = './log/wr_wrdata.pickle'
+
+##### END CONFIG #####
+
+##### PREPARATORY #####
 composite_list = []
 
-clubtemptest = []
+if os.path.isfile(picklepath_crewtemptest):
+	with open(picklepath_crewtemptest, 'rb') as fp:
+		crewtemptest = pickle.load(fp)
+else:
+	crewtemptest = []
 
-with open('data/met-sat-17.csv') as csvfile:
-	reader = csv.DictReader(csvfile)
-	data = (list(reader))
+if os.path.isfile(picklepath_clubtemptest):
+	with open(picklepath_clubtemptest, 'rb') as fp:
+		clubtemptest = pickle.load(fp)
+else:
+	clubtemptest = []
 	
-# initial pass over the data - group the rows, create events for each
-if Race.objects.filter(event__comp=met, date=METDATE).count() > 0:
-	craces = Race.objects.filter(event__comp=met, date=METDATE)[33:]
-else:	
-	# create a unique list of races
-	events = set()
-	for row in data:
-		events.add(row['Event Name'])
-	
-	cevents = []
-	ecounter = 0
-	for event in events:
-		# conveniently, all the sculling races have 'Scull' in their name
-		if "Scull" in event:
-			type = 'Sculling'
-		else:
-			type = 'Sweep'
-	
-		if event.rfind("Junior") == -1:
-			new_event = Event.objects.create(
-				name = event,
-				comp = met,
-				type = type,
-				distance = '2000m',
-			)
-			cevents.append(new_event)
-		else:
-			pass
-			
-		print("Event %s of %s entered into DB." % (ecounter, len(events)))
-		ecounter += 1
-	
-	craces = []
-	rcounter = 0
-	for event in cevents:
-		# create a filtered list of all racenames for that event
-		fraces = [x for x in data if x['Event Name'] == event.name]
-		
-		# create a unique list of the race names and event names
-		# could have just inherited the name from the event in the for loop above - oh well
-		fracenames = set()
-		for frace in fraces:
-			# tuple has to be used rather than list
-			fracenames.add((frace['Race Type'], frace['Event Name']))
-		
-		# create a new race from members of the fracenames set
-		for f in fracenames:
-			if f[0].rfind("Final") == -1:
-					order = 0
-			else:
-				order = 2
-			new_race = Race.objects.create(
-				name = f[1] + " - " + f[0],
-				date = METDATE,
-				raceclass = "Club",
-				event = event,
-				order = order,
-				complete = True,				
-			)
-			craces.append(new_race)
-			
-			print("Race %s entered into DB." % rcounter)
-			rcounter += 1
+if os.path.isfile(picklepath_counter):
+	with open(picklepath_counter, 'rb') as fp:
+		counter = pickle.load(fp)
+else:
+	counter = 0
 
-# crew is a list of names
-def crewsearch(new_res, race, crew, irish, club_str):
-	# split the crew string into individual names
-	if "[" in crew:
-		# eliminate the cox
-		crewl = crew[:crew.rfind("[")-2].split(", ")
-	else:
-		crewl = crew.split(", ")
+if os.path.isfile(picklepath_allevents):
+	with open(picklepath_allevents, 'rb') as fp:
+		allevents = pickle.load(fp)
+else:
+	allevents = False
+	
+if os.path.isfile(picklepath_allraces):
+	with open(picklepath_allraces, 'rb') as fp:
+		allraces = pickle.load(fp)
+else:
+	allraces = False
+	
+logging.info("Counter set as: %s", counter)
+logging.info("Config and preparatory tasks completed.")
 
-	for r in crewl:
-			# get the fullname - lstrip/rstrip removes whitespace
-			rname = r.rstrip()
-			rname = rname.lstrip()
-			
-			if "Women" in race.name:
-				gender = "W"
-			else:
-				gender = "M"
-			
-			# exception to shortcut logic if one exact match found
-			try:
-				exactcheck = Rower.objects.get(name = rname, gender = gender)
-				new_res.crew.add(exactcheck)
-				continue
-			
-			except Rower.MultipleObjectsReturned:
-				print("!"*20)
-				print("Error: multiple objects returned for an exact name and gender match.")
-				print("Search database for duplicates of %s." % rname)
-				print("!"*20)
-				continue
-			
-			except Rower.DoesNotExist:
-				pass
-			
-			# commence looser search
-			# get the surname - obtains the word after the last space in the name
-			if rname.find("(") == -1:
-				sname = rname[(rname.rfind(" ") + 1):] 
-			else:
-				tname = rname[:rname.find("(")].rstrip()
-				sname = tname[(tname.rfind(" ") + 1):]
-			# Q object used to do an OR query
-			choicelist = Rower.objects.filter(Q(name__icontains = rname) | Q(name__icontains = sname), name__startswith = rname[:1], gender = gender)
-			
-			# branch caused by prior error in the split function above
-			if len(choicelist) > 50:
-				print("A search for %s has generated a very large choicelist (%s results). Debug info as follows:" % (rname, len(choicelist)))
-				print("Surname: %s" % sname)
-				print("Shortened rname: %s" % rname[:1])
-				print("Full crew information:")
-				for item in crewl:
-					print(item, ",")
-				return None
-			elif len(choicelist) > 0:				
-				print("#"*20)
-				print("Input required for rower %s (of club %s)" % (rname, club_str))
-				# print all the choices - the ,1 starts enumeration at 1
-				for i, item in enumerate(choicelist, 1):
-					print("%s): %s - %s - %s" % (i, item.name, item.gender, item.nationality))
-					
-					# show all associated clubs
-					assoc_clubs = set()
-					for res1 in item.result_set.all():
-						for club in res1.clubs.all():
-							if club is not None:
-								assoc_clubs.add(club.name)
-					print("Associated clubs - %s" % str(assoc_clubs))
-				
-				# infinite loop to ensure you input correctly
-				print("#"*20)
-				print("Enter the number of the result to add to the crew. Or choose 0 to ignore this list and add a new entry to the DB. Make the number negative to modify the name of that rower.")
-				while True:
-					try:
-						choice = int(input("Your choice: "))
-					except ValueError:
-						print("That wasn't an integer. Try again.")
-						continue
-					if choice > len(choicelist):
-						print("Choice out of range. Try again.")
-						continue
-					if choice < -len(choicelist):
-						print("Choice out of range. Try again.")
-						continue
-					else:
-						break
-				
-				# the ignore branch
-				if choice == 0:
-					if irish == True:
-						nationality = "IRE"
-					else:
-						nationality = "GBR"
-					new_rower = Rower.objects.create(
-						name = rname,
-						gender = gender,
-						nationality = nationality,
-					)
-					new_res.crew.add(new_rower)
-					print("New rower %s added to the DB and the crew." % rname)
-				
-				# otherwise, add that rower to the crew. 
-				# NB choice is -1 because the list enumerated for entry is +1 to reserve the ignore branch as 0.
-				elif choice > 0:
-					new_res.crew.add(choicelist[choice - 1])
-					print("Rower %s added to the crew." % choicelist[choice - 1].name)
-				
-				# branch to modify the rower name
-				elif choice < 0:
-					achoice = abs(choice)
-					new_res.crew.add(choicelist[achoice-1])
-					print("Enter the name that the choice should be updated to.")
-					newname = input("Name: ")
-					choicelist[achoice - 1].name = newname
-					choicelist[achoice - 1].save()
-					print("Rower %s added to the crew." % choicelist[achoice - 1].name)
-				
-			# the branch for when no search results found
-			else:
-				if irish == True:
-					nationality = "IRE"
-				else:
-					nationality = "GBR"
-				new_rower = Rower.objects.create(
-					name = rname,
-					gender = gender,
-					nationality = nationality,
-				)
-				new_res.crew.add(new_rower)
-				print("No rower found under name %s. Added to the database" % rname)
+if os.path.isfile(picklepath_wrdata):
+	with open(picklepath_wrdata, 'rb') as fp:
+		wrdata = pickle.load(fp)
+else:
+	with open(fname, 'r', encoding='UTF-8-sig', newline='') as csvfile:
+		reader = csv.DictReader(csvfile)
+		wrdata = (list(reader))
+	
+logging.info("Data read successfully.")
+##### END PREPARATORY #####
 
-# function to search for club members goes here...
-def clubsearch(new_res, race, cname, composite, irish):	
+##### CREATION OF EVENTS AND RACES ######
+if not allevents:
+	logging.info("Starting to create new events")
 	try:
-		exactcheck = Club.objects.get(name = cname)
-		new_res.clubs.add(exactcheck)
-	
-	except Club.MultipleObjectsReturned:
-		print("!"*20)
-		print("Error: multiple clubs returned for an exact name match.")
-		print("Search database for duplicates of %s." % rname)
-		print("!"*20)
-	
-	except Club.DoesNotExist:
-		pass
-	
-	# else search on the basis of the first four letters of the club name
-	clubchoice = Club.objects.filter(name__icontains = cname[:4])
-	
-	if composite == True:
-		new_res.clubs.add(composite_placeholder)
-		print("%s was flagged as a composite and you will need to resolve this manually - Race: %s" % (cname, race.name))	
-		composite_list.append((cname, race.name))
-	elif len(clubchoice) > 0:
-		print("#"*20)
-		print("Input required for club name %s" % cname)
-		print("Here are the clubs that matched with this name:")
-		for i, item in enumerate(clubchoice, 1):
-				print("%s): %s" % (i, item.name))
-				
-		print("#"*20)
-		print("Enter the number of the club to add. Or choose 0 to ignore this list and add a new entry to the DB. Choose -1 to add a new club but with manual name entry. Choose -2 to search for a different string.")
-		while True:
-			try:
-				choice = int(input("Your choice: "))
-			except ValueError:
-				print("That wasn't an integer. Try again.")
-				continue
-			if choice > len(clubchoice):
-				print("Choice out of range. Try again.")
-				continue
-			if choice < -2:
-				print("Choice out of range. Try again.")
-				continue
-			else:
-				break
-		
-		if choice == -1:
-			choice2 = input("Please type the name of this club: ")
-			newclub = Club.objects.create(name=choice2)
-			new_res.clubs.add(newclub)
-			print("%s added to the DB." % choice2)
-		
-		# search for different string branch
-		elif choice == -2:
-			while True:
-				choice5 = input("Please type the string you want to search for: ")
-				if len(choice5) < 3:
-					print("Sorry, you need to enter a string of at least four digits to prevent excessively long results.")
-					continue
+		for row in wrdata[counter:]:
+			# skip if django Event already exists for this row
+			if not 'dj_event' in row or row['dj_event'] == '':
+				if "Cup" in row['competition']:
+					comp = worldcup
+				elif "European" in row['competition']:
+					comp = euros
+				elif "World Rowing Championships" in row['competition']:
+					comp = worldcup
+				elif "Olympic" in row['competition']:
+					comp = olympics
 				else:
-					clubchoice2 = Club.objects.filter(name__icontains = choice5)
-					if clubchoice2.count() == 0:
-						print("Sorry, no matches for that string.")
-						while True:
-							print("Enter manually (M) or search again (S)?")
-							choice6 = input("M/S: ")
-							if choice6 == "S":
-								break
-							elif choice6 == "M":
-								while True:
-									choice4 = input("Please type the name of this club (non-UK country will be appended automatically): ")
-									if len(choice4) < 2:
-										print("Sorry but that's not a valid Club name. Try again.")
-										continue
-									else:
-										if irish == True:
-											choice4 += ", Ireland"
-										newclub = Club.objects.create(name=choice4)
-										new_res.clubs.add(newclub)
-										print("%s added to the DB." % choice4)
-										# append to club temptest to avoid repetition
-										clubtemptest.append((cname, newclub))
-										break
-								break
+					raise ValueError
+			
+				try:
+					Event.objects.get(name = row['event'], comp=comp)
+				except Event.DoesNotExist:
+					try:
+						# para events
+						if "TA" in row['event'] or "AS" in row['event'] or "ID" in row['event'] or "PR" in row['event']:
+							if "x" in row['event']:
+								type = 'Para-Sculling'
 							else:
-								print("Sorry, that wasn't a valid choice.")
-						break
+								type = 'Para-Sweep'
+						# lwt events
+						elif "L" in row['event']:
+							if "x" in row['event']:
+								type = 'Lwt Sculling'
+							else:
+								type = 'Lwt Sweep'
+						else:
+							if "x" in row['event']:
+								type = 'Sculling'
+							else:
+								type = 'Sweep'
 					
-					else:
-						print("Here are the clubs that matched with this name:")
-						for i, item in enumerate(clubchoice2, 1):
-								print("%s): %s" % (i, item.name))
-						print("#"*20)
-						print("Enter the number of the club to add. Or choose 0 to ignore this list and add a new entry to the DB. Choose -1 to add a new club but with manual name entry.")
-						while True:
-							try:
-								choice = int(input("Your choice: "))
-							except ValueError:
-								print("That wasn't an integer. Try again.")
-								continue
-							if choice > len(clubchoice2):
-								print("Choice out of range. Try again.")
-								continue
-							if choice < -1:
-								print("Choice out of range. Try again.")
-								continue
-							else:
-								break
-						
-						if choice == -1:
-							choice2 = input("Please type the name of this club: ")
-							newclub = Club.objects.create(name=choice2)
-							new_res.clubs.add(newclub)
-							print("%s added to the DB." % choice2)
-							break
-						
-						elif choice == 0:
-							newclub = Club.objects.create(name=choice5)
-							new_res.clubs.add(newclub)
-							print("%s added to the DB." % newclub.name)
-							break
-						
+						# shorter distance for old para events
+						if "TA" in row['event'] or "AS" in row['event'] or "ID" in row['event']:
+							dist = '1000m'
 						else:
-							new_res.clubs.add(clubchoice2[choice-1])
-							print("%s added to the result." % clubchoice2[choice-1])
-							# append to clubtemptest to avoid repetition
-							clubtemptest.append((cname, clubchoice2[choice-1]))
-							break
-		
-		
-		elif choice == 0:
-			newclub = Club.objects.create(name=cname)
-			new_res.clubs.add(newclub)
-			print("%s added to the DB." % newclub.name)
-		
-		else:
-			new_res.clubs.add(clubchoice[choice-1])
-			print("%s added to the result." % clubchoice[choice-1])
-			# append to clubtemptest to avoid repetition
-			clubtemptest.append((cname, clubchoice[choice-1]))
-		
-	else:
-		print("%s was not found in the DB. Enter Club name manually? (Y/N or Z to re-search with different string)" % cname)
-		while True:
-			choice3 = input("Y/N: ")
-			if choice3 == "Y":
-				while True:
-					choice4 = input("Please type the name of this club (non-UK country will be appended automatically): ")
-					if len(choice4) < 2:
-						print("Sorry but that's not a valid Club name. Try again.")
-						continue
+							dist = '2000m'
+					
+						new_event = Event.objects.create(
+								name = row['event'],
+								comp = comp,
+								type = type,
+								distance = dist,
+							)
+						logging.debug("Event created with parameters as follows - name=%s, type=%s", row['event'], type)
+					except Exception:
+						logging.exception("Exception incurred for Event %s", (row['competition'] + ' - ' + row['race']))
+						raise
 					else:
-						if irish == True:
-							choice4 += ", Ireland"
-						newclub = Club.objects.create(name=choice4)
-						new_res.clubs.add(newclub)
-						print("%s added to the DB." % choice4)
-						# append to club temptest to avoid repetition
-						clubtemptest.append((cname, newclub))
-						break
-				break
-			elif choice3 == "N":
-				if irish == True:
-					cname += ", Ireland"
-				newclub = Club.objects.create(name=cname)
-				new_res.clubs.add(newclub)
-				print("%s didn't match so it has been added to the DB." % newclub.name)
-				break
-			elif choice3 == "Z":
-				while True:
-					choice5 = input("Please type the string you want to search for: ")
-					if len(choice5) < 3:
-						print("Sorry, you need to enter a string of at least four digits to prevent excessively long results.")
-						continue
-					else:
-						clubchoice2 = Club.objects.filter(name__icontains = choice5)
-						if clubchoice2.count() == 0:
-							print("Sorry, no matches for that string.")
-							while True:
-								print("Enter manually (M) or search again (S)?")
-								choice6 = input("M/S: ")
-								if choice6 == "S":
-									break
-								elif choice6 == "M":
-									while True:
-										choice4 = input("Please type the name of this club (non-UK country will be appended automatically): ")
-										if len(choice4) < 2:
-											print("Sorry but that's not a valid Club name. Try again.")
-											continue
-										else:
-											if irish == True:
-												choice4 += ", Ireland"
-											newclub = Club.objects.create(name=choice4)
-											new_res.clubs.add(newclub)
-											print("%s added to the DB." % choice4)
-											# append to club temptest to avoid repetition
-											clubtemptest.append((cname, newclub))
-											break
-									break
-								else:
-									print("Sorry, that wasn't a valid choice.")
-							break
-						
-						else:
-							print("Here are the clubs that matched with this name:")
-							for i, item in enumerate(clubchoice2, 1):
-									print("%s): %s" % (i, item.name))
-							print("#"*20)
-							print("Enter the number of the club to add. Or choose 0 to ignore this list and add a new entry to the DB. Choose -1 to add a new club but with manual name entry.")
-							while True:
-								try:
-									choice = int(input("Your choice: "))
-								except ValueError:
-									print("That wasn't an integer. Try again.")
-									continue
-								if choice > len(clubchoice2):
-									print("Choice out of range. Try again.")
-									continue
-								if choice < -1:
-									print("Choice out of range. Try again.")
-									continue
-								else:
-									break
-							
-							if choice == -1:
-								choice2 = input("Please type the name of this club: ")
-								newclub = Club.objects.create(name=choice2)
-								new_res.clubs.add(newclub)
-								print("%s added to the DB." % choice2)
-								break
-							
-							elif choice == 0:
-								newclub = Club.objects.create(name=choice5)
-								new_res.clubs.add(newclub)
-								print("%s added to the DB." % newclub.name)
-								break
-							
-							else:
-								new_res.clubs.add(clubchoice2[choice-1])
-								print("%s added to the result." % clubchoice2[choice-1])
-								# append to clubtemptest to avoid repetition
-								clubtemptest.append((cname, clubchoice2[choice-1]))
-								break
-				break
-			else:
-				print("Sorry, that wasn't a valid Y/N/Z. Try again.")
-				continue
+						row['dj_event'] = new_event
+				else:
+					row['dj_event'] = Event.objects.get(name = row['event'], comp=comp)
+			counter += 1
+	except Exception:
+		# quit, save variables
+		logging.exception("Exiting event creation loop during at item %s in loop). Exception detected.", str(counter))
+		raise
 
-# new main loop - loop through the identified races in the sheet
-counter = 1
-for race in craces:
-	# split the race name into the Event and Race Names
-	ename = race.name[:(race.name.find("-")-1)]
-	rname = race.name[(race.name.find("-")+2):]
+	else:
+		logging.info("All events added to DB.")
+		print("All events added to DB.")
+		allevents = True
+		counter = 0
+		# save allevents to preserve the True
+		with open(picklepath_allevents, 'wb') as fp:
+			pickle.dump(allevents, fp)
+	finally:
+		# save variables
+		with open(picklepath_counter, 'wb') as fp:
+			pickle.dump(counter, fp)
+		with open(picklepath_wrdata, 'wb') as fp:
+			pickle.dump(wrdata, fp)
 	
-	# filter the rows to find only those relating to that race
-	fraces2 = [x for x in data if x['Event Name'] == ename and x['Race Type'] == rname]
+if not allraces:
+	logging.info("Starting to create new races")
+	try:
+		for row in wrdata[counter:]:
+			if 'dj_race' not in row or row['dj_race'] == '':
+				rname = (row['race'] + " " + row['code'][1:])
+				rname = rname.rstrip()
+				
+				day = row['date'][:row['date'].find('/')]
+				month = row['date'][row['date'].find('/')+1:row['date'].rfind('/')]
+				year = row['date'][row['date'].rfind('/')+1:]
+				rdate = datetime.date(int(year), int(month), int(day))
+				
+				try:
+					Race.objects.get(name = rname, date = rdate)
+				except Race.DoesNotExist:	
+					if 'Heat' in row['race']:
+						order = 0
+					elif 'Repech' in row['race'] or 'Semif' in row['race']:
+						order = 1
+					elif 'Final' in row['race']:
+						order = 2
+					
+					logging.debug("Trying to add %s to the DB - Event %s.", rname, row['event'])
+					try:
+						new_race = Race.objects.create(
+								name = rname,
+								date = rdate,
+								raceclass = "International",
+								event = row['dj_event'],
+								order = order,
+								complete = False,				
+							)
+					except Exception:
+						logging.exception("Exception incurred for Race %s", ev[0])
+						raise	
+					else:
+						logging.info("Race %s added to DB." % rname)
+						row['dj_race'] = new_race
+				else:
+					row['dj_race'] = Race.objects.get(name = rname, date = rdate)
+			counter += 1
+	except Exception:
+		logging.exception("Exiting race creation loop during at item %s in loop). Exception detected.", str(counter))
+		raise
+		# quit, save variables
+	else:
+		logging.info("All races added to DB.")
+		print("All races added to DB.")
+		allraces = True
+		counter = 0
+		# pickle allraces to preserve the True
+		with open(picklepath_allraces, 'wb') as fp:
+			pickle.dump(allraces, fp)
+			
+	finally:
+		# save variables
+		with open(picklepath_counter, 'wb') as fp:
+			pickle.dump(counter, fp)
+		with open(picklepath_wrdata, 'wb') as fp:
+			pickle.dump(wrdata, fp)
+
+##### END RACE/EVENT CREATION #####
+
+
+##### BEGIN MAIN FUNCTION #####
+try:
+	for row in wrdata[counter:]:
+		if int(row['position']) == 0:
+			logging.info("Position with zero value skipped - event:%s, race:%s, nat:%s", row['event'], row['race'], row['nationality'])
+			continue
+		else:
+		
+			try_error = 0
+			
+			# create the results and operate on them
+
+			# check for flags
+			if len(row['nationality']) > 3:
+				flag = row['nationality'][3:]
+			else:
+				flag = ""
+			
+			# create the base layer result - or check if one exists
+			try:
+				# exactcheck
+				logging.debug("Result being searched for with position=%s and flag=%s.", row['position'], flag)
+				new_res = Result.objects.get(race = row['dj_race'], position = int(row['position']), flag = flag)
+			except Result.MultipleObjectsReturned:
+				print("!"*20)
+				print("Error: multiple objects returned for an exact result check.")
+				print("Search database for duplicates of %s." % str(row['dj_race']))
+				print("!"*20)
+				
+				logging.error("Multiple objects returned for a search of %s", str(row['dj_race']))
+				
+				# skipping this result due to error
+				try_error = 1
+				continue
+			except Result.DoesNotExist:			
+				logging.debug("Result being created with position=%s and flag=%s.", row['position'], flag)
+				try:
+					new_res = Result.objects.create(
+						race = row['dj_race'],
+						position = row['position'],
+						flag = flag,
+					)
+				except Exception:
+					logging.exception("Exception incurred during creation of new result. Parameters: counter=%, race=%s, position=%s, flag=%", str(counter), str(row['dj_race']), row['position'], flag)
+					raise
+			except ValueError:
+				logging.warning("ValueError incurred for result entry: race=%s, club=%s, position=%s", str(row['dj_race']), row['nationality'], row['position'])
+				#try_error = 1
+				continue
+			'''except Exception as e:
+				logging.error("Exception %s incurred when finding Result - race=%s, clubname=%s, crewnames=%s, crewcode=%s", str(e), str(race), lane['ClubName'], lane['CrewNames'], lane['CrewCode'])
+				try_error = 1
+				continue	'''	
+			
+			# nationality
+			nationality = row['nationality'][:3]
+			
+			# add times to the result
+			add_time("Finish", row['time'], new_res, 0)
+				
+			# check crew exists
+			if row['crew'] == "No Crew Recorded":
+				try_error = 1
+			else:
+				# gender
+				if "Women's" in row['race']:
+					gender = "W"
+				elif "Men's" in row['race']:
+					gender = "M"
+				else:
+					gender = "U"
+				
+				# split names into list
+				crewnames = row['crew'].split("; ")
+		
+				# change "SURNAME, Forename" to "Forename Surname"
+				# separate list required to avoid python issues with for loops
+				newcrewnames = []
+				for name in crewnames:
+					txt_torep = name[1:name.find(', ')]
+					tname = name.replace(txt_torep, txt_torep.lower())
+					s_name = tname[:tname.find(', ')]
+					f_name = tname[tname.find(', ')+2:]
+					newcrewnames.append((f_name + ' ' + s_name))
+				crewnames = newcrewnames
+				
+				# remove the cox
+				if "+" in row['event']:
+					coxn = crewnames.pop()
+					logging.debug("Adding cox: %s", coxn)
+					
+					try:
+						new_res.cox = Rower.objects.get(name=coxn, nationality=nationality)
+						new_res.save()
+					except Rower.DoesNotExist:
+						new_res.cox = Rower.objects.create(
+							name = coxn,
+							gender = gender,
+							nationality = nationality)
+						new_res.save()
+					
+				logging.debug("Crewnames about to be searched as follows: %s", str(crewnames))
+				
+				for name in crewnames:
+					logging.debug("Search for name: %s", str(name))
+					
+					try:
+						if gender != "U":
+							r1 = Rower.objects.get(name__iexact=name, nationality=nationality, gender=gender)
+						else:
+							r1 = Rower.objects.get(name__iexact=name, nationality=nationality)
+						new_res.crew.add(r1)
+					except Rower.DoesNotExist:
+						increwcache = False
+						# scan through the crewnames cache
+						for t in crewtemptest:
+							#print("Comparing %s to %s" %(name, t[0]))
+							if name == t[0]:
+								increwcache = True
+								new_res.crew.add(t[1])
+								logging.debug("%s added to the result.", t[1].name)
+								break
+						
+						# if not in the crew cache, call full search
+						if not increwcache:
+							club_str = row['nationality']
+							crewtemptest = crewsearch(new_res, row['dj_race'], name, gender, nationality, club_str, crewtemptest)
+				
+			# add club to result
+			# clubtemptest used to avoid repetitive idiosycratic corrections eg Molesey BC -> Molesey Boat Club
+			# structure is [(Incorrect entry, club object)]
+			logging.debug("Search for club: %s", row['nationality'])
+			inclubcache = False
+			# scan through the crewnames cache
+			'''for t in clubtemptest:
+				if lane['ClubName'] == t[0]:
+					inclubcache = True
+					new_res.clubs.add(t[1])
+					logging.debug("%s added to the result.", t[1].name)
+					break
+			
+			# if not in the crew cache, call full search
+			if not inclubcache:
+				clubtemptest = clubsearch(new_res, race, lane['ClubName'], composite, nationality, clubtemptest)'''
+				
+			try:
+				new_res.clubs.add(Club.objects.get(countrycode=row['nationality'][:3]))
+			except Club.DoesNotExist:
+				new_club = Club.objects.create(
+					name = row['nationality'],
+					countrycode = row['nationality']
+				)
+				new_res.clubs.add(new_club)
+				
+			logging.info("Result %s of %s completed.", counter, len(wrdata))
+			if try_error == 0:
+				new_res.race.complete = True
+				new_res.save()
+			counter += 1		
+except KeyboardInterrupt:
+	print("Exiting due to keyboard interrupt.")
+	logging.info("Exiting main loop during Race %s (item %s in loop)", row['race'], str(counter))
 	
-	# loop over the results
-	for row in fraces2:
-		# flag detection
-		flagn = row['Club Code'].find("(")
-		if flagn == -1:
-			flag = ''
-		else:
-			# eg "TRC (A)"
-			flag = row['Club Code'][5]
-		
-		# irish detection - eg "ZDB"
-		if row['Club Code'][0] == "Z":
-			isirish = True
-		else:
-			isirish = False
-		
-		# composite detection
-		if "/" in row['Club Name']:
-			composite = True
-		else:
-			composite = False
-		
-		new_res = Result.objects.create(
-			race = race,
-			position = row['Position'],
-			flag = flag,
-		)
-		
-		# call the search functions
-		crewsearch(new_res, race, row['Crew List'], isirish, row['Club Name'])
-		
-		# clubtemptest used to avoid repetitive idiosycratic corrections eg Molesey BC -> Molesey Boat Club
-		# structure is [(Incorrect entry, club object)]
-		if any(row['Club Name'] in i for i in clubtemptest):
-			for clubt in clubtemptest:
-				if row['Club Name'] in clubt[0]:
-					new_res.clubs.add(clubt[1])
-					print("%s added to the result." % clubt[1].name)
-		else:
-			clubsearch(new_res, race, row['Club Name'], composite, isirish)
-		
-	print("Race %s of %s completed." % (counter, len(craces)+1))
-	counter += 1
+	# rollback - needs updating
+	#for res in race.result_set.all():
+	#	res.delete()
 	
-print("All races completed. The following composite crews need to be resolved manually:")
-for item in composite_list:
-	print("Club searched: %s, Race name: %s" % (item[0], item[1]))
+	logging.info("Results for current race rolled back")
+	
+except Exception:
+	logging.exception("Exiting main loop during Race %s (item %s in loop). Exception detected.", row['race'], str(counter))
+	#logging.debug("Vars as follows: %s", str(globals()))
+	
+	# rollback
+	#for res in race.result_set.all():
+	#	res.delete()
+		
+	#logging.info("Results for current race rolled back")
+else:
+	print("All races completed.")	
+	if len(composite_list) > 0:
+		print("The following composite crews need to be resolved manually:")
+		logging.info("The following composite crews need to be resolved manually:")
+		for item in composite_list:
+			print("Club searched: %s, Race name: %s" % (item[0], item[1]))
+			logging.info("Club searched: %s, Race name: %s", item[0], item[1])
+			
+	if Race.objects.filter(event__comp__in=[olympics, worldchamps, worldcup, euros], complete=False).count() > 0:
+		logging.info("The following races incurred non-critical errors and should be reviewed manually:")
+		for r in Race.objects.filter(event__comp__in=[olympics, worldchamps, worldcup, euros], complete=False):
+			logging.info("---%s", r.name)
+	logging.info("All races completed. Exiting...")
+finally:
+	# save crewtemptest and clubtemptest to file in crashout
+	try:
+		with open(picklepath_crewtemptest, 'wb') as fp:
+			pickle.dump(crewtemptest, fp)
+		with open(picklepath_clubtemptest, 'wb') as fp:
+			pickle.dump(clubtemptest, fp)
+		with open(picklepath_counter, 'wb') as fp:
+			pickle.dump(counter, fp)
+		with open(picklepath_allevents, 'wb') as fp:
+			pickle.dump(allevents, fp)
+		with open(picklepath_allraces, 'wb') as fp:
+			pickle.dump(allraces, fp)
+		with open(picklepath_wrdata, 'wb') as fp:
+			pickle.dump(wrdata, fp)
+	except Exception:
+		logging.exception("Failed to pickle core variables because of exception.")
+	else:
+		logging.info("Successfully pickled core variables.")
+	
+	print("Exiting loop on race %s (Loop #: %s). Shutting down..." % (row['race'], counter))
+	logging.info("####### End of Log ########")	

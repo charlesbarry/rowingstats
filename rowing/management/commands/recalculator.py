@@ -5,13 +5,25 @@ from rowing.models import Result, Rower, Race, Score, Event, ScoreRanking
 from trueskill import Rating, rate, setup
 from django.db import transaction
 from itertools import groupby
-import datetime
+import datetime, logging
 
-DEFAULT_SIGMA = 10.0 # Used to be (25/3)
+logging.basicConfig(filename='./log/recalculator.log', level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.info("Timestamp -- %s", datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S - %A, %d %B %Y"))
+
+DEFAULT_SIGMA = 10 # Used to be (25/3)
 DEFAULT_MU = 0.0 # 100.0
 INT_MU = 10.0 # 110.0
+BETA = 10
+TAU = 0.5
+DRAW_PROB = 0.002
+DTA = True # dynamic tau on or off
+DFLOOR = True
 
-setup(beta=5, tau=0.5, draw_probability=0.002)
+DYNAMIC_TAU_ADJUSTMENT = 730
+
+setup(beta=BETA, tau=TAU, draw_probability=DRAW_PROB)
+
+logging.info("Recalculator being run with parameters: default sigma=%s, default mu=%s, international mu=%s, dynamic tau period (days)=%s, beta=%s, tau=%s, draw	probability=%s, dynamic tau=%s, score floor=%s", DEFAULT_SIGMA, DEFAULT_MU, INT_MU, DYNAMIC_TAU_ADJUSTMENT, BETA, TAU, DRAW_PROB, DTA, DFLOOR)
 
 #changes that need to be made
 # 1) DONE - change reset to wipe all saved scores
@@ -26,7 +38,7 @@ def update_ts(n, rgroups, type):
 	for i, item in enumerate(Result.objects.filter(race_id = n).order_by('position')):
 		for j, member in enumerate(item.crew.all()):
 			# score floor at 0
-			if rgroups[i][j].mu < 0.0:
+			if rgroups[i][j].mu < 0.0 and DFLOOR == True:
 				tmu = 0.0
 			else:
 				tmu = rgroups[i][j].mu
@@ -68,6 +80,7 @@ class Command(BaseCommand):
 		print("Scores reset to default.")
 		
 		races_used = Race.objects.filter(complete = True)
+		logging.info("Total races being calculated on: %s", races_used.count())
 		
 		# loop through all complete races
 		counter = 0
@@ -83,11 +96,20 @@ class Command(BaseCommand):
 				temp = []
 				mu_sum = 0
 				for member in item.crew.all():
-					trial = member.score_set.filter(result__race__event__type=race_i.event.type)
-					if len(trial) > 0:
+					trial = member.score_set.filter(result__race__event__type=race_i.event.type)		
+					if trial.count() > 0:
+						dsigma = trial.latest("result__race__date").sigma
+
+						# dynamic tau
+						if dsigma < DEFAULT_SIGMA and trial.count() > 1 and DTA == True:
+							d1 = trial.order_by("-result__race__date")[0].result.race.date
+							d2 = trial.order_by("-result__race__date")[1].result.race.date
+							ddiff = d1 - d2
+							dsigma += ((DEFAULT_SIGMA - dsigma) * min(DYNAMIC_TAU_ADJUSTMENT, ddiff.days)/DYNAMIC_TAU_ADJUSTMENT)
+						
 						temp.append(
 							Rating(mu=trial.latest("result__race__date").mu,
-							sigma=trial.latest("result__race__date").sigma)
+							sigma=dsigma)
 							)
 						mu_sum += trial.latest("result__race__date").mu
 					elif race_i.raceclass == "International":
@@ -157,6 +179,7 @@ class Command(BaseCommand):
 			print("Race %s completed. (%s).\t Race error: %s \t (%s)" % (race_i.pk, str(count_progress)+"%", str(round(r_error,2)), race_i.name))
 			
 		print("Calculations completed. Total error was %s" % (str(round(error,2))))
+		logging.info("Total error was %s", str(round(error,2)))
 		print("Beginning ranking calculations.")
 		
 		#cutoff_date = datetime.date(2016, 7, 5)
@@ -171,4 +194,4 @@ class Command(BaseCommand):
 				#if s1.result.race.date > cutoff_date:
 				add_ranking({'rower': rower, 'mu': s1.mu, 'sigma': s1.sigma, 'delta_mu_sigma': (s1.mu-s1.sigma), 		'date': s1.result.race.date, 'type': s1.result.race.event.type})
 		
-		print("Completed ranking calculations")	
+		print("Completed ranking calculations")

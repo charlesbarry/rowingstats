@@ -11,7 +11,7 @@ from scipy.stats import norm
 from django.utils import timezone
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
-from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking
+from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time
 from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 from django.views.decorators.csrf import csrf_exempt
 
@@ -347,8 +347,13 @@ class RaceList(ListView):
 def RaceDetail(request, pk):
 	race = Race.objects.get(pk=pk)
 	results = Result.objects.filter(race__id=pk).order_by('position')
+	if Time.objects.filter(result__race__id=pk).count() > 0:
+		time_flag = True
+	else:
+		time_flag = False
+		
 	
-	context = {'object':race, 'results':results}
+	context = {'object':race, 'results':results, 'time_flag': time_flag}
 	
 	return render(request, 'rowing/race_detail.html', context)
 	
@@ -366,6 +371,7 @@ def CompetitionView(request):
 	return render(request, 'rowing/competition.html', {'data':data})
 	
 def CompetitionResults(request, pk):
+	# todo: add pagination
 	rtype = request.GET.get('type')
 	#gender = request.GET.get('g') - to be implemented (data not in model)
 	event = request.GET.get('event')
@@ -424,6 +430,7 @@ def ClubDetail(request, pk):
 	
 	#TODO: filtering by year, with a form and everything
 	#this_year = request.GET.get('year', timezone.now().year)
+	#TODO: pagination
 	
 	# work out people who raced for that club in that year - set avoids duplicates
 	temp_members = set()

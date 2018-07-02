@@ -112,6 +112,7 @@ M Moir / Maud Moir?
 Kesiah Roe and K Roe need merging
 Someone chapman-burn needs her second name capitalising
 R Elliot needs her surname capitalising
+Z Lee-Green and Zak Lee-Green
 
 Move Leeds RC to Leeds Uni
 Move City of Cam to Cambridge Uni
@@ -122,3 +123,5 @@ Who were St George's meant to be?
 Turn OUBC to OUWBC where applicable and same for Queen's Belfast too
 Who were Tees RC?
 Switch Cheltenham for Chester Uni - and review membership...
+
+Fix BUCS times - error in code meant all finish times equal

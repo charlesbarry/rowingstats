@@ -21,8 +21,12 @@ class Event(models.Model):
 	type_choices = (
 		('Sweep', 'Sweep'),
 		('Sculling', 'Sculling'),
+		('Lwt Sweep', 'Lightweight Sweep'),
+		('Lwt Sculling', 'Lightweight Sculling'),
+		('Para-Sweep', 'Para-Sweep'),
+		('Para-Sculling', 'Para-Sculling'),
 	)
-	type = models.CharField(max_length=10, choices=type_choices, default='Sweep')
+	type = models.CharField(max_length=20, choices=type_choices, default='Sweep')
 	distance = models.CharField(max_length=20, default="2000m")
 	
 	def __str__(self):
@@ -107,6 +111,7 @@ class Club(models.Model):
 	
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
+	countrycode = models.CharField(max_length=3, help_text="Used for national crews, provides the nationality code in international races", blank=True, null=True)
 	
 	def __str__(self):
 		return self.name
@@ -124,7 +129,7 @@ class Result(models.Model):
 	# club = foreignkey
 	# time = timefields or perhaps 1toM relationship?
 	# cox threw some errors and probably needs to be a M2M relationship too
-	# cox = models.ForeignKey(Rower, on_delete=models.PROTECT, null=True, blank=True)
+	cox = models.ForeignKey(Rower, on_delete=models.SET_NULL, null=True, blank=True, related_name='cox')
 	# lwt field - can be used for determining whether crew members are lightweight
 	
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
@@ -138,6 +143,12 @@ class Time(models.Model):
 	description = models.CharField(max_length=100)
 	value = models.TimeField()
 	order = models.PositiveSmallIntegerField(default=0)
+	
+	class Meta:
+		ordering = ['order']
+		
+	def __str__(self):
+		return str(self.result.race.name) + ' (' + str(self.result.position) + ') - ' + self.description + ' :- ' + str(self.value) + ' (' + str(self.order) + ')'
 	
 class Score(models.Model):
 	''' Not needed as can be pulled through from Event through Race

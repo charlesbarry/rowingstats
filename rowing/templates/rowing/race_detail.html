@@ -20,6 +20,9 @@
 			<th>Position</th>
 			<th>Crew</th>
 			<th>Club</th>
+			{% if time_flag %}
+			<th>Times</th>
+			{% endif %}
 		</tr>
 	</thead>
 	<tbody>
@@ -44,6 +47,13 @@
 				({{rank.flag}})
 				{% endif %}
 			</td>
+			{% if rank.time_set.all %}
+			<td>
+				{% for t in rank.time_set.all %}
+					<strong>{{t.description}}</strong>: {{t.value|time:"i:s"}}:{{t.value|time:"u"|slice:":2"}}{% if not forloop.last %},<br />{% else %}{% endif %}
+				{% endfor %}
+			</td>
+			{% endif %}
 			<!-- <td>{{rank.flag}}</td> -->
 		</tr>
 		{% endfor %}

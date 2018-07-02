@@ -245,6 +245,12 @@ try:
 			# remove the cox (coxed four or eight only)
 			if len(crewnames) in (5, 9):
 				crewnames.pop()
+				
+			# gender detection
+			if "Women" in race.name:
+				gender = "W"
+			else:
+				gender = "M"
 			
 			# trim off the seat position
 			crewnames = [name[4:] for name in crewnames]
@@ -266,7 +272,7 @@ try:
 				# if not in the crew cache, call full search
 				if not increwcache:
 					club_str = lane['ClubName'] + ' - (' + lane['CrewCode'] + ')'
-					crewtemptest = crewsearch(new_res, race, name, nationality, club_str, crewtemptest)
+					crewtemptest = crewsearch(new_res, race, name, gender, nationality, club_str, crewtemptest)
 				
 				'''
 				if any(name in i for i in crewtemptest):

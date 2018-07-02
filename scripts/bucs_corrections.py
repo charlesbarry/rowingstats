@@ -15,18 +15,27 @@ livu = Club.objects.get(pk=17)
 
 
 for res in Result.objects.filter(race__event__comp=bucs):
-	if citcam in res.clubs:
+	'''
+	if citcam in res.clubs.all():
 		res.clubs.remove(citcam)
 		res.clubs.add(cubc)
-	elif cheltenham in res.clubs:
+	elif cheltenham in res.clubs.all():
 		res.clubs.remove(cheltenham)
 		res.clubs.add(chesteru)
-	elif leedsrc in res.clubs:
+	elif leedsrc in res.clubs.all():
 		res.clubs.remove(leedsrc)
 		res.clubs.add(leedsu)
-	elif derbyrc in res.clubs:
+	elif derbyrc in res.clubs.all():
 		res.clubs.remove(derbyu)
 		res.clubs.add(derbyu)
-	elif livvic in res.clubs:
+	elif livvic in res.clubs.all():
 		res.clubs.remove(livvic)
 		res.clubs.add(livu)	
+	'''	
+	try:
+		ftime = res.time_set.get(description="Finish")
+		for t in res.time_set.order_by('order'):
+			if t != ftime and t.value == ftime.value:
+				t.delete()
+	except Time.DoesNotExist:
+		print("No times for res %s" % res.result.name)
