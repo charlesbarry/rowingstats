@@ -62,130 +62,145 @@ def add_ranking(data):
 		sr_type = data['sr_type'],
 		)
 	
-@transaction.atomic
-def reset_scores():
-	# double_check what happens with on delete in models
-	Score.objects.all().delete()
-	ScoreRanking.objects.all().delete()
-	
 class Command(BaseCommand):
 	help = 'Recalculates the scores of rowers'
 
-	'''#def add_arguments(self, parser):
-		#parser.add_argument('poll_id', nargs='+', type=int)
-		
-		#parser.add_argument()'''
+	def add_arguments(self, parser):
+		parser.add_argument('--date', action='store', help='Starts calculations from YYYY-MM-DD')
+		parser.add_argument('--sr', action='store_true', help='Only recalculate ScoreRankings')
 
 	def handle(self, *args, **options):
-		# clear all previous scores, reset to default
-		error = 0
-		reset_scores()
-		print("Scores reset to default.")
-		
-		races_used = Race.objects.filter(complete = True)
-		logging.info("Total races being calculated on: %s", races_used.count())
-		
-		# loop through all complete races
-		counter = 0
-		length = len(races_used)
-		for race_i in races_used.order_by('date','order'):
-			ratings = []
-			positions = []
-			error_list = []
-			r_error = 0
-			# loop through every result in that race to create the ratings figure
-			for item in Result.objects.filter(race_id = race_i.pk).order_by('position'):
-				# loop through every crew member, and extract their scores
-				temp = []
-				mu_sum = 0
-				for member in item.crew.all():
-					trial = member.score_set.filter(result__race__event__type=race_i.event.type)		
-					if trial.count() > 0:
-						dsigma = trial.latest("result__race__date").sigma
-
-						# dynamic tau
-						if dsigma < DEFAULT_SIGMA and trial.count() > 1 and DTA == True:
-							d1 = trial.order_by("-result__race__date")[0].result.race.date
-							d2 = trial.order_by("-result__race__date")[1].result.race.date
-							ddiff = d1 - d2
-							dsigma += ((DEFAULT_SIGMA - dsigma) * min(DYNAMIC_TAU_ADJUSTMENT, ddiff.days)/DYNAMIC_TAU_ADJUSTMENT)
-						
-						temp.append(
-							Rating(mu=trial.latest("result__race__date").mu,
-							sigma=dsigma)
-							)
-						mu_sum += trial.latest("result__race__date").mu
-					elif race_i.raceclass == "International":
-						temp.append(
-							Rating(mu=INT_MU,
-							sigma=DEFAULT_SIGMA)
-						)
-						mu_sum += INT_MU
-					else:
-						temp.append(
-							Rating(mu=DEFAULT_MU,
-							sigma=DEFAULT_SIGMA)
-						)
-						mu_sum += DEFAULT_MU
-				ratings.append(temp)
-			
-				# create the positions list
-				positions.append(item.position)
+		# skip if sr option active
+		if not options['sr']:
+			# handle custom start date
+			if options['date']:
+				#shorten this bloody variable
+				od = options['date']
+				# parse the date
+				rday = int(od[od.rfind('-')+1:])
+				rmonth = int(od[od.find('-')+1:od.rfind('-')])
+				ryear = int(od[:od.find('-')])
 				
-				error_list.append([mu_sum, item.position])
+				rdate = datetime.date(ryear, rmonth, rday)
 			
-			# create the expected result by ranking the crews on their prior score - also avoids ties
-			# appends the rank on the end of the error_list entry
-			sorted_error_list = sorted(error_list, reverse=True)
-			exp_rank = 0
-			for _, grp in groupby(sorted_error_list, key = lambda y: y[0]):
-				r = exp_rank + 1
-				for x in grp:
-					x.append(r)
-					exp_rank += 1
+				#delete everything AFTER this date
+				Score.objects.filter(result__race__date__gte=rdate).delete()
+				
+				
+				# use only races AFTER this date
+				races_used = Race.objects.filter(complete = True, date__gte=rdate)
+			
+			else:
+				Score.objects.all().delete()
+				races_used = Race.objects.filter(complete = True)
+			
+			error = 0
+			print("Scores reset to default.")
+			logging.info("Total races being calculated on: %s", races_used.count())
+			
+			# loop through all complete races
+			counter = 0
+			length = len(races_used)
+			for race_i in races_used.order_by('date','order'):
+				ratings = []
+				positions = []
+				error_list = []
+				r_error = 0
+				# loop through every result in that race to create the ratings figure
+				for item in Result.objects.filter(race_id = race_i.pk).order_by('position'):
+					# loop through every crew member, and extract their scores
+					temp = []
+					mu_sum = 0
+					for member in item.crew.all():
+						trial = member.score_set.filter(result__race__event__type=race_i.event.type)		
+						if trial.count() > 0:
+							dsigma = trial.latest("result__race__date").sigma
+
+							# dynamic tau
+							if dsigma < DEFAULT_SIGMA and trial.count() > 1 and DTA == True:
+								d1 = trial.order_by("-result__race__date")[0].result.race.date
+								d2 = trial.order_by("-result__race__date")[1].result.race.date
+								ddiff = d1 - d2
+								dsigma += ((DEFAULT_SIGMA - dsigma) * min(DYNAMIC_TAU_ADJUSTMENT, ddiff.days)/DYNAMIC_TAU_ADJUSTMENT)
+							
+							temp.append(
+								Rating(mu=trial.latest("result__race__date").mu,
+								sigma=dsigma)
+								)
+							mu_sum += trial.latest("result__race__date").mu
+						elif race_i.raceclass == "International":
+							temp.append(
+								Rating(mu=INT_MU,
+								sigma=DEFAULT_SIGMA)
+							)
+							mu_sum += INT_MU
+						else:
+							temp.append(
+								Rating(mu=DEFAULT_MU,
+								sigma=DEFAULT_SIGMA)
+							)
+							mu_sum += DEFAULT_MU
+					ratings.append(temp)
+				
+					# create the positions list
+					positions.append(item.position)
 					
-			# calculate the error in the event		
-			for item in error_list:
-				r_error += ((item[1]-item[2])**2)
-			
-			try:
-				r_error = r_error / len(error_list)
-			except:
-				print("Error! Race %s has no results!" % race_i.name)
-				continue
-			
-			# run the TrueSkill algorithm
-			try:
-				rgroups = rate(ratings, ranks=positions)
-			except:
-				print("Error! Race %s has only 1 entry!" % race_i.name)
-				continue
-			
-			#update the rower scores with the outcomes - looping through results and rowers
-			'''for i, item in enumerate(Result.objects.filter(race_id = race_i.pk).order_by('position')):
-				for j, member in enumerate(item.crew.all()):
-					if race_i.type == "Sweep":
-						member.mu_sweep = rgroups[i][j].mu
-						member.sigma_sweep = rgroups[i][j].sigma
-					elif race_i.type == "Sculling":
-						member.mu_scull = rgroups[i][j].mu
-						member.sigma_scull = rgroups[i][j].sigma
-					member.save()'''
-					
-			#alt update method
-			update_ts(race_i.pk, rgroups, race_i.event.type)
-			
-			#show progress
-			counter += 1
-			count_progress = round((counter/length)*100, 1)
-			error += r_error
-			print("Race %s completed. (%s).\t Race error: %s \t (%s)" % (race_i.pk, str(count_progress)+"%", str(round(r_error,2)), race_i.name))
-			
-		print("Calculations completed. Total error was %s" % (str(round(error,2))))
-		logging.info("Total error was %s", str(round(error,2)))
+					error_list.append([mu_sum, item.position])
+				
+				# create the expected result by ranking the crews on their prior score - also avoids ties
+				# appends the rank on the end of the error_list entry
+				sorted_error_list = sorted(error_list, reverse=True)
+				exp_rank = 0
+				for _, grp in groupby(sorted_error_list, key = lambda y: y[0]):
+					r = exp_rank + 1
+					for x in grp:
+						x.append(r)
+						exp_rank += 1
+						
+				# calculate the error in the event		
+				for item in error_list:
+					r_error += ((item[1]-item[2])**2)
+				
+				try:
+					r_error = r_error / len(error_list)
+				except:
+					print("Error! Race %s has no results!" % race_i.name)
+					continue
+				
+				# run the TrueSkill algorithm
+				try:
+					rgroups = rate(ratings, ranks=positions)
+				except:
+					print("Error! Race %s has only 1 entry!" % race_i.name)
+					continue
+				
+				#update the rower scores with the outcomes - looping through results and rowers
+				'''for i, item in enumerate(Result.objects.filter(race_id = race_i.pk).order_by('position')):
+					for j, member in enumerate(item.crew.all()):
+						if race_i.type == "Sweep":
+							member.mu_sweep = rgroups[i][j].mu
+							member.sigma_sweep = rgroups[i][j].sigma
+						elif race_i.type == "Sculling":
+							member.mu_scull = rgroups[i][j].mu
+							member.sigma_scull = rgroups[i][j].sigma
+						member.save()'''
+						
+				#alt update method
+				update_ts(race_i.pk, rgroups, race_i.event.type)
+				
+				#show progress
+				counter += 1
+				count_progress = round((counter/length)*100, 1)
+				error += r_error
+				print("Race %s completed. (%s).\t Race error: %s \t (%s)" % (race_i.pk, str(count_progress)+"%", str(round(r_error,2)), race_i.name))
+				
+			print("Calculations completed. Total error was %s" % (str(round(error,2))))
+			logging.info("Total error was %s", str(round(error,2)))
 		print("Beginning ranking calculations.")
+		logging.info("Beginning ranking calculations - resetting ScoreRankings")
 		
-		#cutoff_date = datetime.date(2016, 7, 5)
+		# delete all ScoreRankings
+		ScoreRanking.objects.all().delete()
 		
 		# gets the latest score for each rower
 		for rower in Rower.objects.all():
