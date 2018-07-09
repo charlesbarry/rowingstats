@@ -43,6 +43,7 @@ else:
 ALLOWED_HOSTS = [
 	'localhost',
 	'stormy-lowlands-67472.herokuapp.com',
+	'rowingstats.herokuapp.com',
 	'rowingstats.com',
 	'www.rowingstats.com',
 ]
