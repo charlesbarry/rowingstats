@@ -32,8 +32,8 @@ class ResultForm(forms.ModelForm):
 		model = Result
 		fields = '__all__'
 		
-	crew = AutoCompleteSelectMultipleField('crew', required=True, help_text="Add crew members")
-	clubs = AutoCompleteSelectMultipleField('clubs', required=True, help_text="Add club (or multiple for composite)")
+	crew = AutoCompleteSelectMultipleField('crew', required=False, help_text="Add crew members")
+	clubs = AutoCompleteSelectMultipleField('clubs', required=False, help_text="Add club (or multiple for composite)")
 	cox = AutoCompleteSelectField('cox', required=False, help_text=None, label="Cox")
 	
 class CompareForm(forms.Form):

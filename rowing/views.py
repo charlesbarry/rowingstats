@@ -1,17 +1,17 @@
-from django.shortcuts import render
-#from dal import autocomplete
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 import datetime
 from django.core.management import call_command
 from django.urls import reverse_lazy
+from django.core.paginator import Paginator
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import groupby
 from scipy.stats import norm
 from django.utils import timezone
+from django.db.models import Max
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
-from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time
+from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, EventInstance, KnockoutRace, CumlProb
 from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 from django.views.decorators.csrf import csrf_exempt
 
@@ -289,7 +289,7 @@ def CrewCompare(request):
 				r1s = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
 				rowers1.append([r1,r1s.mu,r1s.sigma, r1s.result.race.date])
 			except ObjectDoesNotExist:
-				rowers1.append([r1,100.0,10.0, 'No data (default assumed)'])
+				rowers1.append([r1,0.0,10.0, 'No data (default assumed)'])
 			
 		for member in crewpk2:
 			r1 = Rower.objects.get(pk=member)
@@ -297,7 +297,7 @@ def CrewCompare(request):
 				r2 = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
 				rowers2.append([r1,r2.mu,r2.sigma, r2.result.race.date])
 			except ObjectDoesNotExist:
-				rowers2.append([r1,100.0,10.0, 'No data (default assumed)'])
+				rowers2.append([r1,0.0,10.0, 'No data (default assumed)'])
 				
 		context['rowers1'] = rowers1
 		context['rowers2'] = rowers2
@@ -376,11 +376,12 @@ def CompetitionResults(request, pk):
 	#gender = request.GET.get('g') - to be implemented (data not in model)
 	event = request.GET.get('event')
 	raceclass = request.GET.get('raceclass')
-	year = request.GET.get('year') #- to be implemented
+	year = request.GET.get('year')
+	page = request.GET.get('page')
 	context = {}
 	context['competition'] = Competition.objects.get(pk=pk)
 	
-	races = Race.objects.filter(event__comp__pk=pk)
+	races = Race.objects.filter(event__comp__pk=pk, complete=True)
 	# add a filter for year
 	if event not in (None, ''):
 		races = races.filter(event=event)
@@ -395,8 +396,11 @@ def CompetitionResults(request, pk):
 	if year not in (None, ''):
 		races = races.filter(date__year=year)
 	
-	
-	context['races'] = races.order_by('-date')
+	# rather than calling races to the context directly, call via paginator
+	# this prevents the page hanging while 1000+ races are requested and iterated!
+	races_list = races.order_by('-date')
+	paginator = Paginator(races_list, 100)
+	context['races'] = paginator.get_page(page)
 	
 	# adds the count for the entries
 	for item in context['races']:
@@ -404,11 +408,11 @@ def CompetitionResults(request, pk):
 	
 	# create event and class choices for form and create the form
 	raceclass_choices = [('','Any')]
-	for item in context['races'].order_by('raceclass').values_list('raceclass', flat=True).distinct():
+	for item in races_list.order_by('raceclass').values_list('raceclass', flat=True).distinct():
 		raceclass_choices.append((item,item))
 	
 	event_choices = [('','Any')]
-	for item3 in context['races'].order_by('event__name').values_list('event',flat=True).distinct():
+	for item3 in races_list.order_by('event__name').values_list('event',flat=True).distinct():
 		event_choices.append((item3, Event.objects.get(pk=item3).name))
 	
 	# NB different method for dates
@@ -563,3 +567,43 @@ def RankingView(request):
 	form = RankingForm(request.GET)
 	
 	return render(request, 'rowing/ranking.html', {'rankings': rankings, 'type': ptype, 'gender': g, 'form': form})
+	
+def KnockoutView(request, pk):
+	try:
+		knockout = EventInstance.objects.get(pk=pk)
+	except EventInstance.DoesNotExist:
+		raise Http404('<h1>Page not found</h1>')
+	context = {'knockout':knockout}
+	context['rdayn'] = request.GET.get('day', 'Wednesday')
+	kraces = KnockoutRace.objects.filter(knockout=knockout)
+	# weirdly produces a single item dictionary with round__max as key
+	# rounds = kraces.aggregate(Max('round'))['round__max']
+	# TODO add a column 0 which is just the crews pre race
+	context['columns'] = []
+	
+	# COMMENT: Is this still needed? (Not touching for now as it works)
+	for r in range(1, knockout.rounds+1):
+		rowspan = (2*r - 1)
+		context['columns'].append((rowspan, kraces.filter(round=r).order_by('slot')))
+	
+	# annotate the first column with offset slot n for template rendering convenience
+	for krace in context['columns'][0][1]:
+		# TODO insert match probability
+		krace.slotz = (krace.slot-1)
+			
+	context['cumlprobs'] = CumlProb.objects.filter(knockout=knockout, dayn=context['rdayn']).exclude(cumlprob=0).order_by('-cumlprob')
+	# crewname__startswith='Bye-',
+	for c in context['cumlprobs']:
+		c.prob = str(round(c.cumlprob*100, 2)) + '%'
+		# render the odds...
+		'''
+		if c.cumlprob == 0:
+			c.odds = '0'
+		elif c.cumlprob > 0.5:
+			todds = 1/((1/c.cumlprob)-1)
+			c.odds = str(round(todds, 1)) + ' : 1' 
+		else:
+			todds = (1/c.cumlprob)-1
+			c.odds = '1 : ' + str(round(todds, 1)) '''
+	
+	return render(request, 'rowing/knockoutdetail.html', context)

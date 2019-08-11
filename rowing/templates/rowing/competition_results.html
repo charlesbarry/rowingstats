@@ -11,6 +11,31 @@
 		<button class="btn btn-default" type="submit">Filter</button>
 	
 </form>
+
+<div class="row col-sm-12">
+    <nav aria-label="Page navigation">
+  <ul class="pagination">
+    {% if races.has_previous %}
+	<li>
+      <a href="?page={{ races.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+	{% endif %}
+	{% for pnum in races.paginator.page_range %}
+    <li><a href="?page={{pnum}}">{{pnum}}</a></li>
+	{% endfor %}
+    {% if races.has_next %}
+	<li>
+      <a href="?page={{ races.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+	{% endif %}
+  </ul>
+</nav>
+</div>
+
 <table class="table table-striped">
 <!--<caption>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a>  --- <a href="{{request.path}}?g=M">Men</a> | <a href="{{request.path}}?g=W">Women</a></caption>-->
 	<thead>
@@ -40,5 +65,29 @@
 		{% endif %}
 	</tbody>
 </table>
+
+<div class="row col-sm-12">
+    <nav aria-label="Page navigation">
+  <ul class="pagination">
+    {% if races.has_previous %}
+	<li>
+      <a href="?page={{ races.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+	{% endif %}
+	{% for pnum in races.paginator.page_range %}
+    <li><a href="?page={{pnum}}">{{pnum}}</a></li>
+	{% endfor %}
+    {% if races.has_next %}
+	<li>
+      <a href="?page={{ races.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+	{% endif %}
+  </ul>
+</nav>
+</div>
 
 {% endblock %}

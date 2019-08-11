@@ -3,7 +3,7 @@
 {% block content %}
 <div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
 <div class="col-sm-12 row"><p>Held on {{object.date}}</p></div>
-<div class="col-sm-12 row"><p>Part of {{object.event.name}} in {{object.event.comp.name}}</p></div>
+<div class="col-sm-12 row"><p>Part of <a href="/competition/{{object.event.comp.pk}}/?event={{object.event.pk}}">{{object.event.name}}</a> in <a href="/competition/{{object.event.comp.pk}}">{{object.event.comp.name}}</a></p></div>
 <!--
 <div class="col-sm-12 row"><h3>Attributes</h3></div>
 <div class="row">
@@ -34,6 +34,9 @@
 				{% for member in rank.crew.all %}
 					<a href="/rowers/{{member.pk}}">{{member.name}}</a>{% if not forloop.last %},{% else %}&nbsp;{% endif %}
 				{% endfor %}
+				{% if rank.cox %}
+					<br /><strong>Cox: </strong><a href="/rowers/{{rank.cox.pk}}">{{rank.cox.name}}</a>
+				{% endif %}
 			</td>
 			<td>
 				{% if rank.clubs.all %}

@@ -1,0 +1,120 @@
+{% extends "rowing/base.html" %}
+{% load staticfiles %}
+{% block title %}{{knockout.event.name}} - {{knockout.year}}{% endblock %}
+
+{% block content %}
+<div class="col-sm-12 row"><h2>{{knockout.event.name}} - {{knockout.year}}</h2></div>
+
+<div class="col-sm-12 row"><p>&nbsp;</p></div>
+<div class="col-sm-12 row"><h3>Race tree</h3></div>
+<div class="col-sm-12 row">
+<table class="vertical-align table">
+{% for krace in columns.0.1 %}
+<tr>
+	{% if krace.race %}
+		{% if krace.bye == 1 %}
+		<td>{{krace.race.name}}</td>
+		{% else %}
+		<td><a href="/races/{{krace.race.pk}}">{{krace.race.name}}</a></td>
+		{% endif %}
+	{% else %}
+	<td>No associated race</td>
+	{% endif %}
+	
+	{% if krace.slotz|divisibleby:'2' %}
+	{% if krace.child %}
+		{% if not krace.child.race %}
+		<td rowspan="2">No associated race</td>
+		{% elif krace.child.race.result_set.all|length > 0 %}
+		<td rowspan="2"><a href="/races/{{krace.child.race.pk}}">{{krace.child.race.name}}</a></td>
+		{% else %}
+		<td rowspan="2">.....TBC.....</td>
+		{% endif %}
+	{% endif %}
+	{% endif %}
+	
+	{% if krace.slotz|divisibleby:'4' %}
+	{% if krace.child.child %}
+		{% if not krace.child.child.race %}
+		<td rowspan="4">No associated race</td>
+		{% elif krace.child.child.race.result_set.all|length > 0 %}
+		<td rowspan="4"><a href="/races/{{krace.child.child.race.pk}}">{{krace.child.child.race.name}}</a></td>
+		{% else %}
+		<td rowspan="4">.....TBC.....</td>
+		{% endif %}
+	{% endif %}
+	{% endif %}
+	
+	{% if krace.slotz|divisibleby:'8' %}
+	{% if krace.child.child.child %}
+		{% if not krace.child.child.child.race %}
+		<td rowspan="8">No associated race</td>
+		{% elif krace.child.child.child.race.result_set.all|length > 0 %}
+		<td rowspan="8"><a href="/races/{{krace.child.child.child.race.pk}}">{{krace.child.child.child.race.name}}</a></td>
+		{% else %}
+		<td rowspan="8">.....TBC.....</td>
+		{% endif %}
+	{% endif %}
+	{% endif %}
+	
+	{% if krace.slotz|divisibleby:'16' %}
+	{% if krace.child.child.child.child %}
+		{% if not krace.child.child.child.child.race %}
+		<td rowspan="16">No associated race</td>
+		{% elif krace.child.child.child.child.race.result_set.all|length > 0 %}
+		<td rowspan="16"><a href="/races/{{krace.child.child.child.child.race.pk}}">{{krace.child.child.child.child.race.name}}</a></td>
+		{% else %}
+		<td rowspan="16">.....TBC.....</td>
+		{% endif %}
+	{% endif %}
+	{% endif %}
+	
+</tr>
+{% endfor %}
+</table>
+</div>
+
+<div class="col-sm-12 row"><h3>Win probabilities - <mark>Highly Experimental!</mark></h3></div>
+<div class="col-sm-12 row">
+<table class="table table-striped">
+<caption>Predictions made for: <strong>{{rdayn}}</strong></caption>
+	<thead>
+		<tr>
+			<th>Crew</th>
+			<th>Probability of winning overall</th>
+			{% if cumlprobs.1.odds %}
+			<th>Odds on</th>
+			{% endif %}
+		</tr>
+	</thead>
+	<tbody>
+		{% if cumlprobs %}
+		{% for cumlprob in cumlprobs %}
+		<tr>
+			<td>{{cumlprob.crewname}}</td>
+			<td>{{cumlprob.prob}}</td>
+			{% if cumlprob.odds %}
+			<td>{{cumlprob.odds}}</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+		{% else %}
+		<tr><td colspan="5">No results to show</td></tr>
+		{% endif %}
+	</tbody>
+</table>
+</div>
+
+<div class="col-md-12"><p>&nbsp;</p></div>
+{% endblock %}
+
+{% block header_extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
+<script src="{% static 'rowing/js/highcharts.js' %}"></script>
+<style>
+	.table.vertical-align > tbody > tr > td {
+		 vertical-align: middle;
+	}
+</style>
+{{form.media}}
+{% endblock %}

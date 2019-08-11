@@ -20,7 +20,11 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 try:
 	comp_name = os.environ['COMPUTERNAME']
 except:
-	comp_name = "Unknown"
+	try:
+		# attempt at a fix for ronards' mac
+		comp_name = os.environ['LOGNAME']
+	except:
+		comp_name = "Unknown"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -109,6 +113,17 @@ if comp_name == "CHARLES-LAPTOP2":
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql',
 			'NAME': 'rowingstats',
+			'USER': 'postgres',
+			'PASSWORD': 'root',
+			'HOST': '127.0.0.1',
+			'PORT': '5432',
+		}
+	}
+elif comp_name == 'andrewronaldson':
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql',
+			'NAME': 'template1',
 			'USER': 'postgres',
 			'PASSWORD': 'root',
 			'HOST': '127.0.0.1',

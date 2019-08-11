@@ -8,6 +8,9 @@ from django.db import models
 # Then filter Events by year, generating page where you can select year
 # Then see Events for that year
 
+# TODO: Create ProgressionRule - ForeignKey of Race, which specifies how crews progress
+# TODO: Possibly create CompetitionInstance - eg Rio Olympics
+
 class Competition(models.Model):
 	name = models.CharField(max_length=200)
 	
@@ -64,18 +67,32 @@ class Rower(models.Model):
 	)
 	gender = models.CharField(max_length=1, choices=gender_choices, default='M')
 	nationality = models.CharField(max_length=8, default="GBR")
+	#iscox = models.BooleanField(default=False)
+	
+	# world rowing ID number
+	wrid = models.IntegerField(null=True, blank=True, verbose_name='World Rowing ID', unique=True)
 
 	def __str__(self):
 		return self.name
 		
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
-		
+	
+class EventInstance(models.Model):
+	event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
+	year = models.PositiveSmallIntegerField(default=0)
+	rounds = models.PositiveSmallIntegerField(default=1)
+	complete = models.BooleanField(default=False)
+	
+	def __str__(self):
+		return (self.event.name + ' - ' + str(self.year))
+	
 class Race(models.Model):
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=200)
 	date = models.DateField("Race date")
 	raceclass = models.CharField("Class", max_length=100, null=True, blank=True)
 	event = models.ForeignKey(Event, on_delete=models.PROTECT)
+	rnumber = models.IntegerField(null=True, blank=True, verbose_name="Race Number", help_text="If helpful, this can be used to store race numbers.")
 	# for separating TTs, Heats, SFs and Fs conducted on the same day
 	order_choices = (
 		(0, 'TT/Heat/Single race'),
@@ -87,7 +104,7 @@ class Race(models.Model):
 	# to be implemented
 	# location = 
 	
-	complete = models.BooleanField(default=True, help_text="If set to True (checked) the Race will be published and will be used in calculating scores. Leave unchecked for incomplete races. Useful for big races that need to be done in chunks.")
+	complete = models.BooleanField(default=True, help_text="If set to True (checked) the Race will be used in calculating scores and displayed publicly. Leave unchecked for incomplete races. Useful for big races that need to be done in chunks.")
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
 
@@ -112,16 +129,17 @@ class Club(models.Model):
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
 	countrycode = models.CharField(max_length=3, help_text="Used for national crews, provides the nationality code in international races", blank=True, null=True)
+	country = models.CharField(max_length=200, default="UK", null=True, blank=True)
 	
 	def __str__(self):
 		return self.name
 	
 class Result(models.Model):
 	race = models.ForeignKey(Race, on_delete=models.CASCADE)
-	position = models.IntegerField()
-	crew = models.ManyToManyField(Rower)
+	position = models.IntegerField(null=True, blank=True)
+	crew = models.ManyToManyField(Rower, blank=True)
 	# Not to store club membership for each rower, but indirectly through the race entry
-	clubs = models.ManyToManyField(Club)
+	clubs = models.ManyToManyField(Club, blank=True)
 	# eg A, B crew
 	flag = models.CharField(max_length=10, null=True, blank=True)
 	
@@ -145,10 +163,36 @@ class Time(models.Model):
 	order = models.PositiveSmallIntegerField(default=0)
 	
 	class Meta:
+		unique_together = ['result', 'description']
 		ordering = ['order']
 		
 	def __str__(self):
 		return str(self.result.race.name) + ' (' + str(self.result.position) + ') - ' + self.description + ' :- ' + str(self.value) + ' (' + str(self.order) + ')'
+		
+class Alias(models.Model):
+	rower = models.ForeignKey(Rower, on_delete=models.CASCADE)
+	value = models.CharField(max_length=200)
+	temp = models.BooleanField(default=False)
+	
+	# used to avoid filling with duplicates
+	class Meta:
+		unique_together = ['rower', 'value']
+		verbose_name_plural = 'aliases'
+		
+	def __str__(self):
+		return str(self.value) + " for " + str(self.rower.name)
+		
+class ClubAlias(models.Model):
+	club = models.ForeignKey(Club, on_delete=models.CASCADE)
+	value = models.CharField(max_length=200)
+	
+	# used to avoid filling with duplicates
+	class Meta:
+		unique_together = ['club', 'value']
+		verbose_name_plural = 'clubAliases'
+		
+	def __str__(self):
+		return str(self.value) + " for " + str(self.club.name)
 	
 class Score(models.Model):
 	''' Not needed as can be pulled through from Event through Race
@@ -172,7 +216,7 @@ class ScoreRanking(models.Model):
 	mu = models.FloatField(default=100.0)
 	sigma = models.FloatField(default=10)
 	delta_mu_sigma = models.FloatField(default=90.0)
-	rower = models.ForeignKey(Rower, on_delete=models.PROTECT)
+	rower = models.ForeignKey(Rower, on_delete=models.CASCADE)
 	date = models.DateField("Score date")
 	type = models.CharField(max_length=20, default='Sweep')
 	
@@ -181,3 +225,50 @@ class ScoreRanking(models.Model):
 		('All time', 'All time'),
 	)
 	sr_type = models.CharField(max_length=20, choices=sr_choices, default='Current')
+
+# KNOCKOUT-ONLY CLASSES
+# There are a number of issues with this section of the schema, largely stemming from the rushed nature of their development
+# 1) These only work for 1 vs 1 knockouts, with no extension to multilane racing
+# 2) The referencing of crews is poor, leading to duplication or extensive error handling
+	
+class KnockoutRace(models.Model):
+	knockout = models.ForeignKey(EventInstance, null=True, blank=True, on_delete=models.CASCADE)
+	race = models.OneToOneField(Race, null=True, blank=True, on_delete=models.SET_NULL)
+	child = models.ForeignKey('self', null=True, blank=True, related_name='parent', on_delete=models.SET_NULL)
+	round = models.PositiveSmallIntegerField(default=0)
+	slot = models.PositiveSmallIntegerField(default=0)
+	selected = models.BooleanField(default=False)
+	bye = models.BooleanField(default=False)
+	margin = models.CharField(max_length=50, null=True, blank=True)
+	
+	def __str__(self):
+		return str(self.knockout) + ', round=' + str(self.round) + ', slot=' + str(self.slot)
+		
+class MatchProb(models.Model):
+	knockout = models.ForeignKey(EventInstance, on_delete=models.CASCADE)
+	crewAname = models.CharField(max_length=100)
+	crewBname = models.CharField(max_length=100)
+	day = models.DateField()
+	dayn = models.CharField(max_length=20, null=True)
+	winprob = models.FloatField()
+	
+	def __str__(self):
+		return self.crewAname + ' to beat ' + self.crewBname + ' - ' + str(round(self.winprob*100, 2)) + '% probability'
+	
+class CumlProb(models.Model):
+	knockout = models.ForeignKey(EventInstance, on_delete=models.CASCADE)
+	crewname = models.CharField(max_length=100)
+	day = models.DateField()
+	dayn = models.CharField(max_length=20, null=True)
+	cumlprob = models.FloatField()
+	
+	def __str__(self):
+		return self.crewname + ' to win ' ' - ' + str(round(self.cumlprob*100, 2)) + '% probability'
+	
+class KnockoutCrew(models.Model):
+	knockout = models.ForeignKey(EventInstance, on_delete=models.CASCADE)
+	crewname = models.CharField(max_length=100)
+	startingslot = models.PositiveSmallIntegerField(default=0)
+	
+	def __str__(self):
+		return self.crewname + ' - ' + str(self.knockout)

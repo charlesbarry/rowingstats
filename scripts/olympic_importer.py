@@ -298,7 +298,7 @@ try:
 					gender = "U"
 				
 				# split names into list
-				crewnames = row['crew'].split("; ")
+				crewnames = row['crew'].split(";")
 		
 				# change "SURNAME, Forename" to "Forename Surname"
 				# separate list required to avoid python issues with for loops
@@ -310,6 +310,8 @@ try:
 					f_name = tname[tname.find(', ')+2:]
 					newcrewnames.append((f_name + ' ' + s_name))
 				crewnames = newcrewnames
+				
+				def wrname()
 				
 				# remove the cox
 				if "+" in row['event']:
