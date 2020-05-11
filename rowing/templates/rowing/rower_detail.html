@@ -5,6 +5,11 @@
 {% block content %}
 <div class="row">
 <div class="col-sm-8"><h2>{{object.name}}</h2><p>Nationality: {{object.nationality}}</p><p>Gender: {{object.gender}}</p></div>
+<div class="col-sm-8">
+{% for ranking in rower_ranks %}
+<p>{{ranking.0}}: {{ranking.1}} / {{ranking.2}} (Domestic) - {{ranking.3}} / {{ranking.4}} (Worldwide)</p>
+{% endfor %}
+</div>
 <!--<div class="col-sm-4"><p>[Picture will go here]</p></div>-->
 </div>
 <!--

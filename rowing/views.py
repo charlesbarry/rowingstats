@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db.models import Max
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
-from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, EventInstance, KnockoutRace, CumlProb
+from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb
 from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 from django.views.decorators.csrf import csrf_exempt
 
@@ -81,6 +81,8 @@ def RowerSearch(request):
 	return render(request, 'rowing/rower_search.html', context)
 	
 def RowerDetail(request, pk):
+	# TODO: refactor so all results are shown (across all six types)
+	
 	context = {}
 	ptype = request.GET.get('type')
 	copyGET = request.GET.copy() # required because request.GET is otherwise immutable
@@ -130,6 +132,26 @@ def RowerDetail(request, pk):
 	#context['clubs'] = r1.result_set.all()
 	
 	context['form'] = RowerForm(copyGET)
+	
+	# generates the 'ranked Nth of X'
+	tdt = add_years(datetime.date.today(), -1)
+	# Event.type_choices is ((dbname, prettyname),)
+	context['rower_ranks'] = []
+	for type in Event.type_choices:
+		try:
+			csr = r1.scoreranking_set.get(sr_type='Current', type=type[0])
+		except ScoreRanking.DoesNotExist:
+			continue
+		
+		ranked_ahead_nat = ScoreRanking.objects.filter(delta_mu_sigma__gt=csr.delta_mu_sigma, type=type[0], sr_type='Current', date__gte=tdt, rower__gender=r1.gender, rower__nationality=r1.nationality).count()
+
+		total_ranked_nat = ScoreRanking.objects.filter(type=type[0], sr_type='Current', date__gte=tdt, rower__gender=r1.gender, rower__nationality=r1.nationality).count()
+		
+		ranked_ahead_all = ScoreRanking.objects.filter(delta_mu_sigma__gt=csr.delta_mu_sigma, type=type[0], sr_type='Current', date__gte=tdt, rower__gender=r1.gender).count()
+
+		total_ranked_all = ScoreRanking.objects.filter(type=type[0], sr_type='Current', date__gte=tdt, rower__gender=r1.gender).count()
+		
+		context['rower_ranks'].append((type[1], ranked_ahead_nat, total_ranked_nat, ranked_ahead_all, total_ranked_all))
 	
 	return render(request, 'rowing/rower_detail.html', context)
 	
@@ -570,8 +592,8 @@ def RankingView(request):
 	
 def KnockoutView(request, pk):
 	try:
-		knockout = EventInstance.objects.get(pk=pk)
-	except EventInstance.DoesNotExist:
+		knockout = Fixture.objects.get(pk=pk)
+	except Fixture.DoesNotExist:
 		raise Http404('<h1>Page not found</h1>')
 	context = {'knockout':knockout}
 	context['rdayn'] = request.GET.get('day', 'Wednesday')

@@ -4,7 +4,7 @@ from ajax_select.fields import autoselect_fields_check_can_add
 from ajax_select.admin import AjaxSelectAdminTabularInline, AjaxSelectAdminStackedInline
 
 # Register your models here.
-from .models import Rower, Race, Result, Competition, Event, Club, Time, EventInstance, KnockoutRace, Alias, ClubAlias
+from .models import Rower, Race, Result, Competition, Event, Club, Time, Fixture, KnockoutRace, Alias, ClubAlias, RaceLink
 from .forms import ResultForm
 
 class TimeInline(admin.TabularInline):
@@ -63,6 +63,9 @@ class RowerAdmin(admin.ModelAdmin):
 class TimeAdmin(admin.ModelAdmin):
 	raw_id_fields = ("result",)
 	
+class RaceLinkAdmin(admin.ModelAdmin):
+	raw_id_fields = ("startrace","endrace")
+	
 class KRAdmin(admin.ModelAdmin):
 	raw_id_fields = ("race","child")
 	list_filter = ['knockout']
@@ -70,6 +73,8 @@ class KRAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
 	model = Event
 	search_fields = ['name']
+	list_display = ['name', 'comp', 'type']
+	list_filter = ['comp', 'type']
 	
 class ClubAdmin(admin.ModelAdmin):
 	model = Club
@@ -84,9 +89,10 @@ admin.site.register(Race, RaceAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(Competition)
 admin.site.register(Event, EventAdmin)
-admin.site.register(EventInstance)
+admin.site.register(Fixture)
 admin.site.register(Club, ClubAdmin)
 admin.site.register(ClubAlias)
+admin.site.register(RaceLink, RaceLinkAdmin)
 admin.site.register(Alias, AliasAdmin)
 admin.site.register(Time, TimeAdmin)
 admin.site.register(KnockoutRace, KRAdmin)

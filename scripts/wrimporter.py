@@ -11,7 +11,8 @@ logging.basicConfig(filename='./log/worldrowing.log', level=logging.INFO, format
 logging.info("####### Start of Log ########")
 logging.info("Timestamp -- %s", datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S - %A, %d %B %Y"))
 
-datafile = '../worldrowing/2019_wrc1and2.csv'
+datafile = '../data/worldrowing/WorldRowing-RWC3-U23-WJRC-2019.csv'
+#'../data/worldrowing/WorldRowing-RWC3-U23-WJRC-2019.csv
 
 olympics = Competition.objects.get(pk=10)
 worldchamps = Competition.objects.get(pk=13)
@@ -174,11 +175,11 @@ try:
 			logging.debug("Race %s does not exist. Creating race...", rname)
 			
 			# order handling
-			if 'Heat' in row['Race'] or 'Prelim' in row['Race']:
+			if 'H' in row['Race Code'] or 'X' in row['Race Code']:
 				order = 0
-			elif 'Repech' in row['Race'] or 'Semif' in row['Race']:
+			elif 'R' in row['Race Code'] or 'S' in row['Race'] or 'Q' in row['Race']:
 				order = 1
-			elif 'Final' in row['Race']:
+			elif 'F' in row['Race Code']:
 				order = 2
 				
 			if comp != u23s and comp != juniors:

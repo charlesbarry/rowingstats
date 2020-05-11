@@ -48,6 +48,7 @@ ALLOWED_HOSTS = [
 	'localhost',
 	'stormy-lowlands-67472.herokuapp.com',
 	'rowingstats.herokuapp.com',
+	'rowingstats-staging.herokuapp.com',
 	'rowingstats.com',
 	'www.rowingstats.com',
 ]
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
 	'ajax_select',
 	'rowing.apps.RowingConfig',
 	'blog.apps.BlogConfig',
+	'hrr.apps.HrrConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
