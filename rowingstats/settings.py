@@ -46,11 +46,8 @@ else:
 
 ALLOWED_HOSTS = [
 	'localhost',
-	'stormy-lowlands-67472.herokuapp.com',
-	'rowingstats.herokuapp.com',
-	'rowingstats-staging.herokuapp.com',
-	'rowingstats.com',
-	'www.rowingstats.com',
+	'.herokuapp.com',
+	'.rowingstats.com',
 ]
 
 # Security settings
