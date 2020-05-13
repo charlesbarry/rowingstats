@@ -4,20 +4,18 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+1. Redistributions of source code must retain this entire license.
 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce this entire license in 
+   the documentation and/or other materials provided with the distribution.
 
-3. Neither the name of the copyright holder, the term "Rowing Stats" or 
+3. Neither the name of the copyright holder, the terms "Rowing Stats" or 
    "rowingstats", nor the names of its contributors may be used to endorse 
    or promote products derived from this software without specific prior 
    written permission.
    
-4. You must comply with clause 3 of the Apache License (version 2.0, Jan 2004) 
-   regarding patents in regard to your subsequent use of this software.
+Clause 3 of the Apache License (version 2.0, Jan 2004) concerning patents 
+will also apply in regard to your subsequent use of this software.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
