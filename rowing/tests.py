@@ -1,40 +1,42 @@
 from django.test import TestCase
 from rowing.models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb
-#from django.utils import timezone
 from django.urls import reverse
 from rowing.forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
+
+# a helper suite that creates randomly populated objects
 from model_bakery import baker
 
 class RowerTest(TestCase):
-    #def create_rower(self, name="Test Example", gender="U", nationality="GBR"):
-    #    return Rower.objects.create(name=name, gender=gender, nationality=nationality)
+    #setUpTestData means don't have to have new baker objects in each test
+    
+    @classmethod    
+    def setUpTestData(cls):
+        cls.r = baker.make('rowing.Rower')
 
     def test_rower_creation(self):
-        r = baker.make('rowing.Rower')
-        self.assertTrue(isinstance(r, Rower))
-        self.assertEqual(r.__str__(), r.name)
+        #r = baker.make('rowing.Rower')
+        self.assertTrue(isinstance(self.r, Rower))
+        self.assertEqual(self.r.__str__(), self.r.name)
 
     # views
     def test_rower_list(self):
-        r = baker.make('rowing.Rower')
         url = reverse("rower-list")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        #self.assertIn(r.name, resp.content)
         
     def test_rowers_detail(self):
-        #r = self.create_rower()
-        r = baker.make('rowing.Rower')
-        url = reverse("rower-detail", args=[str(r.pk)])
+        url = reverse("rower-detail", args=[str(self.r.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        #self.assertIn(r.name, resp.content)
 
 class CompTest(TestCase):
+    @classmethod    
+    def setUpTestData(cls):
+        cls.c = baker.make('rowing.Competition')   
+
     def test_comp_creation(self):
-        c = baker.make('rowing.Competition')
-        self.assertTrue(isinstance(c, Competition))
-        self.assertEqual(c.__str__(), c.name)
+        self.assertTrue(isinstance(self.c, Competition))
+        self.assertEqual(self.c.__str__(), self.c.name)
 
     # views
     def test_comp_list(self):
@@ -43,8 +45,7 @@ class CompTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         
     def test_comp_detail(self):
-        r = baker.make('rowing.Competition')
-        url = reverse("comp-detail", args=[str(r.pk)])
+        url = reverse("comp-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)          
 
@@ -55,10 +56,13 @@ class EventTest(TestCase):
         self.assertEqual(c.__str__(), (str(c.comp.name) +": "+ c.name))
 
 class RaceTest(TestCase):
+    @classmethod    
+    def setUpTestData(cls):
+        cls.c = baker.make('rowing.Race')   
+    
     def test_race_creation(self):
-        c = baker.make('rowing.Race')
-        self.assertTrue(isinstance(c, Race))
-        self.assertEqual(c.__str__(), c.name)
+        self.assertTrue(isinstance(self.c, Race))
+        self.assertEqual(self.c.__str__(), self.c.name)
 
     # views
     def test_race_list(self):
@@ -67,16 +71,18 @@ class RaceTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         
     def test_race_detail(self):
-        r = baker.make('rowing.Race')
-        url = reverse("race-detail", args=[str(r.pk)])
+        url = reverse("race-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)  
 
 class ClubTest(TestCase):
+    @classmethod    
+    def setUpTestData(cls):
+        cls.c = baker.make('rowing.Club')  
+    
     def test_club_creation(self):
-        c = baker.make('rowing.Club')
-        self.assertTrue(isinstance(c, Club))
-        self.assertEqual(c.__str__(), c.name)
+        self.assertTrue(isinstance(self.c, Club))
+        self.assertEqual(self.c.__str__(), self.c.name)
 
     # views
     def test_club_list(self):
@@ -85,8 +91,7 @@ class ClubTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         
     def test_club_detail(self):
-        r = baker.make('rowing.Club')
-        url = reverse("club-detail", args=[str(r.pk)])
+        url = reverse("club-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)  
 
