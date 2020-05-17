@@ -29,6 +29,7 @@ X_FRAME_OPTIONS = 'DENY'
 # Application definition
 INSTALLED_APPS = [
 	'ajax_select',
+    'coverage',
 	'rowing.apps.RowingConfig',
 	'blog.apps.BlogConfig',
 	'hrr.apps.HrrConfig',
