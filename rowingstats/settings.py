@@ -4,8 +4,8 @@ import os, dj_database_url
 
 # if running locally, read .env file for env variables
 if os.environ.get("RSPLATFORM") != "heroku":
-	from dotenv import load_dotenv
-	load_dotenv()
+    from dotenv import load_dotenv
+    load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,9 +18,9 @@ CSRF_COOKIE_SECURE = not(bool(os.getenv("CSRF_COOKIE_SECURE"))) # defaults to TR
 CSRF_COOKIE_HTTPONLY = not(bool(os.getenv("CSRF_COOKIE_HTTPONLY"))) # defaults to TRUE
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
-	'localhost',
-	'.herokuapp.com',
-	'.rowingstats.com',
+    'localhost',
+    '.herokuapp.com',
+    '.rowingstats.com',
 ]
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
@@ -28,23 +28,23 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Application definition
 INSTALLED_APPS = [
-	'ajax_select',
+    'ajax_select',
     'coverage',
-	'rowing.apps.RowingConfig',
-	'blog.apps.BlogConfig',
-	'hrr.apps.HrrConfig',
+    'rowing.apps.RowingConfig',
+    'blog.apps.BlogConfig',
+    'hrr.apps.HrrConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	'django.contrib.humanize',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-	'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
