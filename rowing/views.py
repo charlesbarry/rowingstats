@@ -393,7 +393,6 @@ def CompetitionView(request):
 	return render(request, 'rowing/competition.html', {'data':data})
 	
 def CompetitionResults(request, pk):
-	# todo: add pagination
 	rtype = request.GET.get('type')
 	#gender = request.GET.get('g') - to be implemented (data not in model)
 	event = request.GET.get('event')
