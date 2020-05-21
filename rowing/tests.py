@@ -1,5 +1,5 @@
 from django.test import TestCase
-from rowing.models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb
+from rowing.models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition
 from django.urls import reverse
 from rowing.forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
 
@@ -93,7 +93,37 @@ class ClubTest(TestCase):
     def test_club_detail(self):
         url = reverse("club-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)  
+        self.assertEqual(resp.status_code, 200) 
+
+class EditionTest(TestCase):
+    @classmethod    
+    def setUpTestData(cls):
+        cls.c = baker.make('rowing.Edition')  
+    
+    def test_edition_creation(self):
+        self.assertTrue(isinstance(self.c, Edition))
+        self.assertEqual(self.c.__str__(), self.c.name)
+
+    # views        
+    def test_edition_detail(self):
+        url = reverse("edition-detail", args=[str(self.c.pk)])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+class FixtureTest(TestCase):
+    @classmethod    
+    def setUpTestData(cls):
+        cls.c = baker.make('rowing.Fixture')  
+    
+    def test_fixture_creation(self):
+        self.assertTrue(isinstance(self.c, Fixture))
+        self.assertEqual(self.c.__str__(),(self.c.event.name + ' - ' + self.c.edition.name))
+
+    # views        
+    def test_fixture_detail(self):
+        url = reverse("fixture-detail", args=[str(self.c.pk)])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)             
 
 # to just check the damn thing works on the most basic level        
 class ViewsBasicTest(TestCase):

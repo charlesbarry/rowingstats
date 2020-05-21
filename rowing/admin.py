@@ -64,7 +64,7 @@ class TimeAdmin(admin.ModelAdmin):
     raw_id_fields = ("result",)
     
 class RaceLinkAdmin(admin.ModelAdmin):
-    raw_id_fields = ("startrace","endrace")
+    raw_id_fields = ("start","end")
     
 class KRAdmin(admin.ModelAdmin):
     raw_id_fields = ("race","child")

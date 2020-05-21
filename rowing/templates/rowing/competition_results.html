@@ -3,8 +3,20 @@
 {% block content %}
 <div class="row col-sm-12"><h2>{{competition.name}} - Details</h2><p><a href="/competition">Switch competition</a></p></div>
 
-<div class="col-sm-12"><p>&nbsp;</p></div>
-<div class="col-sm-12"><p>&nbsp;</p></div>
+{% if editions %}
+<div class="row col-sm-12"><h3>Browse by edition</h3></div>
+<div class="row">
+	{% for edition in editions %}
+	<div class="col-sm-2">
+		<p><a href="/edition/{{edition.pk}}">
+		<button type="button" class="btn btn-default btn-lg btn-block">{{edition.name}}</button>
+		</a></p>
+	</div>
+	{% endfor %}
+</div>
+{% endif %}
+
+<div class="row col-sm-12"><h3>Browse by races</h3></div>
 <form class="form-inline" action="/competition/{{competition.pk}}" method="get">
         {% for field in form %}
         <div class="/*col-sm-2*/ form-group">{{field.options.count}}{{field}}</div>
@@ -36,7 +48,7 @@
   </ul>
 </nav>
 </div>
-
+<div class="row col-sm-12 table-responsive">
 <table class="table table-striped">
 <!--<caption>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a>  --- <a href="{{request.path}}?g=M">Men</a> | <a href="{{request.path}}?g=W">Women</a></caption>-->
     <thead>
@@ -66,6 +78,7 @@
         {% endif %}
     </tbody>
 </table>
+</div>
 
 <div class="row col-sm-12">
     <nav aria-label="Page navigation">

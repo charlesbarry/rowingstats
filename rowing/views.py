@@ -424,7 +424,7 @@ def CompetitionResults(request, pk):
     context['races'] = paginator.get_page(page)
     
     # get the editions
-    context['editions'] = Edition.objects.filter(comp_pk=pk)
+    context['editions'] = Edition.objects.filter(comp_id=pk)
     
     # adds the count for the entries
     for item in context['races']:
@@ -452,6 +452,21 @@ class ClubList(ListView):
     model = Club
     paginate_by = 50
     ordering = ['name']    
+    
+def EditionDetail(request, pk):
+    edition = Edition.objects.get(pk=pk)
+    fixtures = edition.fixture_set.all()
+    context = {'edition':edition, 'fixtures':fixtures}
+
+    return render(request, 'rowing/edition_detail.html', context)
+    
+def FixtureDetail(request, pk):
+    fixture = Fixture.objects.get(pk=pk)
+    races = fixture.race_set.all()
+    racelinks = fixture.racelink_set.all()
+    context = {'fixture':fixture, 'races':races, 'racelinks':racelinks}
+
+    return render(request, 'rowing/fixture_detail.html', context)
     
 def ClubDetail(request, pk):
     this_club = Club.objects.get(pk=pk)

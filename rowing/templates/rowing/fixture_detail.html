@@ -1,0 +1,36 @@
+{% extends "rowing/base.html" %}
+{% block title %}{{fixture.edition.comp.name}} - {{fixture.edition.name}} - {{fixture.event.name}}{{{% endblock %}
+{% block content %}
+<div class="col-sm-12 row"><h2>{{edition.comp.name}} - {{edition.name}}</h2><hr></div>
+
+
+<!--- TODO: make form work --->
+
+<div class="row col-sm-12"><h3>Switch edition</h3></div>
+<form class="form-inline" action="/competition/{{competition.pk}}" method="get">
+        {% for field in form %}
+        <div class="/*col-sm-2*/ form-group">{{field.options.count}}{{field}}</div>
+        {% endfor %}
+        <button class="btn btn-default" type="submit">Filter</button>
+    
+</form>
+
+
+<!--- TODO: add functionality rendering tree of races, clickable to individual results --->
+
+<div class="col-sm-12 row"><h3>Events in this competition</h3></div>
+{% if fixtures %}
+<div class="row">
+	{% for fixture in fixtures %}
+	<div class="col-sm-2">
+		<p><a href="#">
+		<button type="button" class="btn btn-default btn-lg btn-block">{{fixture.event.name}}</button>
+		</a></p>
+	</div>
+	{% endfor %}
+</div>
+{% else %}
+<div class="col-sm-12 row"><p>No events are available for this competition.</p></div>
+{% endif %}
+
+{% endblock %}

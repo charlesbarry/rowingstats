@@ -33,7 +33,7 @@ class Event(models.Model):
         (8, 'Eight/Octuple'),
         (0, 'Other'),
     )
-    boatsize = models.IntegerField(choices=boatsize_choices, default=1)
+    boatsize = models.IntegerField(choices=boatsize_choices, null=True, default=1)
     
     def __str__(self):
         return str(self.comp.name) +": "+ self.name
@@ -117,14 +117,15 @@ class Race(models.Model):
         (1, 'Semi-Final'),
         (2, 'Final'),
     )
-    order = models.PositiveSmallIntegerField(default=0, choices=order_choices)
+    order = models.PositiveSmallIntegerField(default=0, choices=order_choices, help_text="Used to differentiate between races held on same day for rower scores. To be deprecated")
+    round = models.IntegerField(null=True, blank=True, help_text="In a multi-round fixture, use this to differentiate between F, SF, Reps, QF, Heat 2, Heat 1, TTs etc")
     
     complete = models.BooleanField(default=True, help_text="If set to True (checked) the Race will be used in calculating scores and displayed publicly. Leave unchecked for incomplete races. Useful for big races that need to be done in chunks.")
     last_updated = models.DateTimeField("Last updated", auto_now=True)
     created = models.DateTimeField("Created on", auto_now_add=True)
     
     # progression fields
-    progression = models.ManyToManyField('self', through='RaceLink', through_fields=('startrace','endrace'), symmetrical=False)
+    #progression = models.ManyToManyField('self', through='RaceLink', through_fields=('startrace','endrace'), symmetrical=False)
     
     # perhaps add predecessor and successor fields?
 
@@ -145,9 +146,13 @@ class Race(models.Model):
 
 # used to create a map of races - eg linking semis to final
 # creates a directed graph - e.g. positions 1,2,3 from heat to semi
+# NB due to slightly funky history of this, access model via:
+## from fixture: f.racelink_set.all()
+## from race: r.next_races.all() or r.prior_races.all()
 class RaceLink(models.Model):
-    startrace = models.ForeignKey(Race, on_delete=models.CASCADE, related_name='next_races')
-    endrace = models.ForeignKey(Race, on_delete=models.CASCADE, related_name='prior_races')
+    start = models.ForeignKey(Race, on_delete=models.CASCADE, related_name='next_races')
+    end = models.ForeignKey(Race, on_delete=models.CASCADE, related_name='prior_races')
+    fixture = models.ForeignKey(Fixture, on_delete=models.PROTECT)
     '''type_choices = (
         ('Predecessor', 'Predecessor'),
         ('Successor', 'Successor'),
@@ -157,7 +162,7 @@ class RaceLink(models.Model):
     positions = models.CharField(max_length=100, help_text="Specify which positions will progress as a comma-separated string e.g. 1,2,3")
     
     def __str__(self):
-        return self.startrace.name + " progressing positions " + self.positions + " to " + self.endrace.name
+        return self.start.name + " progressing positions " + self.positions + " to " + self.end.name
 
 class Club(models.Model):
     name = models.CharField(max_length=200)

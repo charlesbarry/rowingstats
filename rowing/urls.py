@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, EditionDetail
 urlpatterns = [
     #url(r'^$', views.current_datetime, name='index'),
     #url(r'^recalculate/$', views.CalculateView),
@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'^competition/(?P<pk>[0-9]+)/$', views.CompetitionResults, name="comp-detail"),
     url(r'^clubs/$', ClubList.as_view(), name="club-list"),
     url(r'^clubs/(?P<pk>[0-9]+)/$', views.ClubDetail, name="club-detail"),
+    url(r'^edition/(?P<pk>[0-9]+)/$', views.EditionDetail, name="edition-detail"),
+    url(r'^fixture/(?P<pk>[0-9]+)/$', views.FixtureDetail, name="fixture-detail"),
     #url(r'^compare/$', csrf_exempt(views.Compare), name="compare-index"),
     url(r'^compare/$', views.RowerCompare2, name="compare2"),
     url(r'^crewcompare/$', views.CrewCompare, name="crewcompare"),
