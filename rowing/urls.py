@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, EditionDetail
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, EditionDetail, FixtureDetail
 urlpatterns = [
     #url(r'^$', views.current_datetime, name='index'),
     #url(r'^recalculate/$', views.CalculateView),

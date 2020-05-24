@@ -80,3 +80,17 @@ class ClubForm(forms.Form):
         self.fields["year"].choices = year_choices
 
     year = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+    
+class FixtureEditionForm(forms.Form):
+    def __init__(self, edition_choices, *args, **kwargs):
+        super(FixtureEditionForm, self).__init__(*args, **kwargs)
+        self.fields["edition"].choices = edition_choices
+        
+    edition = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+
+class FixtureEventForm(forms.Form):
+    def __init__(self, event_choices, *args, **kwargs):
+        super(FixtureEventForm, self).__init__(*args, **kwargs)
+        self.fields["event"].choices = event_choices
+
+    event = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))

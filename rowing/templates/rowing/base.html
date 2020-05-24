@@ -30,12 +30,21 @@
 		ga('send', 'pageview');
 	</script>
 	{% endif %}
+	
+	{% block loadscript %}
+	<script>
+	function loadfunc(){
+		return false;
+	}
+	</script>
+	{% endblock %}
+	
 
     <title>{% block title %}{% endblock %}</title>
 	{% block header_extra %}{% endblock %}
 </head>
 
-<body>
+<body onpageshow="loadfunc()">
 	<div class="navbar-wrapper">
 	<div class="container">
 	<nav class="navbar navbar-default">

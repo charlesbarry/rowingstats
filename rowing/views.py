@@ -8,11 +8,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from itertools import groupby
 from scipy.stats import norm
 from django.utils import timezone
-from django.db.models import Max
+from django.db.models import Max, Min
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition
-from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm
+from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm, FixtureEditionForm, FixtureEventForm
 from django.views.decorators.csrf import csrf_exempt
 
 def add_years(d, years):
@@ -465,6 +465,22 @@ def FixtureDetail(request, pk):
     races = fixture.race_set.all()
     racelinks = fixture.racelink_set.all()
     context = {'fixture':fixture, 'races':races, 'racelinks':racelinks}
+    
+    edition_choices = [(x.pk, x.edition.name) for x in fixture.event.fixture_set.all()]
+    context['editionform'] = FixtureEditionForm(edition_choices, request.GET)
+    
+    event_choices = [(x.pk, x.event.name) for x in fixture.edition.fixture_set.all()]
+    context['eventform'] = FixtureEventForm(event_choices, request.GET)
+    
+    # stupid workaround for django forms inability to make init work properly
+    context['init_edition'] = fixture.pk
+    context['init_event'] = fixture.pk
+    
+    if races.count() > 0:
+        rmax = races.aggregate(Max('round'))['round__max']
+        rmin = races.aggregate(Min('round'))['round__min']
+        # due to zero indexing have to add the +1 to the max
+        context['columns'] = [races.filter(round=x).order_by('slot') for x in range(rmin,rmax+1)]
 
     return render(request, 'rowing/fixture_detail.html', context)
     

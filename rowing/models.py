@@ -105,6 +105,7 @@ class Fixture(models.Model):
 class Race(models.Model):
     name = models.CharField(max_length=200)
     date = models.DateField("Race date")
+    starttime = models.TimeField("Race time", null=True, blank=True, help_text="When the race was scheduled to take place e.g. 13:00. NOT the racing results.")
     raceclass = models.CharField("Class", max_length=100, null=True, blank=True)
     event = models.ForeignKey(Event, on_delete=models.PROTECT)
     fixture = models.ForeignKey(Fixture, on_delete=models.PROTECT, null=True, blank=True, help_text="If this race is a part of a wider fixture (e.g. a specific regatta), specify it here. Optional - not needed for single race events e.g. the Boat Race")
@@ -119,6 +120,7 @@ class Race(models.Model):
     )
     order = models.PositiveSmallIntegerField(default=0, choices=order_choices, help_text="Used to differentiate between races held on same day for rower scores. To be deprecated")
     round = models.IntegerField(null=True, blank=True, help_text="In a multi-round fixture, use this to differentiate between F, SF, Reps, QF, Heat 2, Heat 1, TTs etc")
+    slot = models.IntegerField(null=True, blank=True, help_text="Within a round, this is the order of races, top to bottom on the tree. E.g. H1 will be round 1, slot 1; Heat 2 will be round 1, slot 2 etc; SFAB1 will be round 2, slot 1 etc.")
     
     complete = models.BooleanField(default=True, help_text="If set to True (checked) the Race will be used in calculating scores and displayed publicly. Leave unchecked for incomplete races. Useful for big races that need to be done in chunks.")
     last_updated = models.DateTimeField("Last updated", auto_now=True)
