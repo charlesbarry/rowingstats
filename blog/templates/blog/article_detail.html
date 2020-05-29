@@ -6,8 +6,8 @@
 <div class="row col-sm">&nbsp;</div>
 <div class="row col-md"><h1 class="">{{object.title}}</h1></div>
 <div class="row">
-<div class="col"><p><em>First published: {{object.published|date:"d F Y"}}</em></p></div>
-<div class="col"><p><em>Last updated: {{object.last_updated|date:"d F Y"}}</em></p></div>
+<div class="col-sm"><p><em>First published: {{object.published|date:"d F Y"}}</em></p></div>
+<div class="col-sm"><p class="text-md-right"><em>Last updated: {{object.last_updated|date:"d F Y"}}</em></p></div>
 </div>
 {% autoescape off %}
 <div class="row"><div class="col">{{content}}</div></div>
