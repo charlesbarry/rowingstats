@@ -1,14 +1,16 @@
 {% extends "blog/base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block title %} Rowingstats - {{object.title}} {% endblock %}
 
 {% block content %}
 <div class="row col-sm">&nbsp;</div>
-<div class="col-md"><h1 class="">{{object.title}}</h1></div>
-<div class="col"><p><em>Published on: {{object.published|date}}</em></p></div>
-
+<div class="row col-md"><h1 class="">{{object.title}}</h1></div>
+<div class="row">
+<div class="col-sm"><p><em>First published: {{object.published|date:"d F Y"}}</em></p></div>
+<div class="col-sm"><p class="text-md-right"><em>Last updated: {{object.last_updated|date:"d F Y"}}</em></p></div>
+</div>
 {% autoescape off %}
-<div class="col">{{object.content}}</div>
+<div class="row"><div class="col">{{content}}</div></div>
 {% endautoescape %}
 
 {% endblock %}
