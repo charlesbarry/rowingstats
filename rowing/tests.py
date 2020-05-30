@@ -23,11 +23,16 @@ class RowerTest(TestCase):
         url = reverse("rower-list")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        
+              
     def test_rowers_detail(self):
         url = reverse("rower-detail", args=[str(self.r.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+        
+    def test_rower_404(self):
+        url = reverse("rower-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
 
 class CompTest(TestCase):
     @classmethod    
@@ -47,7 +52,12 @@ class CompTest(TestCase):
     def test_comp_detail(self):
         url = reverse("comp-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)          
+        self.assertEqual(resp.status_code, 200)
+
+    def test_comp_404(self):
+        url = reverse("comp-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
 
 class EventTest(TestCase):
     def test_event_creation(self):
@@ -73,7 +83,12 @@ class RaceTest(TestCase):
     def test_race_detail(self):
         url = reverse("race-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)  
+        self.assertEqual(resp.status_code, 200)
+
+    def test_race_404(self):
+        url = reverse("race-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
 
 class ClubTest(TestCase):
     @classmethod    
@@ -93,7 +108,12 @@ class ClubTest(TestCase):
     def test_club_detail(self):
         url = reverse("club-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200) 
+        self.assertEqual(resp.status_code, 200)
+
+    def test_club_404(self):
+        url = reverse("club-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)        
 
 class EditionTest(TestCase):
     @classmethod    
@@ -109,6 +129,11 @@ class EditionTest(TestCase):
         url = reverse("edition-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+        
+    def test_edition_404(self):
+        url = reverse("edition-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
 
 class FixtureTest(TestCase):
     @classmethod    
@@ -123,7 +148,12 @@ class FixtureTest(TestCase):
     def test_fixture_detail(self):
         url = reverse("fixture-detail", args=[str(self.c.pk)])
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)             
+        self.assertEqual(resp.status_code, 200)
+
+    def test_fixture_404(self):
+        url = reverse("fixture-detail", args=['999999999'])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)        
 
 # to just check the damn thing works on the most basic level        
 class ViewsBasicTest(TestCase):

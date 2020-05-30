@@ -12,7 +12,7 @@ from django.db.models import Max, Min
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition
-from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm, FixtureEditionForm, FixtureEventForm
+from .forms import CompareForm, RankingForm, RowerForm, RowerChangeForm, CrewCompareForm, CompetitionForm, FixtureEditionForm, FixtureEventForm
 from django.views.decorators.csrf import csrf_exempt
 
 def add_years(d, years):
@@ -86,7 +86,10 @@ def RowerDetail(request, pk):
     context = {}
     ptype = request.GET.get('type')
     copyGET = request.GET.copy() # required because request.GET is otherwise immutable
-    r1 = Rower.objects.get(pk=pk)
+    try:
+        r1 = Rower.objects.get(pk=pk)
+    except Rower.DoesNotExist:
+        raise Http404('Rower not found')
     
     if ptype in (None, ''):
         if r1.score_set.filter(result__race__event__type='Sweep').count() == 0:
@@ -155,6 +158,17 @@ def RowerDetail(request, pk):
     
     return render(request, 'rowing/rower_detail.html', context)
     
+def RowerChange(request, pk):
+    if request.method == 'POST':
+        form = RowerChangeForm(request.POST)
+        if form.is_valid():
+            # do something
+            return HttpResponseRedirect(surl)
+    
+    else:
+        form = RowerChangeForm()
+        return render(request, 'rowing/compare.html', {'form':form})
+
 @csrf_exempt
 def RowerCompare(request, pk1, pk2):
     ptype = request.GET.get('type','Sweep')
@@ -367,7 +381,10 @@ class RaceList(ListView):
     model = Race'''
     
 def RaceDetail(request, pk):
-    race = Race.objects.get(pk=pk)
+    try:
+        race = Race.objects.get(pk=pk)
+    except Race.DoesNotExist:
+        raise Http404('Race not found')
     results = Result.objects.filter(race__id=pk).order_by('position')
     if Time.objects.filter(result__race__id=pk).count() > 0:
         time_flag = True
@@ -400,7 +417,10 @@ def CompetitionResults(request, pk):
     year = request.GET.get('year')
     page = request.GET.get('page')
     context = {}
-    context['competition'] = Competition.objects.get(pk=pk)
+    try:
+        context['competition'] = Competition.objects.get(pk=pk)
+    except Competition.DoesNotExist:
+        raise Http404('No such competition exists')
     
     races = Race.objects.filter(event__comp__pk=pk, complete=True)
     # add a filter for year
@@ -454,14 +474,20 @@ class ClubList(ListView):
     ordering = ['name']    
     
 def EditionDetail(request, pk):
-    edition = Edition.objects.get(pk=pk)
+    try:
+        edition = Edition.objects.get(pk=pk)
+    except Edition.DoesNotExist:
+        raise Http404('No such edition exists')
     fixtures = edition.fixture_set.all()
     context = {'edition':edition, 'fixtures':fixtures}
 
     return render(request, 'rowing/edition_detail.html', context)
     
 def FixtureDetail(request, pk):
-    fixture = Fixture.objects.get(pk=pk)
+    try:
+        fixture = Fixture.objects.get(pk=pk)
+    except Fixture.DoesNotExist:
+        raise Http404('No such fixture exists')
     races = fixture.race_set.all()
     racelinks = fixture.racelink_set.all()
     context = {'fixture':fixture, 'races':races, 'racelinks':racelinks}
@@ -485,7 +511,10 @@ def FixtureDetail(request, pk):
     return render(request, 'rowing/fixture_detail.html', context)
     
 def ClubDetail(request, pk):
-    this_club = Club.objects.get(pk=pk)
+    try:
+        this_club = Club.objects.get(pk=pk)
+    except Club.DoesNotExist:
+        raise Http404('No such club exists')
     
     #TODO: filtering by year, with a form and everything
     #this_year = request.GET.get('year', timezone.now().year)
@@ -627,7 +656,7 @@ def KnockoutView(request, pk):
     try:
         knockout = Fixture.objects.get(pk=pk)
     except Fixture.DoesNotExist:
-        raise Http404('<h1>Page not found</h1>')
+        raise Http404('Fixture not found')
     context = {'knockout':knockout}
     context['rdayn'] = request.GET.get('day', 'Wednesday')
     kraces = KnockoutRace.objects.filter(knockout=knockout)
@@ -662,3 +691,12 @@ def KnockoutView(request, pk):
             c.odds = '1 : ' + str(round(todds, 1)) '''
     
     return render(request, 'rowing/knockoutdetail.html', context)
+    
+### CORRECTION VIEWS ###
+
+def RowerCorrect(request, pk):
+    try:
+        knockout = Fixture.objects.get(pk=pk)
+    except Fixture.DoesNotExist:
+        raise Http404('<h1>Page not found</h1>')
+    
