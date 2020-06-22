@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, WeatherCalc
 urlpatterns = [
 	#url(r'^$', views.current_datetime, name='index'),
 	#url(r'^recalculate/$', views.CalculateView),
@@ -24,6 +24,7 @@ urlpatterns = [
 	url(r'^compare/$', views.RowerCompare2, name="compare2"),
 	url(r'^crewcompare/$', views.CrewCompare, name="crewcompare"),
 	url(r'^rowing/hrr/(?P<pk>[0-9]+)/$', views.KnockoutView, name="knockouts"),
+    url(r'^weather/$', views.WeatherCalc, name="weather"),
 	url(r'^favicon\.ico$',RedirectView.as_view(url='/static/favicon.ico')),
 	#url(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
 	#url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
