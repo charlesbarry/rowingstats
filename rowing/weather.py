@@ -4,7 +4,7 @@ from scipy.optimize import root_scalar
 
 # TODO: consider switching to python decimals
 
-def rowpower(v, water_temp = 18.0, air_temp = 18.0, air_pressure = 1012.0, air_humidity = 0.25, water_flow = 0.0, wind_v = 0.0, wind_angle = 0, cd_air = 0.9, A_air = 2, A_water = 9.0, boat_length = 18.0):
+def rowpower(v, water_temp = 18.0, air_temp = 18.0, air_pressure = 1012.0, air_humidity = 0.25, water_flow = 0.0, wind_v = 0.0, wind_angle = 0, cd_air = 0.9, A_air = 2, A_water = 9.0, boat_length = 18.0):    
     ### Comment on inputs and their units ###
     # water_temp is degrees c
     # air_temp is degrees c
@@ -18,6 +18,9 @@ def rowpower(v, water_temp = 18.0, air_temp = 18.0, air_pressure = 1012.0, air_h
     # A_water is the wetted surface area of a boat in m^2
     # cd_air is the coefficient of air drag
     # boat_length is in metres
+    
+    if v + water_flow <= 0:
+        raise ValueError("Speed must be greater than the tail current - we don't model backing down")
    
     ### Calculations ###
     # formula from https://www.omnicalculator.com/physics/air-density
@@ -61,6 +64,10 @@ def powerdiff2(v, watts, kwargs):
 
 # turns a given watts into a speed. NB call rowpower as the watts value to compare two parameter sets    
 def rowspeed(watts, **kwargs):
-    #create kwargs version that calls scipy
-    sol = root_scalar(powerdiff2, args=(watts, kwargs), bracket = [0.1, 10], method='brentq')
+    #fix bracket for water_flow values < 0
+    if 'water_flow' in kwargs and kwargs['water_flow'] < 0:
+        bracket = [0.1-kwargs['water_flow'], 10]
+    else:
+        bracket = [0.1, 10]
+    sol = root_scalar(powerdiff2, args=(watts, kwargs), bracket = bracket, method='brentq')
     return sol.root

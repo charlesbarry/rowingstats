@@ -663,6 +663,12 @@ def WeatherCalc(request):
     A_water2 = float(request.GET.get('A_water2','9.0'))
     boat_length2 = float(request.GET.get('boat_length2','18.0'))
     
+    if v1 + water_flow1 <=0:
+        water_flow1 = 0
+        
+    if v1 + water_flow2 <=0:
+        water_flow2 = 0
+    
     context['form'] = WeatherForm(initial={
     'v1': v1,
     'water_temp1': water_temp1,
