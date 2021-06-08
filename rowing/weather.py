@@ -19,8 +19,8 @@ def rowpower(v, water_temp = 18.0, air_temp = 18.0, air_pressure = 1012.0, air_h
     # cd_air is the coefficient of air drag
     # boat_length is in metres
     
-    if v + water_flow <= 0:
-        raise ValueError("Speed must be greater than the tail current - we don't model backing down")
+    #if v + water_flow <= 0:
+    #    raise ValueError("Speed must be greater than the tail current - we don't model backing down")
    
     ### Calculations ###
     # formula from https://www.omnicalculator.com/physics/air-density
@@ -69,5 +69,10 @@ def rowspeed(watts, **kwargs):
         bracket = [0.1-kwargs['water_flow'], 10]
     else:
         bracket = [0.1, 10]
-    sol = root_scalar(powerdiff2, args=(watts, kwargs), bracket = bracket, method='brentq')
-    return sol.root
+    try:
+        sol = root_scalar(powerdiff2, args=(watts, kwargs), bracket = bracket, method='brentq')
+        errorcode = 0
+        return (sol.root, errorcode)
+    except ValueError:
+        errorcode = 1
+        return (0.1, errorcode)

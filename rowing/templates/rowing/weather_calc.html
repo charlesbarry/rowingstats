@@ -1,19 +1,77 @@
 {% extends "rowing/base.html" %}
 {% block title %}Adjust for weather{% endblock %}
 {% block header_extra %} 
-
 <script>
-MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-	tags: 'ams'
+// TODO
+// Make dynamic units work
+// Make hidden air units toggle work
+// Make boatsize selector work
+// Make extra forms remembered via the querystring
+
+// kindly borrowed from https://codepen.io/pkra/pen/EPeKjo - mathjax otherwise hopeless with resizeable content
+window.MathJax = {
+  jax: ["input/TeX","output/CommonHTML"],
+  CommonHTML: { linebreaks: {automatic: true}},
+  SVG: { linebreaks: {automatic: true}},
+  "HTML-CSS": { linebreaks: {automatic: true}},
+  extensions: ["tex2jax.js", "asciimath2jax.js", "mml2jax.js", "MathMenu.js", "MathZoom.js"],
+  TeX: {
+    extensions: ["AMSmath.js", "AMSsymbols.js", "autoload-all.js"]
   },
+  tex2jax: {
+    inlineMath: [
+      ['$', '$'],
+      ["\\(", "\\)"]
+    ],
+	tags: 'ams',
+    processEscapes: true
+  },
+  AuthorInit: function() {MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            var timeout = false, // holder for timeout id
+            delay = 250; // delay after event is "complete" to run callback
+            var reflowMath = function() {
+              var dispFormulas = document.getElementsByClassName("formula");
+              if (dispFormulas){
+              for (var i=0; i<dispFormulas.length; i++){
+                var dispFormula = dispFormulas[i];
+                var child = dispFormula.getElementsByClassName("MathJax_Preview")[0].nextSibling.firstChild;
+                var isMultiline = MathJax.Hub.getAllJax(dispFormula)[0].root.isMultiline;
+                if(dispFormula.offsetWidth < child.offsetWidth || isMultiline){
+                  MathJax.Hub.Queue(["Rerender", MathJax.Hub, dispFormula]);
+                }
+              }
+            }
+            };
+            window.addEventListener('resize', function() {
+                // clear the timeout
+              clearTimeout(timeout);
+              // start timing for event "completion"
+              timeout = setTimeout(reflowMath, delay);
+            });
+          });
+  }
 };
 
+(function(d, script) {
+  script = d.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.onload = function() {
+    // remote script has loaded
+  };
+  script.src = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js';
+  d.getElementsByTagName('head')[0].appendChild(script);
+}(document));
 </script>
-<script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+<script src="/static/rowing/js/jquery.min.js"></script>
+<script>
+$(".air-toggle").click(function(){
+  $("#air").toggle();
+});
 </script>
+<style>
+.toggle{ display: none; }
+</style>
 {% endblock %}
 {% block content %}
 <div class="col-sm-12 row"><h2>Adjust for weather conditions</h2></div>
@@ -41,13 +99,36 @@ MathJax = {
 		</tr>
 		<tr>
 			<td>Conditions set 2</td>
-			<td>{{v2|floatformat:3}}</td>
-			<td>{{500m2}}</td>
-			<td>{{2000m2}}</td>
+			<td>{% if errorcode2 == 1 %}Error!{% else %}{{v2|floatformat:3}}{% endif %}</td>
+			<td>{% if errorcode2 == 1 %}Error!{% else %}{{500m2}}{% endif %}</td>
+			<td>{% if errorcode2 == 1 %}Error!{% else %}{{2000m2}}{% endif %}</td>
 		</tr>
 	</tbody>
 </table>
 </div>
+
+{% if errorcode1 == 1 %}
+<div class="col-sm-12 row">
+<div class="alert alert-warning" role="alert">
+You attempted a calculation where the current in the direction of travel (a negative current) was greater than the observed boat speed. For this to be the case, the boat would have to be backing down. Current has been reset to zero.
+</div>
+</div>
+{% endif %}
+{% if errorcode1 == 2 %}
+<div class="col-sm-12 row">
+<div class="alert alert-warning" role="alert">
+You attempted a calculation where the observed boat speed was negative. We can't run this calculation if the boat is going backwards! Speed has been reset to 5 m/s.
+</div>
+</div>
+{% endif %}
+{% if errorcode2 == 1 %}
+<div class="col-sm-12 row">
+<div class="alert alert-danger" role="alert">
+You used an combination of values that was too extreme for the calculator (e.g. high negative current relative to boat speed). Try a more modest setup.
+</div>
+</div>
+{% endif %}
+
 <form class="form-inline" action="{% url 'weather' %}" method="get">
 		{% csrf_token %}
 
@@ -60,31 +141,50 @@ MathJax = {
 			<tbody>
 				<tr>
 					<td>Boat speed (m/s)</td>
-					<td>{{form.v1}}</td>
+					<td>{{form.v1}}
+					
+					</td>
 					<td></td>
 				</tr>
 				<tr>
-					<td>Current (m/s) (Note 1)</td>
-					<td>{{form.water_flow1}}</td>
-					<td>{{form.water_flow2}}</td>
+					<td>Current (Note 1)</td>
+					<td>{{form.water_flow1}}
+					
+					</td>
+					<td>{{form.water_flow2}}
+
+					</td>
 				</tr>
 				<tr>
-					<td>Water Temp (deg C)</td>
-					<td>{{form.water_temp1}}</td>
-					<td>{{form.water_temp2}}</td>
+					<td>Water Temp</td>
+					<td>{{form.water_temp1}}
+
+					</td>
+					<td>{{form.water_temp2}}
+
+					</td>
 				</tr>
 				<tr>
-					<td>Wind speed (m/s)</td>
-					<td>{{form.wind_v1}}</td>
-					<td>{{form.wind_v2}}</td>
+					<td>Wind speed</td>
+					<td>{{form.wind_v1}}
+
+					</td>
+					<td>{{form.wind_v2}}
+
+					</td>
 				</tr>
 				<tr>
 					<td>Wind angle (Note 2)</td>
-					<td>{{form.wind_angle1}}</td>
-					<td>{{form.wind_angle2}}</td>
+					<td>{{form.wind_angle1}} degrees</td>
+					<td>{{form.wind_angle2}} degrees</td>
 				</tr>
 				<tr>
-					<td>Wetted surface area (m^2)</td>
+					<td><strong>Boat size parameters</strong></td>
+					<td colspan="2">
+					See table below for reference values
+					</td>
+				<tr>
+					<td>Wetted surface area (metres&sup2;)</td>
 					<td>{{form.A_water1}}</td>
 					<td>{{form.A_water2}}</td>
 				</tr>
@@ -94,26 +194,29 @@ MathJax = {
 					<td>{{form.boat_length2}}</td>
 				</tr>
 				<tr>
-					<td>Wind exposed surface area (m^2)</td>
+					<td>Wind exposed surface area (metres&sup2;)</td>
 					<td>{{form.A_air1}}</td>
 					<td>{{form.A_air2}}</td>
 				</tr>
 				<tr>
+				<td><strong>Air parameters</strong></td>
+				</tr>
+				<tr class="air">
 					<td>Air drag coefficient</td>
 					<td>{{form.cd_air1}}</td>
 					<td>{{form.cd_air2}}</td>
 				</tr>
-				<tr>
+				<tr class="air">
 					<td>Air temperature (deg C)</td>
 					<td>{{form.air_temp1}}</td>
 					<td>{{form.air_temp2}}</td>
 				</tr>
-				<tr>
+				<tr class="air">
 					<td>Air pressure (hPa)</td>
 					<td>{{form.air_pressure1}}</td>
 					<td>{{form.air_pressure2}}</td>
 				</tr>
-				<tr>
+				<tr class="air">
 					<td>Air relative humidity</td>
 					<td>{{form.air_humidity1}}</td>
 					<td>{{form.air_humidity2}}</td>
@@ -148,25 +251,25 @@ MathJax = {
 
 <h3>Formulas</h3>
 <p>The formula used in the calculation of the power (in watts) of the crew is the speed of the boat times the water and wind drag components, as follows:</p>
-<p>$$\begin{equation} power = {v((0.642 \  \rho_w \ A_w \ Cd_w \ (v+v_w)^2) + (0.5 \ cos(\alpha_{wa}) \ v_{wa}^2 \ \rho_a \ Cd_a \ A_a))} \end{equation}$$ </p>
+<p><div class="formula">$$\begin{equation} power = {v((0.642 \  \rho_w \ A_w \ Cd_w \ (v+v_w)^2) + (0.5 \ cos(\alpha_{wa}) \ v_{wa}^2 \ \rho_a \ Cd_a \ A_a))} \end{equation}$$ </div></p>
 <p>Where v is boat speed, \(\rho\) is the density of water and air, \(A_w\) is the wetted surface area of the boat, $v_w$ is the speed of the current (positive for boats going against the stream, negative for going with the current), \(A_a\) is the area exposed to the wind, Cd is the drag coefficient for water and air, \(\alpha_{wa}\) is the <strong>apparent</strong> angle of the wind (NOT the direct angle of wind), and \(v_{wa}\) is the <strong>apparent</strong> wind speed. The reason the water drag is multipled by 0.642 not 0.5 (like for air) is to adjust for the fact that this is only measuring friction drag, and not other hydrodynamic drag sources like wave drag. These make up about an extra 20% of water drag, but as their values are relatively stable over the speeds experienced in rowing and their computation is challenging, they have been abstracted away here.</p>
 <p>In turn the following sub-equations are used:</p>
-<p>$$\begin{equation}\rho_w = {999.84847 + 6.337563*10^{-2} \ T_w - 8.523829*10^{-3} \ T_w^2 + 6.943248*10^{-5} \ T_w^3 - 3.821216*10^{-7} \ T_w^4}\end{equation}$$</p>
+<p><div class="formula">$$\begin{equation}\rho_w = {999.84847 + 6.337563*10^{-2} \ T_w - 8.523829*10^{-3} \ T_w^2 + 6.943248*10^{-5} \ T_w^3 - 3.821216*10^{-7} \ T_w^4}\end{equation}$$</div></p>
 <p>Where $T_w$ is the temperature of the water (in Kelvins).</p>
-<p>$$\begin{equation}\rho_a = {100(((P_a - P_{wv}) / (S_a (T_a+273.15))) + (P_{wv} / (S_{wv} (T_a+273.15))))}\end{equation}$$</p>
+<p><div class="formula">$$\begin{equation}\rho_a = {100(((P_a - P_{wv}) / (S_a (T_a+273.15))) + (P_{wv} / (S_{wv} (T_a+273.15))))}\end{equation}$$</div></p>
 <p>Where $P_a$ and $P_{wv}$ are the air pressure and water vapour pressure (in hPa), $S_a$ and $S_{wv}$ are the specific gas constants for air and water (287.058 and 461.495 J/kg*K), and $T_a$ is the air temperature. Water vapour pressure is calculated as $P_{wv} = {R_h (6.1078 10^{(7.5 T_a / (T_a + 237.3))})}$ with $R_h$ being the relative humidity of the air (a percentage).</p>
 <p>Unlike with aerodynamics, where $Cd_a$ is given as a constant, the frictional drag coefficient in water varies with speed via the <a href="https://en.wikipedia.org/wiki/Reynolds_number">Reynolds number</a>:</p>
-<p>$$\begin{equation}Cd_w = {0.455 \over (log_{10}(R)^{2.58})}\end{equation}$$</p>
-<p>$$R = {(v+v_w) L \over \mu}$$</p>
+<p><div class="formula">$$\begin{equation}Cd_w = {0.455 \over (log_{10}(R)^{2.58})}\end{equation}$$</div></p>
+<p><div class="formula">$$R = {(v+v_w) L \over \mu}$$</div></p>
 <p>Where L is the length of the boat's water line and $\mu$ is the kinematic viscosity of water, calculated here as:</p>
-<p>$$\mu = {0.00002939 e^{(507.88/(T_w+273.15-149.3))} \over \rho_w}$$</p>
+<p><div class="formula">$$\mu = {0.00002939 e^{(507.88/(T_w+273.15-149.3))} \over \rho_w}$$</div></p>
 <p>Water temperature has a surprisingly large effect on viscosity in the range experienced by rowers. 5 degree celcius water is 70% more viscous than 25 degree water!</p>
 <p>Finally, as boats in motion are moving relative to the wind, the wind that affects a boat is not that which is observed statically. Instead the boat is affected by the apparent wind, whose speed and angle is determined as follows:</p>
-<p>$$\begin{equation} v_{wa} = \sqrt{(v+v_{wd} \ cos(\alpha_wd))^2+(v_{wd} \ sin(\alpha_wd))^2} \end{equation}$$</p>
-<p>$$\begin{equation} \alpha_{wa} = arccos({(v+v_{wd} \ cos(\alpha_{wd}))} / v_{wa}) \end{equation}$$</p>
+<p><div class="formula">$$\begin{equation} v_{wa} = \sqrt{(v+v_{wd} \ cos(\alpha_wd))^2+(v_{wd} \ sin(\alpha_wd))^2} \end{equation}$$</div></p>
+<p><div class="formula">$$\begin{equation} \alpha_{wa} = arccos({(v+v_{wd} \ cos(\alpha_{wd}))} / v_{wa}) \end{equation}$$</div></p>
 <p>Where $v_{wd}$ is the observed static wind speed and $\alpha_{wd}$ is the direction the wind is hitting the boat, relative to the bow (a 0 degree angle means a direct headwind, a 180 degree angle means a direct tailwind). For example, a boat moving at 20kph (a 6 minute 2K time) that is hit by a 10kph static cross wind (at exactly 90 degrees to the course) will actually experience a 22kph cross/headwind at 27 degrees to its course (this includes airflow generated by its movement).</p>
 <p><strong>Reversing the power equation</strong></p>
-<p>As you can see, the power equation (1) is rather complicated. While simpler versions of the formula are able to be reversed (i.e. switching from inputting power to get speed to vice versa) as closed form solutions (albeit sometimes <a href="https://twitter.com/rowingstats/status/1274470100402417664">quite complicated ones</a>), the current formula does not have an analytical reverse that we are aware of. Therefore, numeric methods are used to obtain a solution for the speed which a given amount of watts will achieve.</p>
+<p>As you can see, the power equation is rather complicated. While simpler versions of the formula are able to be reversed (i.e. switching from inputting power to get speed to vice versa) as closed form solutions (albeit sometimes <a href="https://twitter.com/rowingstats/status/1274470100402417664">quite complicated ones</a>), the current formula does not have an analytical reverse that we are aware of. Therefore, numerical methods are used to obtain a solution for the speed which a given amount of watts will achieve.</p>
 
 <h4>Boat design values</h4>
 <table class="table table-striped">
@@ -206,7 +309,9 @@ MathJax = {
 
 <h3>Acknowledgments and Sources</h3>
 <ul>
-<li>To insert.</li>
+<li><a href="https://www.sheldonbrown.com/brandt/wind.html">"Headwinds, Crosswinds and Tailwinds", Jobst Brandt (2004)</a></li>
+<li><a href="https://nvlpubs.nist.gov/nistpubs/jres/097/jresv97n3p335_A1b.pdf">"ITS-90 Density of Water Formulation for Volumetric Standards Calibration", Frank Jones and Georgia Harris (1992)</a></li>
+<li><a href="https://sanderroosendaal.wordpress.com/2010/11/21/drag-revisited-2/">"Drag revisited (2)", Sander Roosendaal (2010)</a></li>
 <li>Source code is available on the <a href="https://www.github.com/charlesbarry/rowingstats">site github</a>.</li>
 </ul>
 </div>

@@ -663,11 +663,18 @@ def WeatherCalc(request):
     A_water2 = float(request.GET.get('A_water2','9.0'))
     boat_length2 = float(request.GET.get('boat_length2','18.0'))
     
-    if v1 + water_flow1 <=0:
+    # handling if someone is silly and makes backing down a thing
+    if v1 < 0:
+        context['errorcode1'] = 2
+        v1 = 5
+    elif v1 + water_flow1 <=0:
         water_flow1 = 0
+        context['errorcode1'] = 1
+    else:
+        context['errorcode1'] = 0
         
-    if v1 + water_flow2 <=0:
-        water_flow2 = 0
+    #if v1 + water_flow2 <=0:
+    #    water_flow2 = 0
     
     context['form'] = WeatherForm(initial={
     'v1': v1,
@@ -698,7 +705,10 @@ def WeatherCalc(request):
     context['target_watts'] = rowpower(v1, water_temp = water_temp1, air_temp = air_temp1, air_pressure = air_pressure1, air_humidity = air_humidity1, water_flow = water_flow1, wind_v = wind_v1, wind_angle = deg2rad(wind_angle1), cd_air = cd_air1, A_air = A_air1, A_water = A_water1, boat_length = boat_length1)
     
     context['v1'] = v1
-    context['v2'] = rowspeed(context['target_watts'], water_temp = water_temp2, air_temp = air_temp2, air_pressure = air_pressure2, air_humidity = air_humidity2, water_flow = water_flow2, wind_v = wind_v2, wind_angle = deg2rad(wind_angle2), cd_air = cd_air2, A_air = A_air2, A_water = A_water2, boat_length = boat_length2)
+    #v2_attempt receives a tuple with an errorcode as [1]
+    v2_attempt = rowspeed(context['target_watts'], water_temp = water_temp2, air_temp = air_temp2, air_pressure = air_pressure2, air_humidity = air_humidity2, water_flow = water_flow2, wind_v = wind_v2, wind_angle = deg2rad(wind_angle2), cd_air = cd_air2, A_air = A_air2, A_water = A_water2, boat_length = boat_length2)
+    context['v2'] = v2_attempt[0]
+    context['errorcode2'] = v2_attempt[1]
     
     # slicing needed due to incapability of django or python to work with microseconds properly
     def format_timedelta(td):
