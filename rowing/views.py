@@ -11,9 +11,13 @@ from django.utils import timezone
 from django.db.models import Max, Min
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
+
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition
-from .forms import CompareForm, RankingForm, RowerForm, RowerChangeForm, CrewCompareForm, CompetitionForm, FixtureEditionForm, FixtureEventForm
+from .forms import CompareForm, RankingForm, RowerForm, RowerChangeForm, CrewCompareForm, CompetitionForm, WeatherForm, FixtureEditionForm, FixtureEventForm
+
 from django.views.decorators.csrf import csrf_exempt
+from .weather import rowpower, rowspeed
+from numpy import deg2rad
 
 def add_years(d, years):
     # stolen from stackoverflow: https://stackoverflow.com/a/15743908
@@ -699,4 +703,98 @@ def RowerCorrect(request, pk):
         knockout = Fixture.objects.get(pk=pk)
     except Fixture.DoesNotExist:
         raise Http404('<h1>Page not found</h1>')
+
+def WeatherCalc(request):
+    # TODO: fix current treatment
     
+    context = {}
+    # get input values or defaults
+    v1 = float(request.GET.get('v1','5.0'))
+    water_temp1 = float(request.GET.get('water_temp1','18.0'))
+    air_temp1 = float(request.GET.get('air_temp1','18.0'))
+    air_pressure1 = float(request.GET.get('air_pressure1','1012.0'))
+    air_humidity1 = float(request.GET.get('air_humidity1','0.25'))
+    water_flow1 = float(request.GET.get('water_flow1','0.0'))
+    wind_v1 = float(request.GET.get('wind_v1','0.0'))
+    wind_angle1 = float(request.GET.get('wind_angle1','0.0'))
+    cd_air1 = float(request.GET.get('cd_air1','0.9'))
+    A_air1 = float(request.GET.get('A_air1','2.0'))
+    A_water1 = float(request.GET.get('A_water1','9.0'))
+    boat_length1 = float(request.GET.get('boat_length1','18.0'))
+
+    water_temp2 = float(request.GET.get('water_temp2','18.0'))
+    air_temp2 = float(request.GET.get('air_temp2','18.0'))
+    air_pressure2 = float(request.GET.get('air_pressure2','1012.0'))
+    air_humidity2 = float(request.GET.get('air_humidity2','0.25'))
+    water_flow2 = float(request.GET.get('water_flow2','0.0'))
+    wind_v2 = float(request.GET.get('wind_v2','0.0'))
+    wind_angle2 = float(request.GET.get('wind_angle2','0.0'))
+    cd_air2 = float(request.GET.get('cd_air2','0.9'))
+    A_air2 = float(request.GET.get('A_air2','2.0'))
+    A_water2 = float(request.GET.get('A_water2','9.0'))
+    boat_length2 = float(request.GET.get('boat_length2','18.0'))
+    
+    # handling if someone is silly and makes backing down a thing
+    if v1 < 0:
+        context['errorcode1'] = 2
+        v1 = 5
+    elif v1 + water_flow1 <=0:
+        water_flow1 = 0
+        context['errorcode1'] = 1
+    else:
+        context['errorcode1'] = 0
+        
+    #if v1 + water_flow2 <=0:
+    #    water_flow2 = 0
+    
+    context['form'] = WeatherForm(initial={
+    'v1': v1,
+    'water_temp1': water_temp1,
+    'air_temp1': air_temp1,
+    'air_pressure1': air_pressure1,
+    'air_humidity1': air_humidity1,
+    'water_flow1': water_flow1,
+    'wind_v1': wind_v1,
+    'wind_angle1': wind_angle1,
+    'cd_air1': cd_air1,
+    'A_air1': A_air1,
+    'A_water1': A_water1,
+    'boat_length1': boat_length1,
+    'water_temp2': water_temp2,
+    'air_temp2': air_temp2,
+    'air_pressure2': air_pressure2,
+    'air_humidity2': air_humidity2,
+    'water_flow2': water_flow2,
+    'wind_v2': wind_v2,
+    'wind_angle2': wind_angle2,
+    'cd_air2': cd_air2,
+    'A_air2': A_air2,
+    'A_water2': A_water2,
+    'boat_length2': boat_length2,
+    })
+    
+    context['target_watts'] = rowpower(v1, water_temp = water_temp1, air_temp = air_temp1, air_pressure = air_pressure1, air_humidity = air_humidity1, water_flow = water_flow1, wind_v = wind_v1, wind_angle = deg2rad(wind_angle1), cd_air = cd_air1, A_air = A_air1, A_water = A_water1, boat_length = boat_length1)
+    
+    context['v1'] = v1
+    #v2_attempt receives a tuple with an errorcode as [1]
+    v2_attempt = rowspeed(context['target_watts'], water_temp = water_temp2, air_temp = air_temp2, air_pressure = air_pressure2, air_humidity = air_humidity2, water_flow = water_flow2, wind_v = wind_v2, wind_angle = deg2rad(wind_angle2), cd_air = cd_air2, A_air = A_air2, A_water = A_water2, boat_length = boat_length2)
+    context['v2'] = v2_attempt[0]
+    context['errorcode2'] = v2_attempt[1]
+    
+    # slicing needed due to incapability of django or python to work with microseconds properly
+    def format_timedelta(td):
+        s = str(td)
+        if len(s) == 14:
+            return s[2:9]
+        elif len(s) == 7:
+            return s[2:] + '.0'
+        else:
+            raise 
+    
+    context['500m1'] = format_timedelta(datetime.timedelta(seconds=(500/context['v1'])))
+    context['2000m1'] =  format_timedelta(datetime.timedelta(seconds=(2000/context['v1'])))
+    context['500m2'] = format_timedelta(datetime.timedelta(seconds=(500/context['v2'])))
+    context['2000m2'] = format_timedelta(datetime.timedelta(seconds=(2000/context['v2'])))
+    
+    return render(request, 'rowing/weather_calc.html', context)	
+
