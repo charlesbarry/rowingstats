@@ -5,20 +5,21 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 Examples:
 Function views
     1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+    2. Add a URL to urlpatterns:  re_path(r'^$', views.home, name='home')
 Class-based views
     1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+    2. Add a URL to urlpatterns:  re_path(r'^$', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+    2. Add a URL to urlpatterns:  re_path(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url, include, re_path
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-	url(r'^articles/', include('blog.urls')),
-	url(r'^hrr/', include('hrr.urls')),
-	url(r'^', include('rowing.urls')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^blog/', include('blog.urls')),
+	re_path(r'^articles/', include('blog.urls')),
+	re_path(r'^hrr/', include('hrr.urls')),
+	re_path(r'^', include('rowing.urls')),
 ]
