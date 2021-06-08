@@ -47,6 +47,33 @@ class CrewCompareForm(forms.Form):
 	#crew1_name = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	#crew2_name = forms.ChoiceField(label='Type', required=True, choices=(('Sweep','Sweep'),('Sculling','Sculling')), widget=forms.Select(attrs={'class':'form-control'}))
 	type = forms.ChoiceField(label='Type', required=True, choices=type_choices, widget=forms.Select(attrs={'class':'form-control'}))
+    
+class WeatherForm(forms.Form):
+    v1 = forms.FloatField(label='Initial speed', required=True)
+    water_temp1 = forms.FloatField(required=True)
+    air_temp1 = forms.FloatField(label='Initial speed', required=True)
+    air_pressure1 = forms.FloatField(label='Initial speed', required=True)
+    air_humidity1 = forms.FloatField(label='Initial speed', required=True)
+    water_flow1 = forms.FloatField(label='Initial speed', required=True)
+    wind_v1 = forms.FloatField(label='Initial speed', required=True)
+    wind_angle1 = forms.FloatField(label='Initial speed', required=True)
+    cd_air1 = forms.FloatField(label='Initial speed', required=True)
+    A_air1 = forms.FloatField(label='Initial speed', required=True)
+    A_water1 = forms.FloatField(label='Initial speed', required=True)
+    boat_length1 = forms.FloatField(label='Initial speed', required=True)
+
+    water_temp2 = forms.FloatField(label='Initial speed', required=True)
+    air_temp2 = forms.FloatField(label='Initial speed', required=True)
+    air_pressure2 = forms.FloatField(label='Initial speed', required=True)
+    air_humidity2 = forms.FloatField(label='Initial speed', required=True)
+    water_flow2 = forms.FloatField(label='Initial speed', required=True)
+    wind_v2 = forms.FloatField(label='Initial speed', required=True)
+    wind_angle2 = forms.FloatField(label='Initial speed', required=True)
+    cd_air2 = forms.FloatField(label='Initial speed', required=True)
+    A_air2 = forms.FloatField(label='Initial speed', required=True)
+    A_water2 = forms.FloatField(label='Initial speed', required=True)
+    boat_length2 = forms.FloatField(label='Initial speed', required=True)
+
 	
 class RankingForm(forms.Form):
 	type = forms.ChoiceField(label='Type', required=True, choices=type_choices, widget=forms.Select(attrs={'class':'form-control'}))
