@@ -73,20 +73,19 @@ class Rower(models.Model):
 	last_updated = models.DateTimeField("Last updated", auto_now=True)
 	created = models.DateTimeField("Created on", auto_now_add=True)
 
-# Metafixture - terrible word, but given all other synonyms of competition are being used up had to come up with something distinctive
 # Used to define a set of fixtures - e.g. the 2016 Olympics or 2017 HRR
-class Metafixture(models.Model):
+class Edition(models.Model):
 	name = models.CharField(max_length=100)
-	event = models.ManyToManyField(Event, blank=True)
+	comp = models.ForeignKey(Competition, on_delete=models.PROTECT)
 	
 	def __str__(self):
-		return (self.event.name + ' - ' + str(self.year))
+		return self.name
 
 # Also known as Knockout in earlier version of this code (debating to rename this as a Tournament)
 # This is the M2- at the Rio Olympics - it's a set of races within a given competition
 class Fixture(models.Model):
 	event = models.ForeignKey(Event, on_delete=models.PROTECT)
-	mf = models.ForeignKey(Metafixture, null=True, blank=True, on_delete=models.CASCADE)
+	edition = models.ForeignKey(Edition, null=True, blank=True, on_delete=models.CASCADE)
 	rounds = models.PositiveSmallIntegerField(default=1)
 	complete = models.BooleanField(default=False)
 	
