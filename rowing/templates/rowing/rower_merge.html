@@ -1,0 +1,24 @@
+{% extends "rowing/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}{{rower.name}} - merge this duplicate {% endblock %}
+{% block header_extra %}
+<style>
+.form-horizontal .control-label.text-left{
+    text-align: left;
+}
+</style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="row col-sm-12"><a href="/rowers/{{rower.pk}}/"><p>Go back</p></a></div>
+<div class="row col-sm-12">
+<h2>{{rower.name}} - merge this duplicate</h2>
+<p>Use this form to mark this rower as a duplicate of another. If approved, your change will delete this rower and transfer all its data to the other rower you select below.</p>
+</div>
+
+{% crispy form %}
+
+<p>&nbsp;</p>
+{% endblock %}

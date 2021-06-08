@@ -30,6 +30,7 @@ X_FRAME_OPTIONS = 'DENY'
 INSTALLED_APPS = [
     'ajax_select',
     'coverage',
+    'crispy_forms',
     'rowing.apps.RowingConfig',
     'blog.apps.BlogConfig',
     'hrr.apps.HrrConfig',
@@ -71,7 +72,13 @@ TEMPLATES = [
     },
 ]
 
+# crispy forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
 WSGI_APPLICATION = 'rowingstats.wsgi.application'
+if DEBUG == True:
+    from django.contrib.messages import constants as message_constants
+    MESSAGE_LEVEL = message_constants.DEBUG
 
 # Database
 DATABASES = {

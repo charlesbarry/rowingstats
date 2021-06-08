@@ -5,7 +5,7 @@ from django.views.generic import RedirectView
 
 from . import views
 
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, WeatherCalc
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, WeatherCalc, RowerCorrect, ResultCorrect, RowerMerge
 urlpatterns = [
     #re_path(r'^$', views.current_datetime, name='index'),
     #re_path(r'^recalculate/$', views.CalculateView),
@@ -29,6 +29,9 @@ urlpatterns = [
     re_path(r'^rowing/hrr/(?P<pk>[0-9]+)/$', views.KnockoutView, name="knockouts"),
     re_path(r'^favicon\.ico$',RedirectView.as_view(url='/static/favicon.ico')),
     re_path(r'^weather/$', views.WeatherCalc, name="weather"),
+    re_path(r'^rower/correct/(?P<pk>[0-9]+)/$', RowerCorrect, name="rower-correct"),
+    re_path(r'^result/correct/(?P<pk>[0-9]+)/$', ResultCorrect, name="result-correct"),
+    re_path(r'^rower/merge/(?P<pk>[0-9]+)/$',RowerMerge, name="rower-merge"),
     #re_path(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
     #re_path(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
     #re_path(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),

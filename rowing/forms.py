@@ -2,6 +2,9 @@ from django import forms
 #from dal import autocomplete
 from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
 from rowing.models import Rower, Result, Club
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, HTML, Fieldset, ButtonHolder, Div, Field
+import os
 
 type_choices = (
         ('Sweep', 'Sweep'),
@@ -120,3 +123,98 @@ class FixtureEventForm(forms.Form):
         self.fields["event"].choices = event_choices
 
     event = forms.ChoiceField(label='Class', required=False, choices=(), widget=forms.Select(attrs={'class':'form-control'}))
+
+'''    
+class RowerCorrectForm(forms.Form):
+    name = forms.CharField(label='Rower name', max_length=100, widget=forms.Select(attrs={'class':'form-control'}))
+    #nationality = 
+    gender = forms.ChoiceField(required=False, choices=((('M', 'M'),('W', 'W'),('U', 'U'),)), widget=forms.Select(attrs={'class':'form-control'}))
+'''
+
+class RowerCorrectForm(forms.ModelForm):
+    class Meta:
+        model = Rower
+        fields = ['name','nationality','gender']
+    
+    your_name = forms.CharField(max_length=100, required=True)
+    your_email = forms.EmailField(min_length=6, required=True)
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-sm-2 text-left'
+        self.helper.field_class = 'col-sm-10'
+        self.helper.layout = Layout(
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>Details to change</h4></div><div class="col-sm-10"></div></div>'),
+            Div(
+                'name',
+                'nationality',
+                'gender'),
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>About you</h4></div></div>'),
+            Div(
+                'your_name',
+                'your_email',
+            ),
+            HTML('<div class="form-group"><div class="col-sm-2">&nbsp;</div><div class="col-sm-10"><div class="g-recaptcha" data-sitekey="%s"></div></div></div>' % os.environ.get("RECAPTCHA_PUBLIC_KEY")),
+            #ButtonHolder(Submit('submit', 'Submit', css_class='button white'))
+        )
+    
+class RowerMergeForm(forms.Form):
+    merger = AutoCompleteSelectField('crew', required=False, help_text=None, label="Correct rower")
+        
+    your_name = forms.CharField(max_length=100, required=True)
+    your_email = forms.EmailField(min_length=6, required=True)
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-sm-2 text-left'
+        self.helper.field_class = 'col-sm-10'
+        self.helper.layout = Layout(
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>Details to change</h4></div><div class="col-sm-10"></div></div>'),
+            Div('merger',),
+            HTML('<div class="form-group"><div class="col-sm-2"></div><div class="col-sm-10">Select the rower you wish this one to be merged into.</div></div>'),
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>About you</h4></div></div>'),
+            Div(
+                'your_name',
+                'your_email',
+            ),
+            HTML('<div class="form-group"><div class="col-sm-2">&nbsp;</div><div class="col-sm-10"><div class="g-recaptcha" data-sitekey="%s"></div></div></div>' % os.environ.get("RECAPTCHA_PUBLIC_KEY")),
+            #ButtonHolder(Submit('submit', 'Submit', css_class='button white'))
+        )
+        
+class ResultCorrectForm(forms.ModelForm):
+    class Meta:
+        model = Result
+        fields = ['crew','clubs','cox','flag']
+        
+    crew = AutoCompleteSelectMultipleField('crew', required=False, help_text="Add or remove rowers for this crew.")
+    clubs = AutoCompleteSelectMultipleField('clubs', required=False, help_text="Add or remove clubs for this crew. You can add more than one in case of composites.")
+    cox = AutoCompleteSelectField('cox', required=False)    
+        
+    your_name = forms.CharField(max_length=100, required=True)
+    your_email = forms.EmailField(min_length=6, required=True)
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-sm-2 text-left'
+        self.helper.field_class = 'col-sm-10'
+        self.helper.layout = Layout(
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>Details to change</h4></div><div class="col-sm-10"></div></div>'),
+            Div('crew','clubs','cox','flag'),
+            HTML('<div class="form-group"><div class="col-sm-2"></div><div class="col-sm-10">Optional: Set a flag to indicate if this is the A crew, B crew etc.</div></div>'),
+            HTML('<div class="form-group"><div class="col-sm-2"><h4>About you</h4></div></div>'),
+            Div(
+                'your_name',
+                'your_email',
+            ),
+            HTML('<div class="form-group"><div class="col-sm-2">&nbsp;</div><div class="col-sm-10"><div class="g-recaptcha" data-sitekey="%s"></div></div></div>' % os.environ.get("RECAPTCHA_PUBLIC_KEY")),
+            #ButtonHolder(Submit('submit', 'Submit', css_class='button white'))
+        )

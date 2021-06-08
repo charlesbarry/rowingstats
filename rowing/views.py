@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render
-import datetime
+from django.shortcuts import render, redirect
+import datetime, os, requests, json
 from django.core.management import call_command
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
@@ -9,16 +9,19 @@ from itertools import groupby
 from scipy.stats import norm
 from django.utils import timezone
 from django.db.models import Max, Min
+from django.contrib import messages
+from django.core import serializers
 
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 
-from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition
-from .forms import CompareForm, RankingForm, RowerForm, RowerChangeForm, CrewCompareForm, CompetitionForm, WeatherForm, FixtureEditionForm, FixtureEventForm
+from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition, ProposedChange
+from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm, WeatherForm, FixtureEditionForm, FixtureEventForm, RowerCorrectForm, RowerMergeForm, ResultCorrectForm
 
 from django.views.decorators.csrf import csrf_exempt
 from .weather import rowpower, rowspeed
 from numpy import deg2rad
 
+### helper functions
 def add_years(d, years):
     # stolen from stackoverflow: https://stackoverflow.com/a/15743908
     """Return a date that's `years` years after the date (or datetime)
@@ -31,6 +34,14 @@ def add_years(d, years):
         return d.replace(year = d.year + years)
     except ValueError:
         return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[-1]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 # only used in development
 def CalculateView(request):
@@ -162,17 +173,6 @@ def RowerDetail(request, pk):
     
     return render(request, 'rowing/rower_detail.html', context)
     
-def RowerChange(request, pk):
-    if request.method == 'POST':
-        form = RowerChangeForm(request.POST)
-        if form.is_valid():
-            # do something
-            return HttpResponseRedirect(surl)
-    
-    else:
-        form = RowerChangeForm()
-        return render(request, 'rowing/compare.html', {'form':form})
-
 @csrf_exempt
 def RowerCompare(request, pk1, pk2):
     ptype = request.GET.get('type','Sweep')
@@ -700,9 +700,150 @@ def KnockoutView(request, pk):
 
 def RowerCorrect(request, pk):
     try:
-        knockout = Fixture.objects.get(pk=pk)
-    except Fixture.DoesNotExist:
-        raise Http404('<h1>Page not found</h1>')
+        rower = Rower.objects.get(pk=pk)
+    except Rower.DoesNotExist:
+        raise Http404('Rower not found')
+    
+    if request.method == 'POST':
+        form = RowerCorrectForm(request.POST)
+        if form.is_valid():
+            # reCAPTCHA validation
+            rdata = {
+                'secret': os.environ.get("RECAPTCHA_PRIVATE_KEY"),
+                'response': request.POST.get('g-recaptcha-response'),
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=rdata)
+            result = r.json()
+            
+            if result['success']:
+                # trim the form.cleaned_data to exclude the non-submitter elements
+                data_to_check = {k: form.cleaned_data[k] for k in form.cleaned_data.keys() & {'name', 'nationality', 'gender'}}
+                # filter out unchanged fields
+                changes = {k:data_to_check[k] for k in data_to_check if data_to_check[k] != getattr(rower, k)}
+                
+                # check number of changes is > 0, if so crack on
+                if len(changes) != 0:
+                    ProposedChange.objects.create(
+                        submitter_name = form.cleaned_data['your_name'],
+                        submitter_email = form.cleaned_data['your_email'],
+                        submitted_ip = get_client_ip(request),
+                        model = 'Rower',
+                        model_pk = rower.pk,
+                        # comprehension to extract subset of dict - from https://stackoverflow.com/questions/5352546
+                        data = json.dumps(changes),
+                        operation = 'update',
+                    )
+                    messages.success(request, "Your changes were received. They'll now be reviewed by a site admin before being approved.")
+                    return redirect('rower-detail', pk=rower.pk)
+                else:
+                    messages.error(request, "You don't appear to have submitted any changes.")
+            else:
+                messages.error(request, 'Invalid reCAPTCHA. Please try again.')
+            
+    
+    else:
+        form = RowerCorrectForm(initial={'gender':rower.gender, 'nationality':rower.nationality, 'name':rower.name})
+
+    return render(request, 'rowing/rower_correct.html', {'rower':rower, 'form':form})
+
+def RowerMerge(request, pk):
+    try:
+        rower = Rower.objects.get(pk=pk)
+    except Rower.DoesNotExist:
+        raise Http404('Rower not found')
+    
+    if request.method == 'POST':
+        form = RowerMergeForm(request.POST)
+        if form.is_valid():
+            # reCAPTCHA validation
+            rdata = {
+                'secret': os.environ.get("RECAPTCHA_PRIVATE_KEY"),
+                'response': request.POST.get('g-recaptcha-response'),
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=rdata)
+            result = r.json()
+            
+            if result['success']:
+                if form.cleaned_data['merger'] != rower:
+                    ProposedChange.objects.create(
+                        submitter_name = form.cleaned_data['your_name'],
+                        submitter_email = form.cleaned_data['your_email'],
+                        submitted_ip = get_client_ip(request),
+                        model = 'Rower',
+                        model_pk = rower.pk,
+                        data = json.dumps({'merge_from':rower.pk, 'merge_into':form.cleaned_data['merger'].pk}),
+                        operation = 'merge',
+                    )
+                    messages.success(request, "Your changes were received. They'll now be reviewed by a site admin before being approved.")
+                    return redirect('rower-detail', pk=rower.pk)
+                else:
+                    messages.error(request, "You don't appear to have submitted any changes.")
+            else:
+                messages.error(request, 'Invalid reCAPTCHA. Please try again.')
+            
+    
+    else:
+        form = RowerMergeForm()
+
+    return render(request, 'rowing/rower_merge.html', {'rower':rower, 'form':form})     
+    
+def ResultCorrect(request, pk):
+    try:
+        res = Result.objects.get(pk=pk)
+    except Result.DoesNotExist:
+        raise Http404('Rower not found')
+    
+    if request.method == 'POST':
+        form = ResultCorrectForm(request.POST)
+        if form.is_valid():
+            # reCAPTCHA validation
+            rdata = {
+                'secret': os.environ.get("RECAPTCHA_PRIVATE_KEY"),
+                'response': request.POST.get('g-recaptcha-response'),
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=rdata)
+            result = r.json()
+            
+            if result['success']:
+                # trim the form.cleaned_data to exclude the non-submitter elements
+                data_to_check = {k: form.cleaned_data[k] for k in form.cleaned_data.keys() & {'cox','flag','crews','clubs'}}
+                # filter out unchanged fields
+                changes = {k:data_to_check[k] for k in data_to_check if data_to_check[k] != getattr(res, k)}
+                # slightly hackish workaround to deal with M2M fields
+                '''if form.cleaned_data['crew'] != [str(x.pk) for x in res.crew.all()]:
+                    changes['crew'] = form.cleaned_data['crew']
+                    
+                if form.cleaned_data['clubs'] != [str(x.pk) for x in res.clubs.all()]:
+                    changes['clubs'] = form.cleaned_data['crew']'''
+                    
+                # hackish workaround for the fact that django matches foreign key fields as the object itself
+                if 'cox' in changes:
+                    changes['cox'] = changes['cox'].pk
+                
+                if len(changes) != 0:
+                    ProposedChange.objects.create(
+                        submitter_name = form.cleaned_data['your_name'],
+                        submitter_email = form.cleaned_data['your_email'],
+                        submitted_ip = get_client_ip(request),
+                        model = 'Result',
+                        model_pk = res.pk,
+                        data = json.dumps(changes),
+                        operation = 'update',
+                    )
+                    
+                    messages.success(request, "Your changes were received. They'll now be reviewed by a site admin before being approved.")
+                    messages.debug(request, form.cleaned_data)
+                    return redirect('race-detail', pk=res.race.pk)
+                else:
+                    messages.error(request, "You don't appear to have submitted any changes.")
+            else:
+                messages.error(request, 'Invalid reCAPTCHA. Please try again.')
+            
+    #'crew','clubs','cox','flag' initial={'crew':rower.gender, 'nationality':rower.nationality, 'name':rower.name}
+    else:
+        form = ResultCorrectForm(initial={'crew':res.crew.all(), 'clubs':res.clubs.all(), 'cox':res.cox, 'flag':res.flag})
+
+    return render(request, 'rowing/result_correct.html', {'result':res, 'form':form})
 
 def WeatherCalc(request):
     # TODO: fix current treatment
@@ -797,4 +938,3 @@ def WeatherCalc(request):
     context['2000m2'] = format_timedelta(datetime.timedelta(seconds=(2000/context['v2'])))
     
     return render(request, 'rowing/weather_calc.html', context)	
-
