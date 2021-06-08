@@ -1,0 +1,84 @@
+{% extends "rowing/base.html" %}
+{% block title %}{{fixture.edition.comp.name}} - {{fixture.edition.name}} - {{fixture.event.name}}{% endblock %}
+{% block loadscript %}
+<script>
+// attempted workaround due to Django's baffling form habits
+function selectElement(id, valueToSelect) {    
+    let element = document.getElementById(id);
+    element.value = valueToSelect;
+}
+function loadfunc(){
+	selectElement('id_edition', {{init_edition|safe}});
+	selectElement('id_event', {{init_event|safe}});
+}
+</script>
+{% endblock %}
+{% block header_extra %}<script>
+
+// stupid script required to make it work and not get querystrings etc
+
+function actionOnSubmit(id)
+{
+var e = document.getElementById(id);
+location = "/fixture/" + e.options[e.selectedIndex].value;
+return false;
+}
+
+</script>
+<style>
+	.table.vertical-align > tbody > tr > td {
+		 vertical-align: middle;
+	}
+</style>
+{% endblock %}
+{% block content %}
+<div class="col-sm-12 row"><h2>{{fixture.edition.comp.name}} - {{fixture.edition.name}} - {{fixture.event.name}}</h2><hr></div>
+
+<div class="row">
+<div class="col-sm-6"><h3>Switch edition</h3>
+<form class="form-inline" action="/fixture" onSubmit="return actionOnSubmit('id_edition')" method="get" name="editionform">
+        {% for field in editionform %}
+        <div class="/*col-sm-2*/ form-group">{{field.options.count}}{{field}}</div>
+        {% endfor %}
+        <button class="btn btn-default" type="submit">Switch</button>
+    
+</form>
+</div>
+<div class="col-sm-6"><h3>Switch event</h3>
+<form class="form-inline" action="/fixture" onSubmit="return actionOnSubmit('id_event')" method="get" name="eventform">
+        {% for field in eventform %}
+        <div class="/*col-sm-2*/ form-group">{{field.options.count}}{{field}}</div>
+        {% endfor %}
+        <button class="btn btn-default" type="submit">Switch</button>
+    
+</form>
+</div>
+</div>
+<!--- TODO: add racelinks as arrows, convert to whizzy js thing --->
+
+<div class="col-sm-12 row"><h3>Races in this event</h3></div>
+<div class="col-sm-12 row">
+{% if columns %}
+<table class="vertical-align table">
+	<tbody>
+		<tr>
+			{% for column in columns %}
+			<td>
+			<table class="table">
+				
+			{% for race in column %}
+				<tr><td><a href="/races/{{race.pk}}/">{{race.name}}</a></td></tr>
+			{% endfor %}
+				
+			</table>
+			<td>
+			{% endfor %}
+		</tr>
+	</tbody>
+</table>
+{% else %}
+<p>No races are available for this event.</p>
+{% endif %}
+</div>
+
+{% endblock %}
