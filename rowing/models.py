@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 # commentary on the below
 # TODO: Create ProgressionRule - ForeignKey of Race, which specifies how crews progress
@@ -315,3 +316,23 @@ class KnockoutCrew(models.Model):
     
     def __str__(self):
         return self.crewname + ' - ' + str(self.knockout)
+        
+class ProposedChange(models.Model):
+    operation_choices = (
+        ('create', 'Create'),
+        ('update', 'Update'),
+        ('delete', 'Delete'),
+        ('merge', 'Merge'),
+    )
+    
+    submitter_name = models.CharField(max_length=100)
+    submitter_email = models.EmailField()
+    submitted_ip = models.GenericIPAddressField()
+    data = JSONField()
+    submitted = models.DateTimeField("Submitted on", auto_now_add=True)
+    model = models.CharField(max_length=100, null=True)
+    model_pk = models.IntegerField(null=True, help_text="The primary key of the model.")
+    operation = models.CharField(max_length=10, null=True, choices=operation_choices)
+    
+    def __str__(self):
+        return str(self.pk)

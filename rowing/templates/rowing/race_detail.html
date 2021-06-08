@@ -1,19 +1,36 @@
 {% extends "rowing/base.html" %}
 {% block title %}{{object.name}} - Detail{% endblock %}
+{% block header_extra %}
+<style>
+.vbottom {
+    margin-top:20px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  $("#correction").click(function(){
+    $(".correct").toggleClass('hidden');
+	});
+});
+</script>
+{% endblock %}
 {% block content %}
-<div class="col-sm-12 row"><h2>{{object.name}}</h2></div>
-<div class="col-sm-12 row"><p>Held on {{object.date}}</p></div>
-<div class="col-sm-12 row"><p>Part of <a href="/competition/{{object.event.comp.pk}}/?event={{object.event.pk}}">{{object.event.name}}</a> in <a href="/competition/{{object.event.comp.pk}}">{{object.event.comp.name}}</a></p></div>
-<!--
-<div class="col-sm-12 row"><h3>Attributes</h3></div>
-<div class="row">
-	<div class="col-sm-4">Rowing type: {{object.type}}</p></div>
-	<div class="col-sm-4">Date: {{object.date}}</p></div>
-	<div class="col-sm-4">Event class: {{object.raceclass}}</p></div>
-	<div class="col-sm-4">Last updated: {{object.last_updated}}</p></div>
+<div class="row"><div class="col-sm-10"><h2>{{object.name}}</h2></div>
 </div>
--->
-<div class="col-sm-12 row"><h3>Results</h3></div>
+<div class="col-sm-12 row"><p>Held on {{object.date}}</p></div>
+{% if object.fixture %}
+<div class="col-sm-12 row"><p>Part of <a href="/fixture/{{object.fixture.pk}}/">{{object.fixture}}</a> in <a href="/competition/{{object.event.comp.pk}}">{{object.event.comp.name}}</a></p></div>
+{% else %}
+<div class="col-sm-12 row"><p>Part of <a href="/competition/{{object.event.comp.pk}}/?event={{object.event.pk}}">{{object.event.name}}</a> in <a href="/competition/{{object.event.comp.pk}}">{{object.event.comp.name}}</a></p></div>
+{% endif %}
+
+<div class="row">
+<div class="col-xs-6 col-sm-8 col-md-10"><h3>Results</h3></div>
+<div class="col-xs-6 col-sm-4 col-md-2 vbottom"><button type="button" class="btn btn-info btn-sm" data-toggle="button" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Suggest correction</button></div>
+</div>
+<div class="row">
+<div class="col-xs-12 table-responsive">
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -29,7 +46,7 @@
 		{% if results %}
 		{% for rank in results %}
 		<tr>
-			<td>{{rank.position}}</td>
+			<td>{{rank.position}} <a href="{% url 'result-correct' pk=rank.pk %}"><button type="button" class="hidden correct btn btn-info btn-sm">Edit</button></a></td>
 			<td>
 				{% for member in rank.crew.all %}
 					<a href="/rowers/{{member.pk}}">{{member.name}}</a>{% if not forloop.last %},{% else %}&nbsp;{% endif %}
@@ -65,4 +82,6 @@
 		{% endif %}
 	</tbody>
 </table>
+</div>
+</div>
 {% endblock %}

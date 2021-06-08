@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 
 from . import views
-from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, EditionDetail, FixtureDetail
+from .views import IndexView, RowerList, RowerDetail, RaceList, RaceDetail, RankingView, AboutView, ClubList, ClubDetail, RowerSearch, CompetitionView, CompetitionResults, RowerCompare, Compare, IndexView2, KnockoutView, EditionDetail, FixtureDetail, RowerCorrect, RowerMerge, ResultCorrect
 urlpatterns = [
     #url(r'^$', views.current_datetime, name='index'),
     #url(r'^recalculate/$', views.CalculateView),
@@ -27,6 +27,9 @@ urlpatterns = [
     url(r'^crewcompare/$', views.CrewCompare, name="crewcompare"),
     url(r'^rowing/hrr/(?P<pk>[0-9]+)/$', views.KnockoutView, name="knockouts"),
     url(r'^favicon\.ico$',RedirectView.as_view(url='/static/favicon.ico')),
+    url(r'^rower/correct/(?P<pk>[0-9]+)/$', RowerCorrect, name="rower-correct"),
+    url(r'^result/correct/(?P<pk>[0-9]+)/$', ResultCorrect, name="result-correct"),
+    url(r'^rower/merge/(?P<pk>[0-9]+)/$',RowerMerge, name="rower-merge"),
     #url(r'^compare/(?P<pk1>[0-9]+)/(?P<pk2>[0-9]+)/$', views.RowerCompare, name="compare"),
     #url(r'^rower-autocomplete/$', RowerAutocomplete.as_view(), name="rower-autocomplete"),
     #url(r'rowerm2m/$', CrewUpdate.as_view(), name="crew-update"),

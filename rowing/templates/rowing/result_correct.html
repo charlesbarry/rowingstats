@@ -1,0 +1,21 @@
+{% extends "rowing/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}{{rower.name}} - correct name {% endblock %}
+{% block header_extra %}
+<style>
+.form-horizontal .control-label.text-left{
+    text-align: left;
+}
+</style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="row col-sm-12"><a href="{% url 'race-detail' pk=result.race.pk %}"><p>Go back</p></a></div>
+<div class="row col-sm-12"><h2>{{result.race.name}}: position {{result.position}} - correct details</h2></div>
+
+{% crispy form %}
+
+<p>&nbsp;</p>
+{% endblock %}

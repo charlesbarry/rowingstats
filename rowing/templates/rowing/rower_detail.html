@@ -1,14 +1,30 @@
 {% extends "rowing/base.html" %}
 {% load static %}
 {% block title %}{{object.name}} - Detail {% endblock %}
-
+{% block header_extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
+<script src="{% static 'rowing/js/highcharts.js' %}"></script>
+<script src="{% static 'rowing/js/highcharts-more.js' %}"></script>
+<style>
+.vbottom {
+    margin-top:20px;
+}
+</style>
+{% endblock %}
 {% block content %}
 <div class="row">
-<div class="col-sm-8"><h2>{{object.name}}</h2><p>Nationality: {{object.nationality}}</p><p>Gender: {{object.gender}}</p></div>
 <div class="col-sm-8">
+<h2>{{object.name}}</h2>
+<p>Nationality: {{object.nationality}}</p><p>Gender: {{object.gender}}</p>
 {% for ranking in rower_ranks %}
 <p>{{ranking.0}}: {{ranking.1}} / {{ranking.2}} (Domestic) - {{ranking.3}} / {{ranking.4}} (Worldwide)</p>
 {% endfor %}
+</div>
+<div class="col-sm-4 vbottom">
+<p class="text-right">
+<a href="{% url 'rower-correct' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Correct details</button></a>
+<a href="{% url 'rower-merge' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Merge duplicate</button></a>
+</p>
 </div>
 <!--<div class="col-sm-4"><p>[Picture will go here]</p></div>-->
 </div>
@@ -69,6 +85,7 @@ Highcharts.chart('chart-container', {
 		<button class="btn btn-default" type="submit">Switch</button>
 	
 </form>
+<div class="table-responsive col-sm-12 row">
 <table class="table table-striped">
 <!-- <caption>Switch to: <a href="{{request.path}}?type=Sweep">Sweep</a> | <a href="{{request.path}}?type=Sculling">Sculling</a></caption>-->
 	<thead>
@@ -108,10 +125,5 @@ Highcharts.chart('chart-container', {
 		{% endif %}
 	</tbody>
 </table>
-{% endblock %}
-
-{% block header_extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'rowing/css/highcharts.css' %}">
-<script src="{% static 'rowing/js/highcharts.js' %}"></script>
-<script src="{% static 'rowing/js/highcharts-more.js' %}"></script>
+</div>
 {% endblock %}
