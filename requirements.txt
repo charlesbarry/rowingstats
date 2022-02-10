@@ -1,6 +1,6 @@
 coverage>=5.1
 dj-database-url>=0.4.2
-Django==3.2.4
+Django==3.2.12
 django-ajax-selects>=1.7.1
 gunicorn==19.7.1
 markdown>=3.2.2
