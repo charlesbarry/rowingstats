@@ -1,12 +1,127 @@
-# Rowingstats
-This repository provides the codebase for the rowingstats project. This includes the main rowingstats app, plus the blog and other experimental projects.
+# Rowing Stats
 
-The website is built using the django python web framework, with of course lots of js on top. The main site is hosted on heroku so there are some specific files designed to manage that.
+A Django-based web application for tracking and analysing rowing competition statistics. The platform provides detailed tracking of rowers, races, results, and skill-based rankings using the TrueSkill algorithm.
+
+## Overview
+
+Rowing Stats tracks rowing competitions from major international events (Olympics, World Rowing Championships) to domestic regattas (Henley Royal Regatta, BUCS, Head of the River). Key features include:
+
+- **Rower Profiles**: Search and browse rowers with full competition history
+- **Race Tracking**: Multi-round tournament organisation with split times and metadata
+- **TrueSkill Rankings**: Bayesian skill rating system with current and all-time rankings
+- **Weather Corrections**: Physics-based speed adjustment calculations accounting for conditions
+- **Knockout Predictions**: Match probability calculations for head-to-head racing
+- **Data Import**: 30+ specialised importers for various regatta formats
+- **Blog/Articles**: Content management system with Markdown support
+
+## Tech Stack
+
+- **Backend**: Django 4.2+ on Python 3.14
+- **Database**: PostgreSQL (production) / SQLite (development)
+- **Frontend**: Bootstrap 4, Django templates, AJAX autocomplete
+- **Hosting**: Heroku with Gunicorn WSGI server
+- **Static Files**: WhiteNoise with compression
+
+## Project Structure
+
+```
+rowingstats/
+├── rowingstats/      # Django project configuration
+├── rowing/           # Core application (rowers, races, rankings)
+├── blog/             # Article publishing system
+├── hrr/              # Head of the River experimental app
+├── scripts/          # Data import and processing utilities
+└── requirements.txt  # Python dependencies
+```
 
 ## Installation
-1. You'll need python 3 - probably 3.6 or later (currently being developed on 3.8)
-2. Clone the repo into a location of your choice
-3. If you care about such things, create a virtual environment (venv) of your choice. If you don't, simply run `pip install -r requirements.txt` in the local repo.
-4. Set up a .env file in rowingstats/rowingstats (i.e. alongside `settings.py`). This needs to specify as a minimum the SECRET_KEY (a nice long random string). If you don't specify a DATABASE_URL then it will default to a sqlite file database. (NB: rowingstats is designed with specific features of postgresql in mind, so be aware if you don't do this.) Here you can also turn DEBUG and a few security settings on and off - see `settings.py`.
-5. In the folder where you've set things up, run `python manage.py migrate` to initialise your database. If you don't do this, things will crash and burn.
-6. Then run `python manage.py runserver` and navigate to `localhost:8000`. If all's gone well, that should do it.
+
+### Prerequisites
+
+- Python 3.12+ (developed on 3.14)
+- PostgreSQL (recommended) or SQLite
+
+### Setup Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd rowingstats
+   ```
+
+2. **Create a virtual environment** (recommended)
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
+
+   Create a `.env` file in `rowingstats/rowingstats/` (alongside `settings.py`) with:
+   ```
+   SECRET_KEY=your-secure-random-string-here
+   DEBUG=True
+   DATABASE_URL=postgres://user:password@localhost:5432/rowingstats  # Optional
+   ```
+
+   If `DATABASE_URL` is not specified, SQLite will be used. Note that some features are optimised for PostgreSQL.
+
+5. **Run database migrations**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Start the development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+   Navigate to `http://localhost:8000`
+
+## Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `SECRET_KEY` | Yes | - | Django secret key |
+| `DATABASE_URL` | No | SQLite | PostgreSQL connection string |
+| `DEBUG` | No | `False` | Enable debug mode |
+| `SESSION_COOKIE_SECURE` | No | `True` | Secure session cookies |
+| `CSRF_COOKIE_SECURE` | No | `True` | Secure CSRF cookies |
+| `RSPLATFORM` | No | - | Set to `heroku` for production |
+
+## Deployment
+
+The application is configured for Heroku deployment:
+
+```bash
+# Procfile runs migrations automatically on release
+heroku create your-app-name
+git push heroku main
+```
+
+## Key Management Commands
+
+```bash
+# Recalculate TrueSkill scores
+python manage.py recalculator
+
+# Run tests
+python manage.py test
+
+# Collect static files
+python manage.py collectstatic
+```
+
+## Security
+
+Recent security improvements include:
+- HSTS with preload enabled
+- Secure cookie configuration
+- XSS protection headers
+- Content-Type sniffing prevention
+- Bleach-sanitised Markdown rendering
