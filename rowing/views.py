@@ -17,7 +17,6 @@ from django.views.generic import ListView, DetailView, UpdateView, TemplateView
 from .models import Rower, Race, Result, Competition, Event, Score, Club, ScoreRanking, Time, Fixture, KnockoutRace, CumlProb, Edition, ProposedChange
 from .forms import CompareForm, RankingForm, RowerForm, CrewCompareForm, CompetitionForm, WeatherForm, FixtureEditionForm, FixtureEventForm, RowerCorrectForm, RowerMergeForm, ResultCorrectForm
 
-from django.views.decorators.csrf import csrf_exempt
 from .weather import rowpower, rowspeed
 from numpy import deg2rad
 
@@ -97,7 +96,7 @@ def RowerSearch(request):
     
 def RowerDetail(request, pk):
     # TODO: refactor so all results are shown (across all six types)
-    
+
     context = {}
     ptype = request.GET.get('type')
     copyGET = request.GET.copy() # required because request.GET is otherwise immutable
@@ -105,27 +104,47 @@ def RowerDetail(request, pk):
         r1 = Rower.objects.get(pk=pk)
     except Rower.DoesNotExist:
         raise Http404('Rower not found')
-    
+
     if ptype in (None, ''):
-        if r1.score_set.filter(result__race__event__type='Sweep').count() == 0:
+        # Use exists() instead of count() for boolean check (more efficient)
+        if not r1.score_set.filter(result__race__event__type='Sweep').exists():
             copyGET['type'] = 'Sculling'
             ptype = 'Sculling'
         else:
             copyGET['type'] = 'Sweep'
             ptype = 'Sweep'
-    
+
     context['object'] = r1
     #context['jsuplist'] = []
     context['jsmulist']    = []
     #context['jslolist'] = []
     context['jscilist'] = []
     try:
-        context['scores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('-result__race__date', '-result__race__order')
-        context['rscores'] = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order')
-        
-        # adds the count for the position
+        # Use select_related to avoid N+1 queries when accessing related objects
+        context['scores'] = r1.score_set.filter(
+            result__race__event__type=ptype
+        ).select_related(
+            'result__race__event'
+        ).order_by('-result__race__date', '-result__race__order')
+
+        context['rscores'] = r1.score_set.filter(
+            result__race__event__type=ptype
+        ).select_related(
+            'result__race__event'
+        ).order_by('result__race__date', 'result__race__order')
+
+        # Get all race IDs first, then fetch counts in a single query
+        race_ids = [item.result.race.pk for item in context['scores']]
+        from django.db.models import Count
+        race_counts = dict(
+            Result.objects.filter(race_id__in=race_ids)
+            .values('race_id')
+            .annotate(count=Count('id'))
+            .values_list('race_id', 'count')
+        )
+        # Assign counts to scores
         for item in context['scores']:
-            item.total_pos = len(Result.objects.filter(race__id=item.result.race.pk))
+            item.total_pos = race_counts.get(item.result.race.pk, 0)
         
         # generates chart data
         for k, group in groupby(context['rscores'], key = lambda x: x.result.race.date):
@@ -173,7 +192,6 @@ def RowerDetail(request, pk):
     
     return render(request, 'rowing/rower_detail.html', context)
     
-@csrf_exempt
 def RowerCompare(request, pk1, pk2):
     ptype = request.GET.get('type','Sweep')
     context = {}
@@ -319,25 +337,43 @@ def CrewCompare(request):
         # parse the pks (from |26|27| to ['26','27'])
         crewpk1 = crewpk1[1:-1].split('|')
         crewpk2 = crewpk2[1:-1].split('|')
-    
-        # render the comparison    
+
+        # Fetch all rowers in a single query instead of individual lookups
+        all_pks = crewpk1 + crewpk2
+        all_rowers = {str(r.pk): r for r in Rower.objects.filter(pk__in=all_pks)}
+
+        # Fetch latest scores for all rowers in bulk using subquery
+        from django.db.models import OuterRef, Subquery
+        latest_scores = Score.objects.filter(
+            rower_id__in=all_pks,
+            result__race__event__type=ptype
+        ).select_related('result__race').order_by('rower_id', '-result__race__date', '-result__race__order')
+
+        # Build a dict of rower_pk -> latest score
+        scores_by_rower = {}
+        for score in latest_scores:
+            rower_pk = str(score.rower_id)
+            if rower_pk not in scores_by_rower:
+                scores_by_rower[rower_pk] = score
+
+        # render the comparison
         rowers1 = []
         rowers2 = []
         for member in crewpk1:
-            r1 = Rower.objects.get(pk=member)
-            try:
-                r1s = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
-                rowers1.append([r1,r1s.mu,r1s.sigma, r1s.result.race.date])
-            except ObjectDoesNotExist:
-                rowers1.append([r1,0.0,10.0, 'No data (default assumed)'])
-            
+            r1 = all_rowers.get(member)
+            if r1 and member in scores_by_rower:
+                r1s = scores_by_rower[member]
+                rowers1.append([r1, r1s.mu, r1s.sigma, r1s.result.race.date])
+            elif r1:
+                rowers1.append([r1, 0.0, 10.0, 'No data (default assumed)'])
+
         for member in crewpk2:
-            r1 = Rower.objects.get(pk=member)
-            try:
-                r2 = r1.score_set.filter(result__race__event__type=ptype).order_by('result__race__date', 'result__race__order').latest('result__race__date')
-                rowers2.append([r1,r2.mu,r2.sigma, r2.result.race.date])
-            except ObjectDoesNotExist:
-                rowers2.append([r1,0.0,10.0, 'No data (default assumed)'])
+            r1 = all_rowers.get(member)
+            if r1 and member in scores_by_rower:
+                r2 = scores_by_rower[member]
+                rowers2.append([r1, r2.mu, r2.sigma, r2.result.race.date])
+            elif r1:
+                rowers2.append([r1, 0.0, 10.0, 'No data (default assumed)'])
                 
         context['rowers1'] = rowers1
         context['rowers2'] = rowers2
@@ -386,18 +422,17 @@ class RaceList(ListView):
     
 def RaceDetail(request, pk):
     try:
-        race = Race.objects.get(pk=pk)
+        # Use select_related to fetch related event and competition in single query
+        race = Race.objects.select_related('event__comp', 'fixture__edition').get(pk=pk)
     except Race.DoesNotExist:
         raise Http404('Race not found')
-    results = Result.objects.filter(race__id=pk).order_by('position')
-    if Time.objects.filter(result__race__id=pk).count() > 0:
-        time_flag = True
-    else:
-        time_flag = False
-        
-    
+    # Use prefetch_related for M2M fields (crew, clubs) to avoid N+1 in templates
+    results = Result.objects.filter(race__id=pk).prefetch_related('crew', 'clubs').order_by('position')
+    # Use exists() instead of count() > 0 for boolean check
+    time_flag = Time.objects.filter(result__race__id=pk).exists()
+
     context = {'object':race, 'results':results, 'time_flag': time_flag}
-    
+
     return render(request, 'rowing/race_detail.html', context)
     
 # in progress
@@ -443,25 +478,37 @@ def CompetitionResults(request, pk):
     
     # rather than calling races to the context directly, call via paginator
     # this prevents the page hanging while 1000+ races are requested and iterated!
-    races_list = races.order_by('-date')
+    races_list = races.select_related('event').order_by('-date')
     paginator = Paginator(races_list, 100)
     context['races'] = paginator.get_page(page)
-    
+
     # get the editions
     context['editions'] = Edition.objects.filter(comp_id=pk)
-    
-    # adds the count for the entries
+
+    # Get entry counts for all races on this page in a single query (avoids N+1)
+    from django.db.models import Count
+    page_race_ids = [item.pk for item in context['races']]
+    race_counts = dict(
+        Result.objects.filter(race_id__in=page_race_ids)
+        .values('race_id')
+        .annotate(count=Count('id'))
+        .values_list('race_id', 'count')
+    )
     for item in context['races']:
-        item.total_pos = Result.objects.filter(race__id=item.pk).count()
-    
+        item.total_pos = race_counts.get(item.pk, 0)
+
     # create event and class choices for form and create the form
     raceclass_choices = [('','Any')]
     for item in races_list.order_by('raceclass').values_list('raceclass', flat=True).distinct():
         raceclass_choices.append((item,item))
-    
+
+    # Get event choices with names in a single query (avoids N+1)
     event_choices = [('','Any')]
-    for item3 in races_list.order_by('event__name').values_list('event',flat=True).distinct():
-        event_choices.append((item3, Event.objects.get(pk=item3).name))
+    event_ids = races_list.values_list('event', flat=True).distinct()
+    events_dict = dict(Event.objects.filter(pk__in=event_ids).values_list('pk', 'name'))
+    for event_pk in event_ids:
+        if event_pk in events_dict:
+            event_choices.append((event_pk, events_dict[event_pk]))
     
     # NB different method for dates
     year_choices = [('', 'Any')]
@@ -519,32 +566,37 @@ def ClubDetail(request, pk):
         this_club = Club.objects.get(pk=pk)
     except Club.DoesNotExist:
         raise Http404('No such club exists')
-    
+
     #TODO: filtering by year, with a form and everything
     #this_year = request.GET.get('year', timezone.now().year)
     #TODO: pagination
-    
-    # work out people who raced for that club in that year - set avoids duplicates
-    temp_members = set()
-    for this_result in this_club.result_set.all():
-        for this_rower in this_result.crew.all():
-            temp_members.add(this_rower)
-    
-    # turn the set into a sorted list    
-    club_members = sorted(temp_members, key = lambda x: x.name, reverse=False)
-    
-    # work out races the club took part in that year
-    temp_races = set()
-    for this_result in this_club.result_set.all():
-        temp_races.add(this_result.race)
-        
-    club_races = sorted(temp_races, key = lambda x: x.date, reverse=True)
-    
-    # creates the entry total
-    for item in club_races:
-        item.total_pos = Result.objects.filter(race__id=item.pk).count()
-        
-    context = {'club': this_club, 'races': club_races, 'members': club_members}
+
+    # Get unique members using database query instead of Python loops (avoids N+1)
+    club_members = Rower.objects.filter(
+        result__clubs=this_club
+    ).distinct().order_by('name')
+
+    # Get unique races using database query instead of Python loops
+    club_races = Race.objects.filter(
+        result__clubs=this_club
+    ).select_related('event').distinct().order_by('-date')
+
+    # Get entry counts for all races in a single query
+    from django.db.models import Count
+    race_ids = list(club_races.values_list('pk', flat=True))
+    race_counts = dict(
+        Result.objects.filter(race_id__in=race_ids)
+        .values('race_id')
+        .annotate(count=Count('id'))
+        .values_list('race_id', 'count')
+    )
+
+    # Convert to list and add total_pos attribute
+    club_races_list = list(club_races)
+    for item in club_races_list:
+        item.total_pos = race_counts.get(item.pk, 0)
+
+    context = {'club': this_club, 'races': club_races_list, 'members': club_members}
     return render(request, 'rowing/club_detail.html', context)
     
 def Compare(request):
@@ -641,16 +693,18 @@ def RankingView(request):
     # take today minus one year as the cutoff for current scores
     tmp_currentdate = add_years(datetime.date.today(), -1)
     
+    # Use select_related to avoid N+1 queries when accessing rower info in templates
+    base_qs = ScoreRanking.objects.select_related('rower')
     if currentrank == "y":
         if gbonly == "y":
-            rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, rower__nationality='GBR', sr_type='Current').order_by('-delta_mu_sigma')[:50]
+            rankings = base_qs.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, rower__nationality='GBR', sr_type='Current').order_by('-delta_mu_sigma')[:50]
         else:
-            rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, sr_type='Current').order_by('-delta_mu_sigma')[:50]
+            rankings = base_qs.filter(type=ptype, rower__gender=g, date__gte=tmp_currentdate, sr_type='Current').order_by('-delta_mu_sigma')[:50]
     else:
         if gbonly == "y":
-            rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, rower__nationality='GBR', sr_type='All time').order_by('-delta_mu_sigma')[:50]
+            rankings = base_qs.filter(type=ptype, rower__gender=g, rower__nationality='GBR', sr_type='All time').order_by('-delta_mu_sigma')[:50]
         else:
-            rankings = ScoreRanking.objects.filter(type=ptype, rower__gender=g, sr_type='All time').order_by('-delta_mu_sigma')[:50]
+            rankings = base_qs.filter(type=ptype, rower__gender=g, sr_type='All time').order_by('-delta_mu_sigma')[:50]
     
     form = RankingForm(request.GET)
     
@@ -847,33 +901,40 @@ def ResultCorrect(request, pk):
 
 def WeatherCalc(request):
     # TODO: fix current treatment
-    
-    context = {}
-    # get input values or defaults
-    v1 = float(request.GET.get('v1','5.0'))
-    water_temp1 = float(request.GET.get('water_temp1','18.0'))
-    air_temp1 = float(request.GET.get('air_temp1','18.0'))
-    air_pressure1 = float(request.GET.get('air_pressure1','1012.0'))
-    air_humidity1 = float(request.GET.get('air_humidity1','0.25'))
-    water_flow1 = float(request.GET.get('water_flow1','0.0'))
-    wind_v1 = float(request.GET.get('wind_v1','0.0'))
-    wind_angle1 = float(request.GET.get('wind_angle1','0.0'))
-    cd_air1 = float(request.GET.get('cd_air1','0.9'))
-    A_air1 = float(request.GET.get('A_air1','2.0'))
-    A_water1 = float(request.GET.get('A_water1','9.0'))
-    boat_length1 = float(request.GET.get('boat_length1','18.0'))
 
-    water_temp2 = float(request.GET.get('water_temp2','18.0'))
-    air_temp2 = float(request.GET.get('air_temp2','18.0'))
-    air_pressure2 = float(request.GET.get('air_pressure2','1012.0'))
-    air_humidity2 = float(request.GET.get('air_humidity2','0.25'))
-    water_flow2 = float(request.GET.get('water_flow2','0.0'))
-    wind_v2 = float(request.GET.get('wind_v2','0.0'))
-    wind_angle2 = float(request.GET.get('wind_angle2','0.0'))
-    cd_air2 = float(request.GET.get('cd_air2','0.9'))
-    A_air2 = float(request.GET.get('A_air2','2.0'))
-    A_water2 = float(request.GET.get('A_water2','9.0'))
-    boat_length2 = float(request.GET.get('boat_length2','18.0'))
+    def safe_float(value, default):
+        """Safely convert a value to float with a default fallback."""
+        try:
+            return float(value) if value else default
+        except (ValueError, TypeError):
+            return default
+
+    context = {}
+    # get input values or defaults with safe conversion
+    v1 = safe_float(request.GET.get('v1'), 5.0)
+    water_temp1 = safe_float(request.GET.get('water_temp1'), 18.0)
+    air_temp1 = safe_float(request.GET.get('air_temp1'), 18.0)
+    air_pressure1 = safe_float(request.GET.get('air_pressure1'), 1012.0)
+    air_humidity1 = safe_float(request.GET.get('air_humidity1'), 0.25)
+    water_flow1 = safe_float(request.GET.get('water_flow1'), 0.0)
+    wind_v1 = safe_float(request.GET.get('wind_v1'), 0.0)
+    wind_angle1 = safe_float(request.GET.get('wind_angle1'), 0.0)
+    cd_air1 = safe_float(request.GET.get('cd_air1'), 0.9)
+    A_air1 = safe_float(request.GET.get('A_air1'), 2.0)
+    A_water1 = safe_float(request.GET.get('A_water1'), 9.0)
+    boat_length1 = safe_float(request.GET.get('boat_length1'), 18.0)
+
+    water_temp2 = safe_float(request.GET.get('water_temp2'), 18.0)
+    air_temp2 = safe_float(request.GET.get('air_temp2'), 18.0)
+    air_pressure2 = safe_float(request.GET.get('air_pressure2'), 1012.0)
+    air_humidity2 = safe_float(request.GET.get('air_humidity2'), 0.25)
+    water_flow2 = safe_float(request.GET.get('water_flow2'), 0.0)
+    wind_v2 = safe_float(request.GET.get('wind_v2'), 0.0)
+    wind_angle2 = safe_float(request.GET.get('wind_angle2'), 0.0)
+    cd_air2 = safe_float(request.GET.get('cd_air2'), 0.9)
+    A_air2 = safe_float(request.GET.get('A_air2'), 2.0)
+    A_water2 = safe_float(request.GET.get('A_water2'), 9.0)
+    boat_length2 = safe_float(request.GET.get('boat_length2'), 18.0)
     
     # handling if someone is silly and makes backing down a thing
     if v1 < 0:
@@ -930,7 +991,7 @@ def WeatherCalc(request):
         elif len(s) == 7:
             return s[2:] + '.0'
         else:
-            raise 
+            raise ValueError(f"Unexpected timedelta format: {s}")
     
     context['500m1'] = format_timedelta(datetime.timedelta(seconds=(500/context['v1'])))
     context['2000m1'] =  format_timedelta(datetime.timedelta(seconds=(2000/context['v1'])))

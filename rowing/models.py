@@ -42,13 +42,13 @@ class Event(models.Model):
     def next(self):
         try:
             return Event.objects.get(pk=self.pk+1)
-        except:
+        except Event.DoesNotExist:
             return None
-            
+
     def previous(self):
         try:
             return Event.objects.get(pk=self.pk-1)
-        except:
+        except Event.DoesNotExist:
             return None
     
     # old stackoverflow tip
@@ -134,18 +134,26 @@ class Race(models.Model):
 
     def __str__(self):
         return self.name
-        
+
     def next(self):
         try:
             return Race.objects.get(pk=self.pk+1)
-        except:
+        except Race.DoesNotExist:
             return None
-            
+
     def previous(self):
         try:
             return Race.objects.get(pk=self.pk-1)
-        except:
+        except Race.DoesNotExist:
             return None
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['complete']),
+            models.Index(fields=['date', 'complete']),
+            models.Index(fields=['event', 'date']),
+        ]
 
 # used to create a map of races - eg linking semis to final
 # creates a directed graph - e.g. positions 1,2,3 from heat to semi
@@ -252,7 +260,13 @@ class Score(models.Model):
     # used to access race name and date - now done via result then race
     #race = models.ForeignKey(Race, on_delete=models.PROTECT)
     result = models.ForeignKey(Result, on_delete=models.CASCADE)
-    
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['rower']),
+            models.Index(fields=['result']),
+        ]
+
     def __str__(self):
         return str(self.rower)+" - "+str(round(self.mu,2))+", "+str(round(self.sigma,2))+" - "+str(self.result.race.event.type)+" - "+str(self.result.race.date)
         
@@ -263,12 +277,19 @@ class ScoreRanking(models.Model):
     rower = models.ForeignKey(Rower, on_delete=models.CASCADE)
     date = models.DateField("Score date")
     type = models.CharField(max_length=20, default='Sweep')
-    
+
     sr_choices = (
         ('Current', 'Current'),
         ('All time', 'All time'),
     )
     sr_type = models.CharField(max_length=20, choices=sr_choices, default='Current')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['type', 'sr_type', 'date']),
+            models.Index(fields=['delta_mu_sigma']),
+            models.Index(fields=['rower', 'type', 'sr_type']),
+        ]
 
 # KNOCKOUT-ONLY CLASSES
 # There are a number of issues with this section of the schema, largely stemming from the rushed nature of their development
