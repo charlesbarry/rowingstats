@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+# JSONField is now built into Django (was in contrib.postgres before Django 3.1)
 
 # commentary on the below
 # TODO: Create ProgressionRule - ForeignKey of Race, which specifies how crews progress
@@ -328,7 +328,7 @@ class ProposedChange(models.Model):
     submitter_name = models.CharField(max_length=100)
     submitter_email = models.EmailField()
     submitted_ip = models.GenericIPAddressField()
-    data = JSONField()
+    data = models.JSONField()
     submitted = models.DateTimeField("Submitted on", auto_now_add=True)
     model = models.CharField(max_length=100, null=True)
     model_pk = models.IntegerField(null=True, help_text="The primary key of the model.")

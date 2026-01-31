@@ -1,4 +1,4 @@
-from django.conf.urls import url, include, re_path
+from django.urls import re_path
 #from django.views.decorators.csrf import csrf_exempt
 
 from . import views

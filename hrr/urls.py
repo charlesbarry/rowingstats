@@ -1,7 +1,4 @@
-from django.conf.urls import url, include, re_path
-from ajax_select import urls as ajax_select_urls
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import RedirectView
+from django.urls import re_path
 
 from hrr.views import IndexView
 urlpatterns = [

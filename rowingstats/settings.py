@@ -29,8 +29,8 @@ X_FRAME_OPTIONS = 'DENY'
 # Application definition
 INSTALLED_APPS = [
     'ajax_select',
-    'coverage',
     'crispy_forms',
+    'crispy_bootstrap4',
     'rowing.apps.RowingConfig',
     'blog.apps.BlogConfig',
     'hrr.apps.HrrConfig',
@@ -73,7 +73,8 @@ TEMPLATES = [
 ]
 
 # crispy forms settings
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 WSGI_APPLICATION = 'rowingstats.wsgi.application'
 if DEBUG == True:
@@ -105,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
+# USE_L10N removed in Django 4.0 (localization is now always enabled)
 USE_TZ = True
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
@@ -114,5 +115,12 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
 )
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+}
 STATIC_URL = '/static/'

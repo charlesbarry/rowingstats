@@ -115,7 +115,7 @@ target/
 .ipynb_checkpoints
 
 # pyenv
-.python-version
+# .python-version  # Commented out - needed for Heroku deployment
 
 # celery beat schedule file
 celerybeat-schedule
