@@ -107,7 +107,14 @@ class Command(BaseCommand):
                 positions.append(item.position)
                 
                 error_list.append([mu_sum, item.position])
-            
+
+            # Skip races with fewer than 2 crews - TrueSkill requires competition
+            if len(ratings) < 2:
+                print("Race %s skipped - only %d crew(s). (%s)" % (race_i.pk, len(ratings), race_i.name))
+                counter += 1
+                count_progress = round((counter/length)*100, 1)
+                continue
+
             # create the expected result by ranking the crews on their prior score - also avoids ties
             # appends the rank on the end of the error_list entry
             sorted_error_list = sorted(error_list, reverse=True)
