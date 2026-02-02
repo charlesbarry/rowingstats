@@ -11,11 +11,13 @@ if os.environ.get("RSPLATFORM") != "heroku":
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# Security settings - bool statements assume false if env var not specified
-DEBUG = bool(os.getenv("DEBUG")) # defaults to FALSE
-SESSION_COOKIE_SECURE = not(bool(os.getenv("SESSION_COOKIE_SECURE"))) # defaults to TRUE
-CSRF_COOKIE_SECURE = not(bool(os.getenv("CSRF_COOKIE_SECURE"))) # defaults to TRUE
-CSRF_COOKIE_HTTPONLY = not(bool(os.getenv("CSRF_COOKIE_HTTPONLY"))) # defaults to TRUE
+# Security settings - use explicit string comparison for clarity and correctness
+# Set env var to "false" or "0" to disable, anything else (or unset) enables the secure default
+DEBUG = os.getenv("DEBUG", "").lower() in ("true", "1", "yes")  # defaults to FALSE
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "true").lower() not in ("false", "0", "no")  # defaults to TRUE
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "true").lower() not in ("false", "0", "no")  # defaults to TRUE
+CSRF_COOKIE_HTTPONLY = os.getenv("CSRF_COOKIE_HTTPONLY", "true").lower() not in ("false", "0", "no")  # defaults to TRUE
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALLOWED_HOSTS = [
     'localhost',
@@ -23,8 +25,16 @@ ALLOWED_HOSTS = [
     '.rowingstats.com',
 ]
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
+SECURE_BROWSER_XSS_FILTER = True  # Deprecated but kept for older browsers
 X_FRAME_OPTIONS = 'DENY'
+
+# Additional security headers for production
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # Application definition
 INSTALLED_APPS = [

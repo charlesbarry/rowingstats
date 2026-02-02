@@ -14,6 +14,7 @@ crispy-bootstrap4>=2024.1
 
 # Content
 markdown>=3.5
+bleach>=6.0.0  # HTML sanitization for XSS prevention
 
 # Scientific computing (for TrueSkill rankings & weather calc)
 numpy>=1.26.0
