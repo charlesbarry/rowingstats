@@ -36,10 +36,11 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-# Heroku terminates SSL at the proxy level and forwards requests over HTTP.
-# This tells Django to trust the X-Forwarded-Proto header to determine if
-# the original request was HTTPS, preventing infinite redirect loops.
-if os.environ.get("RSPLATFORM") == "heroku":
+# Heroku and Cloudflare terminate SSL at the proxy level and forward requests
+# over HTTP. This tells Django to trust the X-Forwarded-Proto header to
+# determine if the original request was HTTPS, preventing infinite redirect loops.
+# Both Heroku and Cloudflare set this header, so we enable it in production.
+if not DEBUG:
     SECURE_PROXY_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
