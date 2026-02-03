@@ -1,0 +1,65 @@
+[run]
+# Source directories to measure
+source = rowing,blog,hrr
+
+# Files/directories to exclude from coverage
+omit =
+    */migrations/*
+    */tests.py
+    */test_*.py
+    */__init__.py
+    */admin.py
+    */apps.py
+    */management/commands/*
+    venv/*
+    */venv/*
+
+# Branch coverage (not just line coverage)
+branch = True
+
+# Parallel mode for multi-process test runs
+parallel = True
+
+[report]
+# Minimum acceptable coverage percentage
+fail_under = 50
+
+# Exclude lines matching these patterns from coverage
+exclude_lines =
+    # Standard exclusions
+    pragma: no cover
+
+    # Debug/development code
+    def __repr__
+    def __str__
+
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+
+    # Non-runnable code
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+
+    # Abstract methods
+    @abstractmethod
+
+# Show lines that weren't executed
+show_missing = True
+
+# Precision for coverage percentages
+precision = 1
+
+# Sort results by coverage percentage
+sort = Cover
+
+[html]
+# Directory for HTML coverage reports
+directory = htmlcov
+
+# Title for HTML report
+title = RowingStats Test Coverage
+
+[xml]
+# Output file for XML coverage report (for CI integration)
+output = coverage.xml
