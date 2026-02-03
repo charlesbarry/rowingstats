@@ -1,6 +1,32 @@
 {% extends "rowing/base.html" %}
 {% block title %}Find rowers{% endblock %}
 {% block content %}
+
+<div class="row">
+	<div class="col-12"><h1>Rowers</h1></div>
+</div>
+<div class="row">
+	<div class="col-12">
+		<form role="search" aria-label="Search for rowers">
+			<div class="form-group">
+				<label for="rower-enter">Search for a rower by name:</label>
+				<input type="text" id="rower-enter" class="form-control" placeholder="Enter a name..." aria-describedby="searchHelp">
+				<small id="searchHelp" class="form-text text-muted">Start typing to see matching rowers</small>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="row"><div class="col-12">&nbsp;</div></div>
+
+<div class="list-group row" id="sresults" role="region" aria-live="polite" aria-label="Search results">
+
+</div>
+
+<div class="row"><div class="col-12">&nbsp;</div></div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 	var nurl = "{% url 'rower-search' %}?q=";
 	function rowerSearch() {
@@ -14,19 +40,7 @@
 			}
 		});
 	}
+	// Attach event listener properly instead of inline handler
+	document.getElementById('rower-enter').addEventListener('keyup', rowerSearch);
 </script>
-
-<div class="row col-sm-12"><h2>Rowers</h2></div>
-<div class="row col-sm-12"><p><em>Search in the box below for the name of the rower:</em></p></div>
-<div  class="row col-sm-12">
-		<input type="text" id="rower-enter" class="form-control" placeholder="Enter a name..." onkeyup="rowerSearch()">
-</div>
-
-<div class="row col-sm-12">&nbsp;</div>
-
-<div class="list-group row" id="sresults">
-
-</div>
-
-<div class="row col-sm-12">&nbsp;</div>
 {% endblock %}

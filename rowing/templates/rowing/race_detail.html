@@ -10,7 +10,7 @@
 <script>
 $(document).ready(function(){
   $("#correction").click(function(){
-    $(".correct").toggleClass('hidden');
+    $(".correct").toggleClass('d-none');
 	});
 });
 </script>
@@ -26,11 +26,11 @@ $(document).ready(function(){
 {% endif %}
 
 <div class="row">
-<div class="col-xs-6 col-sm-8 col-md-10"><h3>Results</h3></div>
-<div class="col-xs-6 col-sm-4 col-md-2 vbottom"><button type="button" class="btn btn-info btn-sm" data-toggle="button" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Suggest correction</button></div>
+<div class="col-6 col-sm-8 col-md-10"><h3>Results</h3></div>
+<div class="col-6 col-sm-4 col-md-2 vbottom"><button type="button" class="btn btn-info btn-sm" data-toggle="button" id="correction"><i class="bi bi-pencil" aria-hidden="true"></i> Suggest correction</button></div>
 </div>
 <div class="row">
-<div class="col-xs-12 table-responsive">
+<div class="col-12 table-responsive">
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -46,7 +46,7 @@ $(document).ready(function(){
 		{% if results %}
 		{% for rank in results %}
 		<tr>
-			<td>{{rank.position}} <a href="{% url 'result-correct' pk=rank.pk %}"><button type="button" class="hidden correct btn btn-info btn-sm">Edit</button></a></td>
+			<td>{{rank.position}} <a href="{% url 'result-correct' pk=rank.pk %}"><button type="button" class="d-none correct btn btn-info btn-sm">Edit</button></a></td>
 			<td>
 				{% for member in rank.crew.all %}
 					<a href="/rowers/{{member.pk}}">{{member.name}}</a>{% if not forloop.last %},{% else %}&nbsp;{% endif %}

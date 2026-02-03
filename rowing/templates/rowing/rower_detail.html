@@ -22,8 +22,8 @@
 </div>
 <div class="col-sm-4 vbottom">
 <p class="text-right">
-<a href="{% url 'rower-correct' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Correct details</button></a>
-<a href="{% url 'rower-merge' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="correction"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span> Merge duplicate</button></a>
+<a href="{% url 'rower-correct' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="correction"><i class="bi bi-pencil" aria-hidden="true"></i> Correct details</button></a>
+<a href="{% url 'rower-merge' pk=object.pk %}"><button type="button" class="btn btn-info btn-sm" id="merge"><i class="bi bi-arrows-collapse" aria-hidden="true"></i> Merge duplicate</button></a>
 </p>
 </div>
 <!--<div class="col-sm-4"><p>[Picture will go here]</p></div>-->
@@ -82,7 +82,7 @@ Highcharts.chart('chart-container', {
 		{% for field in form %}
 		<div class="/*col-sm-2*/ form-group">{{field}}</div>
 		{% endfor %}
-		<button class="btn btn-default" type="submit">Switch</button>
+		<button class="btn btn-secondary" type="submit">Switch</button>
 	
 </form>
 <div class="table-responsive col-sm-12 row">

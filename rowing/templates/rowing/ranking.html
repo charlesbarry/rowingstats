@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row col-sm-12"><h2>Rankings - {% if gender == 'M' %}Men{% elif gender == 'W' %}Women{% endif %} {{type}}</h2></div>
 <div class="row col-sm-12"><h4><mark>EXPERIMENTAL</mark></h4></div>
-<div class="col-xs-12">&nbsp;</div>
+<div class="col-12">&nbsp;</div>
 <div class="row col-sm-12">
 <p>
 <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#notescollapse" aria-expanded="false" aria-controls="notescollapse">Show explanation</button>
@@ -21,12 +21,12 @@
 <p>More information can be found on the <a href="/about/">about page</a>.</p>
 </div>
 
-<div class="col-xs-12">&nbsp;</div>
+<div class="col-12">&nbsp;</div>
 <form class="form-inline" action="/rankings/" method="get">
 		{% for field in form %}
 		<div class="/*col-sm-2*/ form-group">{{field}}</div>
 		{% endfor %}
-		<button class="btn btn-default" type="submit">Switch</button>
+		<button class="btn btn-secondary" type="submit">Switch</button>
 	
 </form>
 <table class="table table-striped">
