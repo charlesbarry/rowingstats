@@ -47,7 +47,7 @@ if not DEBUG:
 INSTALLED_APPS = [
     'ajax_select',
     'crispy_forms',
-    'crispy_bootstrap4',
+    'crispy_bootstrap5',
     'rowing.apps.RowingConfig',
     'blog.apps.BlogConfig',
     'hrr.apps.HrrConfig',
@@ -90,8 +90,8 @@ TEMPLATES = [
 ]
 
 # crispy forms settings
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 WSGI_APPLICATION = 'rowingstats.wsgi.application'
 if DEBUG == True:
